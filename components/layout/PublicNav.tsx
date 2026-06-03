@@ -7,10 +7,11 @@ import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 
 const navLinks = [
-  { label: "Services", href: "/services/pre-construction-advisory" },
-  { label: "BuildCheck", href: "/buildcheck" },
-  { label: "About", href: "/about" },
-  { label: "Contact", href: "/contact" },
+  { label: "Services",     href: "/services/pre-construction-advisory" },
+  { label: "How It Works", href: "/#how-it-works" },
+  { label: "About",        href: "/about" },
+  { label: "Pricing",      href: "/assessment" },
+  { label: "Contact",      href: "/contact" },
 ];
 
 export function PublicNav() {
@@ -60,10 +61,10 @@ export function PublicNav() {
               href="/assessment"
               className={cn(
                 buttonVariants({ size: "sm" }),
-                "bg-warm-soil hover:bg-warm-soil/90 text-white border-transparent"
+                "bg-warm-soil hover:bg-warm-soil/90 text-white border-transparent font-bold uppercase tracking-wider"
               )}
             >
-              Free Assessment
+              Get Started
             </Link>
           </div>
 
