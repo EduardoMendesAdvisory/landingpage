@@ -11,6 +11,8 @@ import {
   Calendar,
   BarChart3,
   ShieldCheck,
+  Check,
+  Play,
 } from "lucide-react";
 import { PublicNav } from "@/components/layout/PublicNav";
 import { PublicFooter } from "@/components/layout/PublicFooter";
@@ -129,47 +131,90 @@ export default function HomePage() {
       <main className="flex-1">
 
         {/* ── Hero ──────────────────────────────────────────── */}
-        <section className="bg-navy text-white py-24 px-4">
-          <div className="max-w-5xl mx-auto text-center">
-            <p className="text-warm-soil text-xs font-bold uppercase tracking-widest mb-5">
-              Independent Construction Advisory · Real Results
-            </p>
-            <h1 className="text-5xl sm:text-6xl font-bold leading-tight mb-6 max-w-3xl mx-auto">
-              Build Smarter.
-              <br />
-              <span className="text-amber">Save More.</span>
-            </h1>
-            <p className="text-white/65 text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-              Eduardo Mendes helps Australian homeowners, renovators, and owner
-              builders protect their investment with honest, independent advice
-              at every stage.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/assessment"
-                className={cn(
-                  buttonVariants({ size: "lg" }),
-                  "bg-warm-soil hover:bg-warm-soil/90 text-white border-transparent text-base px-8"
-                )}
-              >
-                <Upload size={17} className="mr-2" />
-                Free Project Assessment
-              </Link>
-              <Link
-                href="/book-call"
-                className={cn(
-                  buttonVariants({ size: "lg", variant: "outline" }),
-                  "border-white/25 text-white hover:bg-white/10 text-base px-8"
-                )}
-              >
-                <Calendar size={17} className="mr-2" />
-                Book a Free Call
-              </Link>
+        <section className="bg-navy text-white py-20 px-4 overflow-hidden">
+          <div className="max-w-6xl mx-auto grid md:grid-cols-[1fr_1fr] gap-12 items-center">
+
+            {/* Left: Text */}
+            <div className="relative z-10 py-4">
+              <p className="text-warm-soil text-[11px] font-bold uppercase tracking-widest mb-5">
+                Independent Advice · Real Results
+              </p>
+              <h1 className="text-5xl sm:text-6xl font-bold leading-tight mb-6">
+                Build Smarter.
+                <br />
+                <span className="text-amber">Save More.</span>
+              </h1>
+              <p className="text-white/65 text-lg max-w-lg mb-8 leading-relaxed">
+                Get an independent review of your builder quote and plans to avoid
+                costly mistakes and confidently lead your build.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 mb-8">
+                <Link
+                  href="/assessment"
+                  className="inline-flex items-center justify-center gap-2 bg-warm-soil hover:bg-warm-soil/90 text-white font-bold px-6 py-3.5 rounded-xl transition-colors text-sm uppercase tracking-wide"
+                >
+                  <Upload size={16} />
+                  Upload Your Quote
+                </Link>
+                <a
+                  href="#how-it-works"
+                  className="inline-flex items-center justify-center gap-2 border border-white/25 hover:bg-white/10 text-white font-medium px-6 py-3.5 rounded-xl transition-colors text-sm uppercase tracking-wide"
+                >
+                  <Play size={14} className="fill-white" />
+                  How It Works
+                </a>
+              </div>
+              <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs text-white/40 border-t border-white/10 pt-5">
+                {["Independent Advice", "30+ Years Experience", "500+ Trusted", "Honest Builder Specialist"].map((t) => (
+                  <span key={t} className="flex items-center gap-1.5">
+                    <Check size={11} className="text-amber shrink-0" />
+                    {t}
+                  </span>
+                ))}
+              </div>
             </div>
-            <div className="mt-8 flex flex-wrap justify-center gap-6 text-xs text-white/40">
-              <span>✓ No credit card</span>
-              <span>✓ No commitment</span>
-              <span>✓ Results in under 3 minutes</span>
+
+            {/* Right: Device mockup + house photo placeholder */}
+            <div className="hidden md:flex relative rounded-2xl overflow-hidden min-h-[440px] items-center justify-center bg-gradient-to-br from-[#1c2d42] via-[#14263a] to-[#0d1c2c]">
+              {/* ↓ Replace this div with a Next.js <Image> when the house photo is available:
+                  <Image src="/images/hero-house.jpg" fill alt="" className="object-cover opacity-40" />
+              */}
+              <div className="absolute inset-0 bg-gradient-to-t from-navy/80 via-transparent to-transparent" />
+
+              {/* Assessment score card */}
+              <div className="relative z-10 bg-white rounded-2xl shadow-2xl w-64 p-5">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">Your Score Assessment</p>
+                <div className="flex items-center gap-4 mb-4">
+                  {/* Score donut */}
+                  <div className="relative w-20 h-20 shrink-0">
+                    <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+                      <circle cx="50" cy="50" r="38" fill="none" stroke="#e5e7eb" strokeWidth="10" />
+                      <circle cx="50" cy="50" r="38" fill="none" stroke="#16a34a" strokeWidth="10"
+                        strokeDasharray="201 239" strokeLinecap="round" />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="text-center">
+                        <p className="text-lg font-bold text-navy leading-none">84</p>
+                        <p className="text-[9px] text-gray-400">/ 100</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-green-600">High Readiness</p>
+                    <p className="text-xs text-gray-500 mt-0.5">Project score: 84/100</p>
+                    <p className="text-xs font-semibold text-green-600 mt-2">$13,700 – $12,000</p>
+                    <p className="text-[10px] text-gray-400">savings identified</p>
+                  </div>
+                </div>
+                <div className="bg-green-50 rounded-lg px-3 py-2 text-[10px] text-green-700 font-medium text-center">
+                  Excellent! Your project is well-positioned
+                </div>
+              </div>
+
+              {/* Sticker badge */}
+              <div className="absolute top-5 right-5 z-20 bg-amber text-navy text-[10px] font-bold px-3 py-1.5 rounded-full rotate-6 shadow-lg whitespace-nowrap">
+                Get started before you lose
+              </div>
             </div>
           </div>
         </section>
@@ -261,44 +306,74 @@ export default function HomePage() {
         </section>
 
         {/* ── Eduardo section ──────────────────────────────── */}
-        <section className="bg-white py-20 px-4">
-          <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+        <section className="bg-white py-20 px-4 overflow-hidden">
+          <div className="max-w-6xl mx-auto grid md:grid-cols-[1fr_1fr] gap-16 items-center">
+
+            {/* Left: Photo */}
+            <div className="relative">
+              <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-[#111A24] flex items-center justify-center max-w-md">
+                {/*
+                  ── PHOTO PLACEHOLDER ──
+                  Replace this block with:
+                  <Image
+                    src="/images/eduardo-mendes.jpg"
+                    fill
+                    alt="Eduardo Mendes"
+                    className="object-cover object-top"
+                  />
+                  Then add: import Image from "next/image";
+                */}
+                <div className="text-center text-white/30 p-10 select-none">
+                  <div className="w-28 h-28 rounded-full bg-white/8 border border-white/10 mx-auto mb-5 flex items-center justify-center">
+                    <span className="text-5xl font-bold text-amber/60">EM</span>
+                  </div>
+                  <p className="text-base font-semibold text-white/50">Eduardo Mendes</p>
+                  <p className="text-xs text-white/25 mt-1">Owner Builder Advisor</p>
+                  <p className="text-[10px] text-white/15 mt-6 italic leading-relaxed">
+                    Add&nbsp;eduardo&#8209;mendes.jpg<br />to&nbsp;/public/images/
+                  </p>
+                </div>
+              </div>
+              {/* Warm accent bar */}
+              <div className="absolute bottom-0 left-0 w-1.5 h-2/3 bg-warm-soil rounded-r-full" />
+            </div>
+
+            {/* Right: Text */}
             <div>
               <p className="text-warm-soil text-xs font-bold uppercase tracking-widest mb-4">Eduardo Mendes</p>
               <h2 className="text-3xl font-bold text-navy mb-5 leading-tight">
                 Builders build every day.<br />
                 Most homeowners build once.
               </h2>
-              <p className="text-gray-500 text-sm leading-relaxed mb-5">
-                That knowledge gap is what Eduardo fixes. With 30+ years of hands-on construction
-                experience, Eduardo gives you the independent, expert perspective you need to make
-                confident, cost-effective decisions.
+              <p className="text-gray-500 text-sm leading-relaxed mb-4">
+                Although the knowledge gap is real, it's easy to overpay and lose time
+                and money on problems that could have been avoided.
+              </p>
+              <p className="text-gray-500 text-sm leading-relaxed mb-6">
+                With 30+ years of hands-on construction experience, Eduardo gives you
+                the independent, expert perspective you need to make confident,
+                cost-effective decisions at every stage of your build.
               </p>
               <p className="text-gray-500 text-sm leading-relaxed mb-8">
-                You're not alone. Eduardo is the guide from your side of the table.
+                You're here to look at the guide from your side of the table.
               </p>
+              {/* Signature */}
+              <div className="mb-8 pl-4 border-l-2 border-warm-soil/30">
+                <p className="text-navy text-xl italic font-semibold" style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}>
+                  Eduardo Mendes
+                </p>
+                <p className="text-xs text-gray-400 mt-1">Independent Construction Advisor · 30+ Years Experience</p>
+              </div>
               <Link href="/book-call" className={cn(buttonVariants(), "bg-navy hover:bg-navy/90 text-white border-transparent")}>
                 <Calendar size={15} className="mr-2" />
                 Book a Free Strategy Call
               </Link>
             </div>
-            <div className="bg-[#F8F9FA] rounded-2xl p-8 border border-gray-100">
-              <div className="flex items-center gap-1 mb-1">
-                {[1,2,3,4,5].map((n) => (
-                  <Star key={n} size={14} className="fill-amber text-amber" />
-                ))}
-              </div>
-              <p className="text-gray-700 text-sm leading-relaxed italic mb-4">
-                &ldquo;Eduardo&apos;s review saved us over $22,000 and helped us avoid a major variation later in the build.&rdquo;
-              </p>
-              <p className="text-sm font-semibold text-navy">James &amp; Sarah</p>
-              <p className="text-xs text-gray-400">Brisbane, QLD</p>
-            </div>
           </div>
         </section>
 
         {/* ── How It Works ─────────────────────────────────── */}
-        <section className="bg-[#F8F9FA] py-20 px-4">
+        <section id="how-it-works" className="bg-[#F8F9FA] py-20 px-4 scroll-mt-16">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-12">
               <p className="text-warm-soil text-xs font-bold uppercase tracking-widest mb-3">How It Works</p>
