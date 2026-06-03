@@ -31,24 +31,29 @@ export async function registerUser(
   if (error) return { error: error.message };
 
   if (data.user) {
-    // DB trigger creates users + leads rows automatically.
-    // We only need to create user_profiles here.
-    const admin = createAdminClient();
+    // DB trigger (on_auth_user_created) creates public.users + leads rows.
+    // user_profiles and audit_logs are best-effort — failures must never
+    // block the registration redirect.
+    try {
+      const admin = createAdminClient();
 
-    await admin.from("user_profiles").insert({
-      user_id: data.user.id,
-      first_name: input.firstName,
-      last_name: input.lastName,
-      phone: input.phone,
-    });
+      await admin.from("user_profiles").insert({
+        user_id: data.user.id,
+        first_name: input.firstName,
+        last_name: input.lastName,
+        phone: input.phone,
+      });
 
-    await admin.from("audit_logs").insert({
-      user_id: data.user.id,
-      action: "user_registered",
-      metadata: { email: input.email },
-    });
+      await admin.from("audit_logs").insert({
+        user_id: data.user.id,
+        action: "user_registered",
+        metadata: { email: input.email },
+      });
+    } catch (adminError) {
+      console.error("[registerUser] Admin post-registration steps failed:", adminError);
+    }
 
-    // Welcome email (non-blocking — email failure must not block registration)
+    // Welcome email (non-blocking)
     try {
       await resend.emails.send({
         from: FROM,
