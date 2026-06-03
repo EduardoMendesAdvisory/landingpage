@@ -49,6 +49,7 @@
   /* Brand colours — Eduardo Mendes */
   --color-navy: oklch(0.14 0.022 248);
   --color-warm-soil: oklch(0.49 0.09 57);
+  --color-amber: oklch(0.77 0.17 68);
   --color-light-bg: oklch(0.975 0 0);
   --color-success: oklch(0.47 0.14 142);
   --color-warning: oklch(0.62 0.19 50);

@@ -1,48 +1,27 @@
 "use client";
 
+import {
+  Search,
+  Pencil,
+  Building,
+  FileText,
+  FileCheck,
+  HardHat,
+  Wrench,
+  MoreHorizontal,
+  Check,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const STAGES = [
-  {
-    value: "concept_idea",
-    label: "Concept / Idea",
-    description: "I have a general idea but nothing concrete yet",
-  },
-  {
-    value: "early_planning",
-    label: "Early Planning",
-    description: "I've started researching and planning",
-  },
-  {
-    value: "design_stage",
-    label: "Design Stage",
-    description: "Working with an architect / designer",
-  },
-  {
-    value: "getting_approvals",
-    label: "Getting Approvals",
-    description: "DA or building permit in progress",
-  },
-  {
-    value: "tendering_builders",
-    label: "Tendering Builders",
-    description: "Getting quotes from builders",
-  },
-  {
-    value: "ready_to_build",
-    label: "Ready to Build",
-    description: "Have approvals and ready to start",
-  },
-  {
-    value: "under_construction",
-    label: "Under Construction",
-    description: "Already building — need advisory support",
-  },
-  {
-    value: "nearly_complete",
-    label: "Nearly Complete",
-    description: "In the final stages of construction",
-  },
+  { value: "concept_idea",      label: "Just Researching",    description: "Early planning and researching phase",        icon: Search },
+  { value: "early_planning",    label: "Plans & Design",       description: "Have plans or working on design",             icon: Pencil },
+  { value: "getting_approvals", label: "Council Approvals",   description: "Preparing or submitted to council",           icon: Building },
+  { value: "tendering_builders",label: "Builder Quotes",      description: "Collecting and comparing builder quotes",     icon: FileText },
+  { value: "design_stage",      label: "Contract Stage",      description: "Reviewing or about to sign a contract",       icon: FileCheck },
+  { value: "under_construction",label: "Construction",        description: "Construction has already started",            icon: HardHat },
+  { value: "ready_to_build",    label: "Renovation Planning", description: "Planning a renovation or extension",          icon: Wrench },
+  { value: "nearly_complete",   label: "Other",               description: "My situation is different to the above",      icon: MoreHorizontal },
 ] as const;
 
 interface StepProjectStageProps {
@@ -52,50 +31,55 @@ interface StepProjectStageProps {
 
 export function StepProjectStage({ value, onChange }: StepProjectStageProps) {
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-navy">
-          What stage is your project at?
-        </h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          This helps Eduardo understand where you need the most support.
+        <h2 className="text-2xl font-bold text-navy">What stage is your project at?</h2>
+        <p className="text-sm text-gray-500 mt-1.5">
+          This helps us tailor the insights and recommendations to your current position.
         </p>
       </div>
 
-      <div className="space-y-2">
-        {STAGES.map((stage) => (
-          <button
-            key={stage.value}
-            type="button"
-            onClick={() => onChange(stage.value)}
-            className={cn(
-              "w-full flex items-start gap-3 p-4 rounded-xl border-2 text-left transition-all",
-              value === stage.value
-                ? "border-navy bg-navy text-white"
-                : "border-border bg-white hover:border-navy/40 hover:bg-light-bg"
-            )}
-          >
-            <div
+      <div className="grid grid-cols-2 gap-3">
+        {STAGES.map((stage) => {
+          const Icon = stage.icon;
+          const selected = value === stage.value;
+          return (
+            <button
+              key={stage.value}
+              type="button"
+              onClick={() => onChange(stage.value)}
               className={cn(
-                "w-3 h-3 rounded-full border-2 mt-0.5 shrink-0 transition-colors",
-                value === stage.value
-                  ? "border-white bg-white"
-                  : "border-muted-foreground"
+                "relative flex flex-col items-start gap-3 p-4 rounded-xl border-2 text-left transition-all",
+                selected
+                  ? "border-amber bg-amber/5"
+                  : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
               )}
-            />
-            <div>
-              <p className="text-sm font-medium leading-snug">{stage.label}</p>
-              <p
-                className={cn(
-                  "text-xs mt-0.5",
-                  value === stage.value ? "text-white/70" : "text-muted-foreground"
-                )}
-              >
-                {stage.description}
-              </p>
-            </div>
-          </button>
-        ))}
+            >
+              {selected && (
+                <span className="absolute top-2 right-2 w-5 h-5 rounded-full bg-amber flex items-center justify-center">
+                  <Check size={11} strokeWidth={3} className="text-white" />
+                </span>
+              )}
+              <div className={cn(
+                "w-10 h-10 rounded-xl flex items-center justify-center",
+                selected ? "bg-amber/15" : "bg-gray-100"
+              )}>
+                <Icon size={20} className={selected ? "text-amber" : "text-gray-500"} />
+              </div>
+              <div>
+                <p className={cn("text-sm font-semibold leading-tight", selected ? "text-navy" : "text-gray-800")}>
+                  {stage.label}
+                </p>
+                <p className="text-xs text-gray-400 mt-0.5 leading-snug">{stage.description}</p>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 flex items-start gap-3 text-xs text-blue-700">
+        <span className="shrink-0 mt-0.5">ℹ</span>
+        <span>Your selected stage helps us identify the most relevant insights, opportunities, and risks for your current position.</span>
       </div>
     </div>
   );
