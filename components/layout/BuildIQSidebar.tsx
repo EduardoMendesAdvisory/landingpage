@@ -35,7 +35,11 @@ export function BuildIQSidebar({ userName }: BuildIQSidebarProps) {
     <aside className="flex flex-col w-64 min-h-screen bg-sidebar text-sidebar-foreground">
       {/* Logo */}
       <div className="flex items-center gap-2 px-5 py-5 border-b border-sidebar-border">
-        <span className="text-warm-soil text-xl font-bold">EM</span>
+        <img
+          src="https://rdeavyxckvkfwjvmxugs.supabase.co/storage/v1/object/public/media/logo%20EM_hor%20white.png"
+          alt="Eduardo Mendes Advisory"
+          className="h-7 w-auto"
+        />
         <div className="text-xs leading-tight">
           <p className="font-semibold text-sidebar-foreground">BuildIQ</p>
           <p className="text-sidebar-foreground/50">Client Portal</p>

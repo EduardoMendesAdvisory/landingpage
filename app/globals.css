@@ -48,8 +48,8 @@
   --radius-4xl: calc(var(--radius) * 2.6);
   /* Brand colours — Eduardo Mendes */
   --color-navy: oklch(0.14 0.022 248);
-  --color-warm-soil: oklch(0.49 0.09 57);
-  --color-amber: oklch(0.77 0.17 68);
+  --color-warm-soil: #b67c2c;
+  --color-amber: #b67c2c;
   --color-light-bg: oklch(0.975 0 0);
   --color-success: oklch(0.47 0.14 142);
   --color-warning: oklch(0.62 0.19 50);
@@ -67,7 +67,7 @@
   --primary: oklch(0.14 0.022 248);
   --primary-foreground: oklch(1 0 0);
   /* Warm Soil as accent */
-  --accent: oklch(0.49 0.09 57);
+  --accent: #b67c2c;
   --accent-foreground: oklch(1 0 0);
   /* Neutrals */
   --secondary: oklch(0.975 0 0);
@@ -78,9 +78,9 @@
   --destructive: oklch(0.46 0.20 27);
   --border: oklch(0.92 0.004 248);
   --input: oklch(0.92 0.004 248);
-  --ring: oklch(0.49 0.09 57);
+  --ring: #b67c2c;
   /* Charts */
-  --chart-1: oklch(0.49 0.09 57);
+  --chart-1: #b67c2c;
   --chart-2: oklch(0.14 0.022 248);
   --chart-3: oklch(0.47 0.14 142);
   --chart-4: oklch(0.62 0.19 50);
@@ -90,12 +90,12 @@
   /* Sidebar: Midnight Navy */
   --sidebar: oklch(0.14 0.022 248);
   --sidebar-foreground: oklch(0.95 0 0);
-  --sidebar-primary: oklch(0.49 0.09 57);
+  --sidebar-primary: #b67c2c;
   --sidebar-primary-foreground: oklch(1 0 0);
   --sidebar-accent: oklch(0.19 0.022 248);
   --sidebar-accent-foreground: oklch(0.95 0 0);
   --sidebar-border: oklch(0.22 0.022 248);
-  --sidebar-ring: oklch(0.49 0.09 57);
+  --sidebar-ring: #b67c2c;
 }
 
 .dark {
@@ -141,5 +141,29 @@
   }
   html {
     @apply font-sans;
+  }
+}
+.logo-marquee-track {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  width: max-content;
+  animation: logo-marquee-scroll 26s linear infinite;
+}
+
+.logo-marquee-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 1.5rem;
+  flex-shrink: 0;
+}
+
+@keyframes logo-marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
   }
 }

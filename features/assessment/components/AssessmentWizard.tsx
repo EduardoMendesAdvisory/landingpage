@@ -201,11 +201,11 @@ export function AssessmentWizard() {
           {/* Logo + title */}
           <div className="min-w-0">
             <Link href="/" className="flex items-center gap-3">
-              <span className="text-amber font-bold text-2xl leading-none">EM</span>
-              <div>
-                <p className="text-white font-bold text-sm leading-tight tracking-wide">EDUARDO MENDES</p>
-                <p className="text-white/50 text-[10px] tracking-widest uppercase">Owner Builder Advisory</p>
-              </div>
+              <img
+                src="https://rdeavyxckvkfwjvmxugs.supabase.co/storage/v1/object/public/media/logo%20EM_hor%20white.png"
+                alt="Eduardo Mendes Advisory"
+                className="h-9 w-auto"
+              />
             </Link>
             <p className="text-white/70 text-xs mt-2">
               BuildCheck™ Assessment &nbsp;·&nbsp;
@@ -407,11 +407,12 @@ export function AssessmentWizard() {
             <span>Need help? <a href="/contact" className="text-navy hover:underline">Chat with our team</a></span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-amber font-bold text-sm">EM</span>
-            <div>
-              <span className="font-medium text-gray-600">Eduardo Mendes</span>
-              <span className="ml-1">Owner Builder Advisor</span>
-            </div>
+            <img
+              src="https://rdeavyxckvkfwjvmxugs.supabase.co/storage/v1/object/public/media/logo%20EM_hor%20white.png"
+              alt="Eduardo Mendes Advisory"
+              className="h-6 w-auto"
+            />
+            <span>Owner Builder Advisor</span>
           </div>
         </div>
       </footer>

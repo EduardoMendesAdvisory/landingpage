@@ -21,17 +21,17 @@ export default function AuthLayout({
 
         {/* Content */}
         <div className="relative z-10">
-          <Link href="/" className="flex items-center gap-3 w-fit">
-            <span className="text-amber font-bold text-3xl leading-none">EM</span>
-            <div>
-              <p className="text-white font-bold text-sm leading-tight tracking-wide">EDUARDO MENDES</p>
-              <p className="text-amber/70 text-[10px] tracking-widest uppercase">Owner Builder Advisory</p>
-            </div>
+          <Link href="/" className="w-fit block">
+            <img
+              src="https://rdeavyxckvkfwjvmxugs.supabase.co/storage/v1/object/public/media/logo%20EM_hor%20white.png"
+              alt="Eduardo Mendes Advisory"
+              className="h-9 w-auto"
+            />
           </Link>
           <div className="mt-12">
             <h2 className="text-3xl font-bold text-white leading-tight">
               One step closer to<br />
-              <span className="text-amber">building smarter.</span>
+              <span className="text-[#b67c2c]">building smarter.</span>
             </h2>
             <p className="text-white/60 text-sm mt-4 leading-relaxed max-w-xs">
               Get expert advice tailored to your project and protect your investment at every stage of your build.
@@ -67,9 +67,12 @@ export default function AuthLayout({
       <div className="flex-1 flex flex-col bg-white">
         {/* Mobile header */}
         <div className="lg:hidden bg-navy px-6 py-4">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-amber font-bold text-xl">EM</span>
-            <span className="text-white text-sm font-medium">Eduardo Mendes Advisory</span>
+          <Link href="/" className="block w-fit">
+            <img
+              src="https://rdeavyxckvkfwjvmxugs.supabase.co/storage/v1/object/public/media/logo%20EM_hor%20white.png"
+              alt="Eduardo Mendes Advisory"
+              className="h-9 w-auto"
+            />
           </Link>
         </div>
 

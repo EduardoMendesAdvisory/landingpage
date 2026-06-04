@@ -8,18 +8,18 @@ export function PublicFooter() {
 
           {/* Col 1: Brand */}
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-[#8E682F] text-3xl font-bold leading-none">EM</span>
-              <div>
-                <p className="text-white font-bold text-sm leading-tight tracking-wide">EDUARDO MENDES</p>
-                <p className="text-white/40 text-[10px] tracking-widest uppercase">Owner Builder Advisory</p>
-              </div>
+            <div className="mb-4">
+              <img
+                src="https://rdeavyxckvkfwjvmxugs.supabase.co/storage/v1/object/public/media/logo%20EM_hor%20white.png"
+                alt="Eduardo Mendes Advisory"
+                className="h-10 w-auto"
+              />
             </div>
             <p className="text-white/50 text-xs leading-relaxed mb-3">
               Independent construction advice for homeowners, renovators, and
               owner builders across Australia.
             </p>
-            <p className="text-[#8E682F] text-xs font-semibold uppercase tracking-wider">
+            <p className="text-[#b67c2c] text-xs font-semibold uppercase tracking-wider">
               Independent Advice. Real Results.
             </p>
           </div>
@@ -34,7 +34,7 @@ export function PublicFooter() {
                 { label: "Construction Advisory",         href: "/services/construction-advisory" },
                 { label: "Owner Builder Program",         href: "/services/owner-builder-program" },
                 { label: "Site Visits & Inspections",     href: "/services/site-visits-inspections" },
-                { label: "Free Assessment",               href: "/assessment" },
+                { label: "Free AI Assessment",            href: "/assessment" },
               ].map((l) => (
                 <li key={l.href}>
                   <Link href={l.href} className="text-xs text-white/50 hover:text-white transition-colors">
@@ -52,7 +52,7 @@ export function PublicFooter() {
               {[
                 { label: "How It Works",    href: "/#how-it-works" },
                 { label: "About Eduardo",   href: "/about" },
-                { label: "Testimonials",    href: "/#testimonials" },
+                { label: "Terms of Service",href: "/terms-of-service" },
                 { label: "Book a Call",     href: "/book-call" },
                 { label: "Client Portal",   href: "/buildiq/dashboard" },
                 { label: "Contact",         href: "/contact" },
@@ -72,24 +72,47 @@ export function PublicFooter() {
             <div className="space-y-2.5 text-xs text-white/50">
               <p>Queensland, Australia</p>
               <p>Australia-Wide Advisory</p>
-              <a href="mailto:hello@eduardomendaes.com.au" className="block hover:text-white transition-colors">
-                hello@eduardomendes.com.au
+              <a href="mailto:contact@eduardomendes.com.au" className="block hover:text-white transition-colors">
+                contact@eduardomendes.com.au
               </a>
             </div>
             <Link
               href="/book-call"
-              className="inline-flex items-center gap-1.5 mt-5 bg-[#8E682F] hover:bg-[#7a5a28] text-white text-xs font-bold px-4 py-2 rounded-lg uppercase tracking-wider transition-colors"
+              className="inline-flex items-center gap-1.5 mt-5 bg-[#b67c2c] hover:bg-[#9f6c27] text-white text-xs font-bold px-4 py-2 rounded-lg uppercase tracking-wider transition-colors"
             >
-              Book a Free Call
+              Book a Call
             </Link>
           </div>
         </div>
 
         <div className="mt-12 pt-6 border-t border-white/8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-white/30 text-xs">
-            © {new Date().getFullYear()} Eduardo Mendes Builder Advisor. All rights reserved.
+            © {new Date().getFullYear()} Eduardo Mendes Owner Builder Advisory.
           </p>
-          <p className="text-white/30 text-xs">ABN: XX XXX XXX XXX</p>
+          <p className="text-white/30 text-xs">ABN: 12 345 678 901</p>
+        </div>
+
+        <div className="mt-4 px-1">
+          <p className="text-[11px] text-white/55 leading-relaxed text-justify">
+            Independent construction advisory services. AI-assisted analysis, benchmarking, and reporting tools may be used and are reviewed by Eduardo Mendes before final delivery. Information provided is general in nature and is intended for educational and informational purposes only.
+          </p>
+          <p className="text-[11px] text-white/55 leading-relaxed text-justify mt-2">
+            Services do not constitute legal, financial, engineering, structural, building certification, surveying, quantity surveying, insurance, or other regulated professional advice. Cost comparisons, savings estimates, benchmarks, and project insights are indicative only and should not be relied upon as guarantees of future outcomes, project costs, approvals, contractor performance, or financial savings.
+          </p>
+          <p className="text-[11px] text-white/55 leading-relaxed text-justify mt-2">
+            Clients remain responsible for obtaining independent advice from appropriately qualified professionals where required and for all decisions made in relation to their project.
+          </p>
+          <p className="text-[11px] text-white/40 text-center mt-3">
+            Digital Strategy, UX &amp; AI Solutions by{" "}
+            <a
+              href="https://www.heliowoi.com"
+              target="_blank"
+              rel="noreferrer"
+              className="text-white/60 hover:text-white underline underline-offset-2 transition-colors"
+            >
+              Helio Woi
+            </a>
+          </p>
         </div>
       </div>
     </footer>
