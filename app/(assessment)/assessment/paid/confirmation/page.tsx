@@ -76,7 +76,7 @@ export default async function PaidConfirmationPage({ searchParams }: PageProps) 
               />
             </Link>
             <p className="text-white/70 text-xs mt-2">
-              Project Intake &nbsp;ù&nbsp;
+              Project Intake &nbsp; | &nbsp;
               <span className="text-amber font-medium">Step 5 of 5 -- Submitted</span>
             </p>
           </div>

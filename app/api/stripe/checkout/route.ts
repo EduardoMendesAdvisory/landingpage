@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
             currency: (service.currency ?? "AUD").toLowerCase(),
             product_data: {
               name: service.name,
-              description: `Eduardo Mendes Owner Builder Advisory ù ${service.name}`,
+              description: `Eduardo Mendes Owner Builder Advisory  |  ${service.name}`,
             },
             unit_amount: priceInCents,
           },

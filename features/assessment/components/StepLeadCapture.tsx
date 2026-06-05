@@ -197,12 +197,12 @@ export function StepLeadCapture({ onComplete, pendingQuoteName }: StepLeadCaptur
         {isPending ? (
           <><Loader2 size={15} className="animate-spin" /> Saving...</>
         ) : (
-          "Start My Free Assessment ?"
+          "Start My Free Assessment ->"
         )}
       </button>
 
       <p className="text-center text-xs text-gray-400">
-        Free ù No obligation ù Results in under 2 minutes
+        Free | No obligation | Results in under 2 minutes
       </p>
     </div>
   );
