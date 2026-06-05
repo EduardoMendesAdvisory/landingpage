@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { redirect } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { FOOTER_BRAND_LOGO } from "@/lib/branding";
 import {
   ShieldCheck,
   Lock,
@@ -419,7 +420,7 @@ export default async function AssessmentResultsPage({ searchParams }: ResultsPag
           </div>
           <div className="flex items-center gap-2">
             <img
-              src="https://rdeavyxckvkfwjvmxugs.supabase.co/storage/v1/object/public/media/logo%20EM_hor%20white.png"
+              src={FOOTER_BRAND_LOGO}
               alt="Eduardo Mendes Advisory"
               className="h-6 w-auto"
             />

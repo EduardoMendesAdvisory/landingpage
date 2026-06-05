@@ -25,6 +25,7 @@ import { StepProjectStage } from "./StepProjectStage";
 import { StepBudgetQuote } from "./StepBudgetQuote";
 import { StepLeadCapture, type LeadData } from "./StepLeadCapture";
 import { submitFreeAssessment, submitPaidAssessment } from "@/features/assessment/actions";
+import { FOOTER_BRAND_LOGO } from "@/lib/branding";
 import { cn } from "@/lib/utils";
 
 const STEPS_CONFIG = [
@@ -97,6 +98,8 @@ export interface WizardData {
   budgetRange: string;
   finishLevel: string;
   hasQuote: boolean;
+  quoteFileName: string;
+  uploadedQuoteUrl: string;
 }
 
 const INITIAL_DATA: WizardData = {
@@ -110,6 +113,8 @@ const INITIAL_DATA: WizardData = {
   budgetRange: "",
   finishLevel: "",
   hasQuote: false,
+  quoteFileName: "",
+  uploadedQuoteUrl: "",
 };
 
 function validateStep(step: number, data: WizardData): string | null {
@@ -345,7 +350,7 @@ export function AssessmentWizard({ mode = "free", leadId: initialLeadId }: Asses
             </div>
             <div className="flex items-center gap-2">
               <img
-                src="https://rdeavyxckvkfwjvmxugs.supabase.co/storage/v1/object/public/media/logo%20EM_hor%20white.png"
+                src={FOOTER_BRAND_LOGO}
                 alt="Eduardo Mendes Advisory"
                 className="h-6 w-auto"
               />
@@ -443,7 +448,14 @@ export function AssessmentWizard({ mode = "free", leadId: initialLeadId }: Asses
             )}
             {step === 4 && (
               <StepBudgetQuote
-                value={{ budgetRange: data.budgetRange, finishLevel: data.finishLevel, hasQuote: data.hasQuote }}
+                leadId={leadId}
+                value={{
+                  budgetRange: data.budgetRange,
+                  finishLevel: data.finishLevel,
+                  hasQuote: data.hasQuote,
+                  quoteFileName: data.quoteFileName,
+                  uploadedQuoteUrl: data.uploadedQuoteUrl,
+                }}
                 onChange={updateData}
               />
             )}
@@ -559,7 +571,7 @@ export function AssessmentWizard({ mode = "free", leadId: initialLeadId }: Asses
           </div>
           <div className="flex items-center gap-2">
             <img
-              src="https://rdeavyxckvkfwjvmxugs.supabase.co/storage/v1/object/public/media/logo%20EM_hor%20white.png"
+              src={FOOTER_BRAND_LOGO}
               alt="Eduardo Mendes Advisory"
               className="h-6 w-auto"
             />

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { calculateAssessmentScore } from "@/utils/assessment-score";
+import { validateFile } from "@/utils/validators";
 import type { LeadData } from "@/features/assessment/components/StepLeadCapture";
 import type { WizardData } from "@/features/assessment/components/AssessmentWizard";
 
@@ -82,6 +83,66 @@ export async function saveLead(
   return { leadId: lead.id };
 }
 
+// ── 1b. uploadLeadQuote — optional quote upload (no auth) ─────
+
+export async function uploadLeadQuote(
+  formData: FormData
+): Promise<{ storagePath: string } | { error: string }> {
+  const leadId = formData.get("leadId");
+  const file = formData.get("file");
+
+  if (typeof leadId !== "string" || !leadId) {
+    return { error: "Session expired. Please restart the assessment." };
+  }
+  if (!(file instanceof File) || file.size === 0) {
+    return { error: "Please select a file to upload." };
+  }
+
+  const validation = validateFile(file, "lead");
+  if (!validation.valid) {
+    return { error: validation.error };
+  }
+
+  const admin = createAdminClient();
+
+  const { data: lead, error: leadError } = await admin
+    .from("leads")
+    .select("id")
+    .eq("id", leadId)
+    .single();
+
+  if (leadError || !lead) {
+    return { error: "Session expired. Please restart the assessment." };
+  }
+
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "pdf";
+  const storagePath = `${leadId}/${crypto.randomUUID()}.${ext}`;
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  const { error: uploadError } = await admin.storage
+    .from("lead-documents")
+    .upload(storagePath, buffer, {
+      contentType: file.type || "application/pdf",
+      upsert: false,
+    });
+
+  if (uploadError) {
+    console.error("[uploadLeadQuote] Upload error:", uploadError);
+    return { error: "Failed to upload your quote. Please try again." };
+  }
+
+  await admin.from("documents").insert({
+    lead_id: leadId,
+    file_name: file.name,
+    file_size: file.size,
+    file_type: file.type || null,
+    storage_path: storagePath,
+    category: "builder_quotes",
+  });
+
+  return { storagePath };
+}
+
 // ── 2. submitFreeAssessment — free preliminary flow ───────────
 
 export async function submitFreeAssessment({
@@ -134,6 +195,7 @@ export async function submitFreeAssessment({
       project_stage: wizardData.projectStage,
       budget_range: wizardData.budgetRange,
       finish_level: wizardData.finishLevel || null,
+      uploaded_quote_url: wizardData.uploadedQuoteUrl || null,
       assessment_score: score,
       assessment_type: "free_preliminary",
       potential_savings_min: savingsMin,
@@ -218,6 +280,7 @@ export async function submitPaidAssessment({
       project_stage: wizardData.projectStage,
       budget_range: wizardData.budgetRange,
       finish_level: wizardData.finishLevel || null,
+      uploaded_quote_url: wizardData.uploadedQuoteUrl || null,
       assessment_score: score,
       assessment_type: "paid_client",
       potential_savings_min: savingsMin,
