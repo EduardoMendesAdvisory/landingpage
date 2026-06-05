@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { UploadQuoteButton } from "@/components/shared/UploadQuoteButton";
 import {
   Upload,
   Play,
@@ -390,12 +391,9 @@ export default function HomePage() {
                     </div>
                   ))}
                 </div>
-                <Link
-                  href="/assessment"
-                  className="inline-flex items-center gap-2 bg-[#b67c2c] hover:bg-[#9f6c27] text-white font-semibold px-6 py-3 rounded-lg text-sm uppercase tracking-[0.12em] transition-colors relative z-10"
-                >
+                <UploadQuoteButton className="inline-flex items-center gap-2 bg-[#b67c2c] hover:bg-[#9f6c27] text-white font-semibold px-6 py-3 rounded-lg text-sm uppercase tracking-[0.12em] transition-colors relative z-10">
                   Upload Your Builder Quote
-                </Link>
+                </UploadQuoteButton>
 
                 <div className="hidden md:block absolute -right-10 -bottom-6 w-[270px] h-[320px] rotate-[13deg] rounded-xl border border-[#e4ddd0] bg-white shadow-md" />
                 <div className="hidden md:block absolute right-4 bottom-5 w-[235px] h-[300px] rounded-xl border border-[#e4ddd0] bg-white shadow-lg overflow-hidden">
@@ -521,13 +519,10 @@ export default function HomePage() {
               </div>
 
               <div className="md:border-l border-[#d9dee5] md:pl-9">
-                <Link
-                  href="/assessment"
-                  className="inline-flex items-center justify-center gap-3 bg-[#b67c2c] hover:bg-[#9f6c27] text-white font-semibold px-8 py-4 rounded-lg text-sm uppercase tracking-[0.12em] transition-colors min-w-[320px]"
-                >
+                <UploadQuoteButton className="inline-flex items-center justify-center gap-3 bg-[#b67c2c] hover:bg-[#9f6c27] text-white font-semibold px-8 py-4 rounded-lg text-sm uppercase tracking-[0.12em] transition-colors min-w-[320px]">
                   <Upload size={17} />
                   Upload Your Builder Quote
-                </Link>
+                </UploadQuoteButton>
                 <p className="text-[#3a4350] text-base mt-3 text-center">Secure. Private. No obligation.</p>
               </div>
             </div>

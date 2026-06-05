@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { User, Mail, Phone, MapPin, Loader2, ShieldCheck } from "lucide-react";
+import { User, Mail, Phone, MapPin, Loader2, ShieldCheck, FileText } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { saveLead } from "@/features/assessment/actions";
@@ -19,6 +19,7 @@ export interface LeadData {
 
 interface StepLeadCaptureProps {
   onComplete: (leadId: string, leadData: LeadData) => void;
+  pendingQuoteName?: string | null;
 }
 
 function validate(data: LeadData): string | null {
@@ -30,7 +31,7 @@ function validate(data: LeadData): string | null {
   return null;
 }
 
-export function StepLeadCapture({ onComplete }: StepLeadCaptureProps) {
+export function StepLeadCapture({ onComplete, pendingQuoteName }: StepLeadCaptureProps) {
   const [data, setData] = useState<LeadData>({
     fullName: "",
     email: "",
@@ -69,6 +70,18 @@ export function StepLeadCapture({ onComplete }: StepLeadCaptureProps) {
           Tell us a little about yourself so we can personalise your assessment. Your details are kept completely private.
         </p>
       </div>
+
+      {pendingQuoteName && (
+        <div className="flex items-start gap-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3 text-xs text-green-800">
+          <FileText size={16} className="shrink-0 mt-0.5 text-green-600" />
+          <div>
+            <p className="font-semibold text-green-800">Quote ready to send</p>
+            <p className="mt-0.5 leading-relaxed">
+              <span className="font-medium">{pendingQuoteName}</span> will be uploaded securely after you submit your details.
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className="space-y-4">
         {/* Full name */}
@@ -189,7 +202,7 @@ export function StepLeadCapture({ onComplete }: StepLeadCaptureProps) {
       </button>
 
       <p className="text-center text-xs text-gray-400">
-        Free ¬∑ No obligation ¬∑ Results in under 2 minutes
+        Free ù No obligation ù Results in under 2 minutes
       </p>
     </div>
   );

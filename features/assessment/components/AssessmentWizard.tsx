@@ -24,8 +24,9 @@ import { StepLocation } from "./StepLocation";
 import { StepProjectStage } from "./StepProjectStage";
 import { StepBudgetQuote } from "./StepBudgetQuote";
 import { StepLeadCapture, type LeadData } from "./StepLeadCapture";
-import { submitFreeAssessment, submitPaidAssessment } from "@/features/assessment/actions";
+import { submitFreeAssessment, submitPaidAssessment, uploadLeadQuote } from "@/features/assessment/actions";
 import { FOOTER_BRAND_LOGO } from "@/lib/branding";
+import { consumePendingQuote, peekPendingQuote } from "@/lib/pending-quote";
 import { cn } from "@/lib/utils";
 
 const STEPS_CONFIG = [
@@ -149,6 +150,8 @@ export function AssessmentWizard({ mode = "free", leadId: initialLeadId }: Asses
   const [validationError, setValidationError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [isUploadingQuote, setIsUploadingQuote] = useState(false);
+  const [pendingQuoteName, setPendingQuoteName] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -171,6 +174,8 @@ export function AssessmentWizard({ mode = "free", leadId: initialLeadId }: Asses
         }
       }
     } catch { /* ignore */ }
+    const pending = peekPendingQuote();
+    if (pending) setPendingQuoteName(pending.name);
     setHydrated(true);
   }, [STORAGE_KEY]);
 
@@ -184,8 +189,40 @@ export function AssessmentWizard({ mode = "free", leadId: initialLeadId }: Asses
   function handleLeadCaptured(id: string, ld: LeadData) {
     setLeadId(id);
     setLeadData(ld);
-    setPhase("assessment");
-    setStep(1);
+
+    const pendingFile = consumePendingQuote();
+    if (!pendingFile) {
+      setPhase("assessment");
+      setStep(1);
+      return;
+    }
+
+    setIsUploadingQuote(true);
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.append("leadId", id);
+      formData.append("file", pendingFile);
+
+      const result = await uploadLeadQuote(formData);
+      setIsUploadingQuote(false);
+      setPendingQuoteName(null);
+
+      if ("error" in result) {
+        setSubmitError(result.error);
+        setPhase("assessment");
+        setStep(1);
+        return;
+      }
+
+      setData((prev) => ({
+        ...prev,
+        uploadedQuoteUrl: result.storagePath,
+        quoteFileName: pendingFile.name,
+        hasQuote: true,
+      }));
+      setPhase("assessment");
+      setStep(1);
+    });
   }
 
   function updateData(patch: Partial<WizardData>) {
@@ -236,10 +273,13 @@ export function AssessmentWizard({ mode = "free", leadId: initialLeadId }: Asses
   const sidebar = SIDEBAR_CONTENT[step - 1];
   const CONTINUE_LABELS = ["Continue to Location", "Continue to Current Stage", "Continue to Budget", ""];
 
-  if (!hydrated) {
+  if (!hydrated || isUploadingQuote) {
     return (
-      <div className="flex-1 flex items-center justify-center">
-        <Loader2 size={28} className="animate-spin text-white/40" />
+      <div className="flex-1 flex flex-col items-center justify-center gap-3 py-20">
+        <Loader2 size={28} className="animate-spin text-navy/40" />
+        {isUploadingQuote && (
+          <p className="text-gray-500 text-sm">Uploading your quote...</p>
+        )}
       </div>
     );
   }
@@ -277,7 +317,10 @@ export function AssessmentWizard({ mode = "free", leadId: initialLeadId }: Asses
         <main className="flex-1 px-4 py-8">
           <div className="max-w-6xl mx-auto grid lg:grid-cols-[1fr_300px] gap-6 items-start">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-              <StepLeadCapture onComplete={handleLeadCaptured} />
+              <StepLeadCapture
+                onComplete={handleLeadCaptured}
+                pendingQuoteName={pendingQuoteName}
+              />
             </div>
 
             {/* Sidebar */}

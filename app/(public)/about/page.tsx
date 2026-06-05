@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import { UploadQuoteButton } from "@/components/shared/UploadQuoteButton";
 import {
   ArrowRight,
   Building2,
@@ -134,12 +135,9 @@ export default function AboutPage() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 mb-8">
-              <Link
-                href="/assessment"
-                className="inline-flex items-center justify-center bg-[#b67c2c] hover:bg-[#9f6c27] text-white font-semibold px-7 py-3.5 rounded-lg text-sm uppercase tracking-[0.14em] transition-colors"
-              >
+              <UploadQuoteButton className="inline-flex items-center justify-center bg-[#b67c2c] hover:bg-[#9f6c27] text-white font-semibold px-7 py-3.5 rounded-lg text-sm uppercase tracking-[0.14em] transition-colors">
                 Upload Your Quote
-              </Link>
+              </UploadQuoteButton>
               <Link
                 href="/book-call"
                 className={cn(
@@ -471,13 +469,10 @@ export default function AboutPage() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 shrink-0">
-            <Link
-              href="/assessment"
-              className="inline-flex items-center justify-center gap-2 border-2 border-white text-white hover:bg-white hover:text-[#b67c2c] font-semibold px-8 py-3.5 rounded-lg text-sm uppercase tracking-[0.14em] transition-all whitespace-nowrap"
-            >
+            <UploadQuoteButton className="inline-flex items-center justify-center gap-2 border-2 border-white text-white hover:bg-white hover:text-[#b67c2c] font-semibold px-8 py-3.5 rounded-lg text-sm uppercase tracking-[0.14em] transition-all whitespace-nowrap">
               Upload Your Quote
               <ArrowRight size={15} />
-            </Link>
+            </UploadQuoteButton>
             <Link
               href="/book-call"
               className="inline-flex items-center justify-center bg-[#111A24] hover:bg-[#111A24]/90 text-white font-semibold px-8 py-3.5 rounded-lg text-sm uppercase tracking-[0.14em] transition-colors whitespace-nowrap"
