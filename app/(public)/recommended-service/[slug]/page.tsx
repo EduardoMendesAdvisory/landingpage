@@ -2,14 +2,15 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { FOOTER_BRAND_LOGO } from "@/lib/branding";
 import {
   ShieldCheck,
   Check,
   Lock,
   MessageCircle,
   Star,
-  Phone,
   CreditCard,
+  Calendar,
 } from "lucide-react";
 
 interface PageProps {
@@ -59,267 +60,264 @@ export default async function RecommendedServicePage({ params }: PageProps) {
     ? (service.inclusions as unknown[]).filter((i): i is string => typeof i === "string")
     : [];
 
-  // Split inclusions into two columns
   const mid = Math.ceil(inclusions.length / 2);
   const col1 = inclusions.slice(0, mid);
   const col2 = inclusions.slice(mid);
 
   return (
-    <div className="min-h-screen bg-white">
-
-      {/* ?? Hero header (dark navy with house image) ??????????????? */}
-      <div className="relative bg-navy overflow-hidden min-h-[280px]">
+    <div className="min-h-screen flex flex-col bg-[#faf9f7]">
+      {/* Hero */}
+      <div className="relative bg-[#111A24] overflow-hidden min-h-[380px]">
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-25"
-          style={{ backgroundImage: "url('https://rdeavyxckvkfwjvmxugs.supabase.co/storage/v1/object/public/media/hero%20banner%202.png')" }}
+          className="absolute inset-0 bg-cover bg-[center_right] sm:bg-right bg-no-repeat"
+          style={{
+            backgroundImage:
+              "url('https://rdeavyxckvkfwjvmxugs.supabase.co/storage/v1/object/public/media/hero%20banner%20desktop.jpg')",
+          }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-navy/98 via-navy/90 to-navy/70" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#111A24]/70 via-[#111A24]/25 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#111A24]/40 via-transparent to-transparent" />
 
-        <div className="relative z-10 px-6 pt-6 pb-10">
-          <div className="max-w-5xl mx-auto">
-            {/* Logo + contact bar */}
-            <div className="flex items-start justify-between mb-8">
-              <Link href="/">
-                <img
-                  src="https://rdeavyxckvkfwjvmxugs.supabase.co/storage/v1/object/public/media/logo%20EM_hor%20white.png"
-                  alt="Eduardo Mendes Advisory"
-                  className="h-9 w-auto"
-                />
-              </Link>
-              <div className="hidden sm:flex items-center gap-2 text-white/60 text-xs">
-                <MessageCircle size={13} />
-                <span>Need help?{" "}
-                  <a href="tel:0419112555" className="text-white hover:underline">
-                    0419 112 555
-                  </a>
-                </span>
+        <div className="relative z-10 px-6 py-8 sm:py-10">
+          <div className="max-w-6xl mx-auto grid lg:grid-cols-[1fr_280px] gap-8 items-start">
+            <div>
+              <p className="text-[#b67c2c] text-xs font-semibold uppercase tracking-[0.16em] mb-3 flex items-center gap-2">
+                <Star size={13} className="fill-[#b67c2c] text-[#b67c2c]" />
+                Exclusive Recommendation
+              </p>
+              <h1 className="text-3xl sm:text-4xl font-bold text-white leading-tight mb-3 drop-shadow-md">
+                Your Recommended Service
+              </h1>
+              <p className="text-white/70 text-base leading-relaxed mb-6 max-w-lg">
+                Based on our conversation, Eduardo recommends the service below to give you the best outcome for your
+                project.
+              </p>
+
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-full bg-[#b67c2c]/20 border-2 border-[#b67c2c]/40 overflow-hidden shrink-0">
+                  <img
+                    src="https://rdeavyxckvkfwjvmxugs.supabase.co/storage/v1/object/public/media/edu.png"
+                    alt="Eduardo Mendes"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div>
+                  <p className="text-white font-semibold text-sm">Eduardo Mendes</p>
+                  <p className="text-white/50 text-xs">Owner Builder Advisor</p>
+                </div>
               </div>
             </div>
 
-            {/* Headline */}
-            <div className="max-w-xl">
-              <p className="text-amber text-xs font-semibold uppercase tracking-widest mb-2 flex items-center gap-2">
-                <Star size={12} className="fill-amber" />
-                Exclusive Recommendation
-              </p>
-              <h1 className="text-3xl sm:text-4xl font-bold text-white mb-3">
-                Your Recommended Service
-              </h1>
-              <p className="text-white/70 text-base leading-relaxed mb-6">
-                Based on our conversation, I recommend the service below to give you the best outcome for your project.
-              </p>
-
-              {/* Eduardo avatar row */}
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-full bg-amber/20 border-2 border-amber/40 overflow-hidden shrink-0">
-                    <img
-                      src="https://rdeavyxckvkfwjvmxugs.supabase.co/storage/v1/object/public/media/eduardo%20mendes%20photo.png"
-                      alt="Eduardo Mendes"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div>
-                    <p className="text-white font-semibold text-sm">Eduardo Mendes</p>
-                    <p className="text-white/50 text-xs">Owner Builder Advisor</p>
-                  </div>
+            <div className="hidden lg:flex flex-col items-end gap-4">
+              <div className="flex items-center gap-2.5 border border-white/15 rounded-xl px-4 py-2.5">
+                <ShieldCheck size={18} className="text-[#b67c2c] shrink-0" />
+                <div className="text-xs leading-tight">
+                  <p className="text-white font-medium">Your information is secure</p>
+                  <p className="text-white/40">We never share your data</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
+
+        <div className="relative z-10 border-t border-white/10 px-6 py-3">
+          <div className="max-w-6xl mx-auto">
+            <Link href="/">
+              <img
+                src="https://rdeavyxckvkfwjvmxugs.supabase.co/storage/v1/object/public/media/logo%20EM_hor%20white.png"
+                alt="Eduardo Mendes Advisory"
+                className="h-8 w-auto"
+              />
+            </Link>
+          </div>
+        </div>
       </div>
 
-      {/* ?? Body ??????????????????????????????????????????????????? */}
-      <main className="px-4 py-10">
-        <div className="max-w-5xl mx-auto grid lg:grid-cols-[1fr_340px] gap-8 items-start">
-
-          {/* ?? Left: service details ????????????????????????????? */}
-          <div className="space-y-6">
-
-            {/* Recommended label */}
-            <div className="inline-flex items-center gap-1.5 bg-amber/10 border border-amber/20 rounded-full px-3 py-1">
-              <Check size={12} className="text-amber" />
-              <span className="text-xs font-semibold text-amber uppercase tracking-wider">Recommended For You</span>
-            </div>
-
-            {/* Service name */}
-            <div>
-              <h2 className="text-3xl font-bold text-navy mb-2">{service.name}</h2>
+      {/* Body */}
+      <main className="flex-1 px-4 py-8 sm:py-10">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-[1fr_320px] gap-6 lg:gap-8 items-start">
+          {/* Left: service details */}
+          <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] border border-[#ece8e1] p-6 sm:p-10 space-y-0">
+            <div className="pb-6 border-b border-[#ece8e1]">
+              <div className="inline-flex items-center gap-1.5 bg-[#faf9f7] border border-[#ece8e1] rounded-full px-3 py-1 mb-4">
+                <Check size={12} className="text-[#b67c2c]" />
+                <span className="text-xs font-semibold text-[#b67c2c] uppercase tracking-[0.12em]">
+                  Recommended For You
+                </span>
+              </div>
+              <p className="text-[#b67c2c] text-xs font-semibold uppercase tracking-[0.18em] mb-3">
+                Service Overview
+              </p>
+              <h2 className="text-2xl sm:text-3xl font-bold text-[#111A24] leading-tight mb-2">{service.name}</h2>
               {service.tagline && (
-                <p className="text-base text-gray-500 font-medium">{service.tagline}</p>
+                <p className="text-sm text-[#4b5564] font-medium mb-2">{service.tagline}</p>
               )}
               {service.description && (
-                <p className="text-gray-600 mt-3 leading-relaxed">{service.description}</p>
+                <p className="text-sm text-[#4b5564] leading-relaxed">{service.description}</p>
               )}
             </div>
 
-            <div className="border-t border-gray-100" />
-
-            {/* What's included */}
             {inclusions.length > 0 && (
-              <div>
-                <h3 className="text-base font-bold text-navy mb-4">What&apos;s Included</h3>
+              <div className="py-6 border-b border-[#ece8e1]">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#111A24] mb-1">
+                  What&apos;s Included
+                </p>
+                <div className="w-8 h-[2px] bg-[#b67c2c] mb-4" />
                 <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2.5">
                   {[...col1, ...col2].map((item) => (
                     <div key={item} className="flex items-start gap-2.5">
-                      <Check size={15} className="text-amber shrink-0 mt-0.5" />
-                      <p className="text-sm text-gray-700 leading-snug">{item}</p>
+                      <Check size={14} className="text-[#b67c2c] shrink-0 mt-0.5" strokeWidth={2.5} />
+                      <p className="text-sm text-[#4b5564] leading-snug">{item}</p>
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Intro call note */}
-            <div className="flex items-start gap-3 bg-amber/5 border border-amber/20 rounded-xl px-4 py-3">
-              <Phone size={16} className="text-amber shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm font-semibold text-navy">Includes a free 15-minute intro call</p>
-                <p className="text-xs text-gray-500 mt-0.5">
-                  with Eduardo to ensure we&apos;re aligned on your goals.
+            <div className="py-6 border-b border-[#ece8e1]">
+              <div className="flex items-start gap-3 rounded-xl border border-[#ece8e1] bg-[#faf9f7] px-4 py-3">
+                <Calendar size={16} className="text-[#b67c2c] shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-semibold text-[#111A24]">Includes a free 15-minute intro call</p>
+                  <p className="text-xs text-[#6b7280] mt-0.5 leading-relaxed">
+                    with Eduardo to ensure we&apos;re aligned on your goals before work begins.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {[
+                  { icon: ShieldCheck, label: "Secure Payment", desc: "Processed securely by Stripe." },
+                  { icon: Lock, label: "100% Confidential", desc: "Your information is never shared." },
+                  {
+                    icon: MessageCircle,
+                    label: "Need Help?",
+                    desc: "Reply to your confirmation email anytime.",
+                  },
+                ].map((item) => (
+                  <div key={item.label} className="flex gap-2.5">
+                    <item.icon size={16} className="text-[#b67c2c] shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-xs font-semibold text-[#111A24]">{item.label}</p>
+                      <p className="text-[11px] text-[#6b7280] mt-0.5 leading-relaxed">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Right: payment summary */}
+          <aside className="space-y-4">
+            <div className="bg-white rounded-2xl border border-[#ece8e1] shadow-[0_8px_30px_rgba(0,0,0,0.06)] overflow-hidden">
+              <div className="bg-[#faf9f7] border-b border-[#ece8e1] px-5 py-3">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#b67c2c]">Service Summary</p>
+              </div>
+
+              <div className="p-5 space-y-4">
+                <div className="flex flex-col items-center text-center border-b border-[#ece8e1] pb-4">
+                  <div className="w-14 h-14 rounded-2xl bg-[#faf9f7] border border-[#ece8e1] flex items-center justify-center mb-3">
+                    <ShieldCheck size={26} className="text-[#b67c2c]" strokeWidth={1.8} />
+                  </div>
+                  <p className="font-bold text-[#111A24]">{service.name}</p>
+                  {service.tagline && (
+                    <p className="text-xs text-[#6b7280] mt-0.5 leading-relaxed">{service.tagline}</p>
+                  )}
+                </div>
+
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#111A24] mb-1">Investment</p>
+                  <div className="w-8 h-[2px] bg-[#b67c2c] mb-3" />
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-3xl font-bold text-[#111A24]">{formatPrice(service.price ?? 0)}</span>
+                    <span className="text-sm text-[#9ca3af]">{service.currency ?? "AUD"}</span>
+                  </div>
+                  <p className="text-xs text-[#9ca3af] mt-0.5">One-time payment. GST included.</p>
+                </div>
+
+                <div className="space-y-2">
+                  {[
+                    "Expert guidance from Eduardo Mendes",
+                    "Recommendations tailored to your project",
+                    "Protect your time, money and peace of mind",
+                  ].map((benefit) => (
+                    <div key={benefit} className="flex items-start gap-2">
+                      <Check size={13} className="text-[#b67c2c] shrink-0 mt-0.5" strokeWidth={2.5} />
+                      <p className="text-xs text-[#4b5564] leading-tight">{benefit}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <a
+                  href={`/api/stripe/checkout?service=${slug}`}
+                  className="flex items-center justify-center gap-2 w-full bg-[#b67c2c] hover:bg-[#9f6c27] text-white text-sm font-semibold py-3.5 rounded-lg transition-colors uppercase tracking-[0.12em]"
+                >
+                  <Lock size={14} />
+                  Secure Checkout
+                </a>
+
+                <p className="text-center text-[11px] text-[#9ca3af] flex items-center justify-center gap-1">
+                  <CreditCard size={11} />
+                  Powered by Stripe
                 </p>
               </div>
             </div>
 
-            {/* Trust strip */}
-            <div className="grid grid-cols-3 gap-3 pt-2">
-              {[
-                { icon: ShieldCheck, label: "Secure Payment",       desc: "Your payment is processed securely by Stripe." },
-                { icon: Lock,        label: "100% Confidential",    desc: "Your information is never shared with third parties." },
-                { icon: MessageCircle, label: "Need Help?",         desc: "Reply to this email or call 0419 112 555" },
-              ].map((item) => (
-                <div key={item.label} className="flex gap-2.5">
-                  <item.icon size={16} className="text-amber shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-xs font-semibold text-navy">{item.label}</p>
-                    <p className="text-[11px] text-gray-500 mt-0.5 leading-relaxed">{item.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* ?? Right: payment summary card ??????????????????????? */}
-          <aside className="space-y-4">
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-md p-6">
-              <h3 className="text-base font-bold text-navy mb-5">Service Summary</h3>
-
-              {/* Service icon + name */}
-              <div className="flex flex-col items-center text-center border-b border-gray-100 pb-4 mb-4">
-                <div className="w-14 h-14 rounded-2xl bg-amber/10 flex items-center justify-center mb-3">
-                  <ShieldCheck size={28} className="text-amber" />
-                </div>
-                <p className="font-bold text-navy">{service.name}</p>
-                {service.tagline && (
-                  <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{service.tagline}</p>
-                )}
-              </div>
-
-              {/* Price */}
-              <div className="mb-4">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Investment</p>
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-3xl font-bold text-navy">{formatPrice(service.price ?? 0)}</span>
-                  <span className="text-sm text-gray-400">{service.currency ?? "AUD"}</span>
-                </div>
-                <p className="text-xs text-gray-400 mt-0.5">One-time payment  GST included</p>
-              </div>
-
-              {/* Key benefits */}
-              <div className="space-y-2 mb-5">
-                {[
-                  "Expert guidance from Eduardo Mendes",
-                  "Practical recommendations tailored to your project",
-                  "Protect your time, money and peace of mind",
-                ].map((benefit) => (
-                  <div key={benefit} className="flex items-start gap-2">
-                    <Check size={13} className="text-green-600 shrink-0 mt-0.5" />
-                    <p className="text-xs text-gray-600 leading-tight">{benefit}</p>
-                  </div>
-                ))}
-              </div>
-
-              {/* Payment logos */}
-              <div className="flex items-center gap-2 mb-4">
-                {/* Visa */}
-                <div className="h-7 px-2 bg-blue-600 rounded flex items-center text-white text-xs font-bold">VISA</div>
-                {/* Mastercard */}
-                <div className="h-7 w-10 rounded flex items-center justify-center overflow-hidden bg-gray-100">
-                  <span className="text-xs font-bold text-gray-700">MC</span>
-                </div>
-                {/* Apple Pay */}
-                <div className="h-7 px-2 bg-black rounded flex items-center text-white text-[10px] font-semibold">Apple Pay</div>
-                {/* Google Pay */}
-                <div className="h-7 px-2 bg-gray-100 rounded flex items-center text-gray-700 text-[10px] font-semibold">G Pay</div>
-              </div>
-
-              {/* CTA */}
-              <a
-                href={`/api/stripe/checkout?service=${slug}`}
-                className="flex items-center justify-center gap-2 w-full bg-navy hover:bg-navy/90 text-white font-semibold py-3.5 rounded-xl transition-colors text-sm"
-              >
-                <Lock size={14} />
-                Secure Checkout
-              </a>
-
-              <p className="text-center text-[11px] text-gray-400 mt-3 flex items-center justify-center gap-1">
-                <CreditCard size={11} />
-                Powered by <span className="font-semibold text-indigo-600">Stripe</span>
-              </p>
-            </div>
-
-            {/* Trust card */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+            <div className="rounded-2xl border border-[#ece8e1] bg-[#faf9f7] p-5">
               <div className="flex items-start gap-3">
-                <ShieldCheck size={18} className="text-green-600 shrink-0 mt-0.5" />
+                <ShieldCheck size={16} className="text-[#b67c2c] shrink-0 mt-0.5" strokeWidth={1.8} />
                 <div>
-                  <p className="text-xs font-semibold text-green-700">Trusted by Owner Builders</p>
-                  <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
-                    Hundreds of owner builders across Australia trust Eduardo Mendes for expert guidance.
+                  <p className="text-xs font-semibold text-[#111A24]">Trusted advisory</p>
+                  <p className="text-[11px] text-[#6b7280] mt-1 leading-relaxed">
+                    Hundreds of owner builders across Australia trust Eduardo Mendes to protect their investment.
                   </p>
                   <div className="flex items-center gap-1 mt-2">
-                    {[1,2,3,4,5].map((n) => (
-                      <Star key={n} size={12} className={n < 5 ? "fill-amber text-amber" : "fill-amber/40 text-amber/40"} />
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <Star
+                        key={n}
+                        size={11}
+                        className={n < 5 ? "fill-[#b67c2c] text-[#b67c2c]" : "fill-[#b67c2c]/30 text-[#b67c2c]/30"}
+                      />
                     ))}
-                    <span className="text-xs text-gray-500 ml-1">4.9  120+ Google Reviews</span>
                   </div>
                 </div>
               </div>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-[#ece8e1] p-5">
+              <p className="text-xs font-semibold text-[#111A24] mb-1">Need help?</p>
+              <a
+                href="mailto:contact@eduardomendes.com.au"
+                className="text-sm text-[#4b5564] hover:text-[#111A24] transition-colors"
+              >
+                contact@eduardomendes.com.au
+              </a>
             </div>
           </aside>
         </div>
       </main>
 
-      {/* ?? Footer ????????????????????????????????????????????????? */}
-      <footer className="bg-navy py-8 px-6 mt-8">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid sm:grid-cols-3 gap-6 mb-6">
-            <div className="flex items-start gap-3">
-              <ShieldCheck size={20} className="text-amber shrink-0 mt-0.5" />
-              <div>
-                <p className="text-white text-sm font-semibold">Trusted by Owner Builders</p>
-                <p className="text-white/50 text-xs mt-0.5">Hundreds of owner builders across Australia trust Eduardo Mendes for expert guidance.</p>
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-1 mb-1">
-                {[1,2,3,4,5].map((n) => (
-                  <Star key={n} size={16} className={n < 5 ? "fill-amber text-amber" : "fill-amber/40 text-amber/40"} />
-                ))}
-              </div>
-              <p className="text-white font-bold text-xl">4.9</p>
-              <p className="text-white/50 text-xs">120+ Google Reviews</p>
-            </div>
-            <div className="flex sm:justify-end">
-              <div>
-                <p className="text-amber font-bold text-lg" style={{ fontFamily: "serif" }}>Eduardo Mendes</p>
-                <p className="text-white/50 text-xs">Owner Builder Advisor</p>
-              </div>
-            </div>
+      <footer className="bg-white border-t border-[#ece8e1] py-4 px-6 mt-4">
+        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4 text-xs text-[#9ca3af]">
+          <div className="flex items-center gap-2">
+            <Lock size={13} />
+            <span className="font-medium text-[#4b5564]">Secure SSL encryption</span>
+            <span>256-bit protection</span>
           </div>
-          <div className="border-t border-white/10 pt-4 text-center text-white/30 text-xs">
-             {new Date().getFullYear()} Eduardo Mendes Owner Builder Advisory. All rights reserved.
+          <div className="flex items-center gap-2">
+            <MessageCircle size={13} />
+            <span>
+              Need help?{" "}
+              <a href="/contact" className="text-[#111A24] hover:underline">
+                Chat with our team
+              </a>
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <img src={FOOTER_BRAND_LOGO} alt="Eduardo Mendes Advisory" className="h-6 w-auto" />
+            <span>Owner Builder Advisor</span>
           </div>
         </div>
       </footer>

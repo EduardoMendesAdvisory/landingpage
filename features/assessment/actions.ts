@@ -224,6 +224,7 @@ export async function submitFreeAssessment({
       location: wizardData.state,
       suburb: wizardData.suburb || null,
       state: wizardData.state || null,
+      notes: wizardData.projectComment?.trim() || null,
     })
     .eq("id", leadId);
 
@@ -306,10 +307,13 @@ export async function submitPaidAssessment({
       project_stage: wizardData.projectStage,
       budget_range: wizardData.budgetRange,
       location: wizardData.state,
+      suburb: wizardData.suburb || null,
+      state: wizardData.state || null,
+      notes: wizardData.projectComment?.trim() || null,
     })
     .eq("id", leadId);
 
-  redirect(`/assessment/paid/confirmation?assessment=${assessment.id}`);
+  redirect(`/assessment/results?id=${assessment.id}&lead=${leadId}`);
 }
 
 // ── 4. submitAssessment — legacy auth-gated flow (kept for compatibility) ──

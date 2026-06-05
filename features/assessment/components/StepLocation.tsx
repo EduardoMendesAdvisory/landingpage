@@ -1,9 +1,15 @@
 "use client";
 
-import { MapPin, Mail, Check } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  OptionCheck,
+  StepFootnote,
+  StepHeader,
+  StepSection,
+  WIZARD_INPUT_CLASS,
+  optionButtonClass,
+} from "./wizard-ui";
 
 const LAND_TYPES = [
   { value: "vacant_land", label: "Vacant Land" },
@@ -12,9 +18,7 @@ const LAND_TYPES = [
   { value: "not_sure", label: "Not Sure Yet" },
 ] as const;
 
-const STATES = [
-  "NSW", "VIC", "QLD", "SA", "WA", "ACT", "TAS", "NT",
-] as const;
+const STATES = ["NSW", "VIC", "QLD", "SA", "WA", "ACT", "TAS", "NT"] as const;
 
 interface StepLocationData {
   landType: string;
@@ -28,52 +32,55 @@ interface StepLocationProps {
   onChange: (data: Partial<StepLocationData>) => void;
 }
 
+function FieldLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="block mb-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-[#4b5564]">
+      {children}
+    </span>
+  );
+}
+
 export function StepLocation({ value, onChange }: StepLocationProps) {
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-navy">Where is your project located?</h2>
-        <p className="text-sm text-gray-500 mt-1.5">
-          This helps us provide accurate benchmarks and local insights.
-        </p>
-      </div>
+    <div className="space-y-0">
+      <StepHeader
+        overline="Step 2 of 4"
+        title="Where is your project?"
+        description="Location helps us provide accurate local benchmarks and council-related insights."
+      />
 
-      {/* Suburb + Postcode */}
-      <div className="space-y-3">
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Project Location</p>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-1.5">
-            <Label htmlFor="suburb" className="text-sm">Suburb</Label>
+      <StepSection title="Address" hint="Suburb and postcode for your build site.">
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <FieldLabel>Suburb</FieldLabel>
             <div className="relative">
-              <MapPin size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <Input
+              <MapPin size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9ca3af]" />
+              <input
                 id="suburb"
                 value={value.suburb}
                 onChange={(e) => onChange({ suburb: e.target.value })}
-                placeholder="e.g. Buderim"
-                className="h-11 pl-9"
+                placeholder="Buderim"
+                className={cn(WIZARD_INPUT_CLASS, "pl-9")}
+                autoComplete="address-level2"
               />
             </div>
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="postcode" className="text-sm">Postcode</Label>
-            <div className="relative">
-              <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <Input
-                id="postcode"
-                value={value.postcode}
-                maxLength={4}
-                onChange={(e) => onChange({ postcode: e.target.value.replace(/\D/g, "") })}
-                placeholder="e.g. 4556"
-                className="h-11 pl-9"
-              />
-            </div>
+          <div>
+            <FieldLabel>Postcode</FieldLabel>
+            <input
+              id="postcode"
+              value={value.postcode}
+              maxLength={4}
+              onChange={(e) => onChange({ postcode: e.target.value.replace(/\D/g, "") })}
+              placeholder="4556"
+              className={WIZARD_INPUT_CLASS}
+              inputMode="numeric"
+            />
           </div>
         </div>
 
-        {/* State */}
-        <div className="space-y-2">
-          <Label className="text-sm">State</Label>
+        <div className="mt-4">
+          <FieldLabel>State</FieldLabel>
           <div className="flex flex-wrap gap-2">
             {STATES.map((s) => {
               const selected = value.state === s;
@@ -83,32 +90,22 @@ export function StepLocation({ value, onChange }: StepLocationProps) {
                   type="button"
                   onClick={() => onChange({ state: s })}
                   className={cn(
-                    "relative px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all",
-                    selected
-                      ? "border-amber bg-amber/5 text-navy"
-                      : "border-gray-200 bg-white hover:border-gray-300 text-gray-700"
+                    optionButtonClass(selected),
+                    "px-4 py-2 text-sm font-semibold min-w-[3.5rem] text-center",
+                    selected ? "text-[#111A24]" : "text-[#4b5564]"
                   )}
                 >
-                  {selected && (
-                    <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-amber flex items-center justify-center">
-                      <Check size={9} strokeWidth={3} className="text-white" />
-                    </span>
-                  )}
+                  <OptionCheck selected={selected} />
                   {s}
                 </button>
               );
             })}
           </div>
         </div>
-      </div>
+      </StepSection>
 
-      {/* Land type */}
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">
-          What best describes your land condition?
-        </Label>
-        <p className="text-xs text-gray-500">This helps us understand potential site costs and construction complexity.</p>
-        <div className="grid grid-cols-2 gap-2">
+      <StepSection title="Land condition" hint="Helps estimate site complexity and potential costs." last>
+        <div className="grid sm:grid-cols-2 gap-3">
           {LAND_TYPES.map((lt) => {
             const selected = value.landType === lt.value;
             return (
@@ -117,28 +114,20 @@ export function StepLocation({ value, onChange }: StepLocationProps) {
                 type="button"
                 onClick={() => onChange({ landType: lt.value })}
                 className={cn(
-                  "relative px-3 py-3 rounded-xl border-2 text-sm text-left transition-all font-medium",
-                  selected
-                    ? "border-amber bg-amber/5 text-navy"
-                    : "border-gray-200 bg-white hover:border-gray-300 text-gray-700"
+                  optionButtonClass(selected),
+                  "px-4 py-3.5 text-sm font-semibold text-left",
+                  selected ? "text-[#111A24]" : "text-[#374151]"
                 )}
               >
-                {selected && (
-                  <span className="absolute top-2 right-2 w-4 h-4 rounded-full bg-amber flex items-center justify-center">
-                    <Check size={9} strokeWidth={3} className="text-white" />
-                  </span>
-                )}
+                <OptionCheck selected={selected} />
                 {lt.label}
               </button>
             );
           })}
         </div>
-      </div>
+      </StepSection>
 
-      <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 flex items-start gap-3 text-xs text-blue-700">
-        <span className="shrink-0 mt-0.5">ℹ</span>
-        <span>You can update these details later if anything changes.</span>
-      </div>
+      <StepFootnote>You can update these details later if anything changes.</StepFootnote>
     </div>
   );
 }

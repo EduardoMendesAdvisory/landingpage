@@ -170,12 +170,6 @@ export default function ContactPage() {
 
               <div className="space-y-6">
                 <div className="border-l border-[#b67c2c] pl-4">
-                  <p className="text-xl font-bold text-[#111A24] leading-tight">Call</p>
-                  <p className="text-xl font-bold text-[#111A24] leading-tight mt-1">0419 112 555</p>
-                  <p className="text-sm text-[#4b5564] mt-2">Mon - Fri, 7:00am - 6:00pm</p>
-                </div>
-
-                <div className="border-t border-[#ece8e1] pt-6 border-l border-[#b67c2c] pl-4">
                   <p className="text-xl font-bold text-[#111A24] leading-tight">Email</p>
                   <p className="text-base font-semibold text-[#111A24] leading-tight mt-1 break-all">eduardo@eduardomendes.com.au</p>
                   <p className="text-sm text-[#4b5564] mt-2">We aim to reply within 24 hours</p>

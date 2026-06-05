@@ -5,37 +5,26 @@ import {
   ChevronLeft,
   Loader2,
   ShieldCheck,
-  Lock,
-  MessageCircle,
-  Check,
-  Home,
-  MapPin,
-  Flag,
-  DollarSign,
   BarChart3,
   TrendingDown,
   AlertTriangle,
   ChevronRight,
+  Home,
+  MapPin,
+  Flag,
+  DollarSign,
   Star,
 } from "lucide-react";
-import Link from "next/link";
 import { StepProjectType } from "./StepProjectType";
 import { StepLocation } from "./StepLocation";
 import { StepProjectStage } from "./StepProjectStage";
 import { StepBudgetQuote } from "./StepBudgetQuote";
 import { StepLeadCapture, type LeadData } from "./StepLeadCapture";
+import { StepQuoteExtraction } from "./StepQuoteExtraction";
 import { submitFreeAssessment, submitPaidAssessment, uploadLeadQuote } from "@/features/assessment/actions";
-import { FOOTER_BRAND_LOGO } from "@/lib/branding";
+import { WizardCard, WizardShell } from "@/features/assessment/components/WizardShell";
 import { consumePendingQuote, peekPendingQuote } from "@/lib/pending-quote";
-import { cn } from "@/lib/utils";
-
-const STEPS_CONFIG = [
-  { label: "Project Type", shortLabel: "Project" },
-  { label: "Location",     shortLabel: "Location" },
-  { label: "Current Stage", shortLabel: "Stage" },
-  { label: "Budget",       shortLabel: "Budget" },
-  { label: "Results",      shortLabel: "Results" },
-];
+import type { QuoteExtractionResult } from "@/lib/quote-extraction";
 
 const SIDEBAR_CONTENT = [
   {
@@ -88,6 +77,11 @@ const SIDEBAR_CONTENT = [
   },
 ];
 
+export interface UploadedFileRef {
+  name: string;
+  storagePath: string;
+}
+
 export interface WizardData {
   projectType: string;
   projectSubtype: string;
@@ -101,6 +95,8 @@ export interface WizardData {
   hasQuote: boolean;
   quoteFileName: string;
   uploadedQuoteUrl: string;
+  uploadedFiles: UploadedFileRef[];
+  projectComment: string;
 }
 
 const INITIAL_DATA: WizardData = {
@@ -116,6 +112,8 @@ const INITIAL_DATA: WizardData = {
   hasQuote: false,
   quoteFileName: "",
   uploadedQuoteUrl: "",
+  uploadedFiles: [],
+  projectComment: "",
 };
 
 function validateStep(step: number, data: WizardData): string | null {
@@ -125,6 +123,8 @@ function validateStep(step: number, data: WizardData): string | null {
   if (step === 4 && !data.budgetRange) return "Please select a budget range.";
   return null;
 }
+
+export type WizardPhase = "extract" | "capture" | "assessment";
 
 export type WizardMode = "free" | "paid";
 
@@ -138,12 +138,14 @@ export function AssessmentWizard({ mode = "free", leadId: initialLeadId }: Asses
   const STORAGE_KEY = `em_assessment_wizard_${mode}`;
   const TOTAL_WIZARD_STEPS = 4;
 
-  // phase: 'capture' = Step 0 (lead info), 'assessment' = Steps 1–4
-  const [phase, setPhase] = useState<"capture" | "assessment">(
+  // phase: 'extract' = AI quote analysis, 'capture' = Step 0, 'assessment' = Steps 1-4
+  const [phase, setPhase] = useState<WizardPhase>(
     mode === "free" ? "capture" : "assessment"
   );
   const [leadId, setLeadId] = useState<string | null>(initialLeadId ?? null);
   const [leadData, setLeadData] = useState<LeadData | null>(null);
+  const [extractFile, setExtractFile] = useState<File | null>(null);
+  const [extractionResult, setExtractionResult] = useState<QuoteExtractionResult | null>(null);
 
   const [step, setStep] = useState(1);
   const [data, setData] = useState<WizardData>(INITIAL_DATA);
@@ -156,35 +158,89 @@ export function AssessmentWizard({ mode = "free", leadId: initialLeadId }: Asses
 
   useEffect(() => {
     try {
+      const pending = peekPendingQuote();
       const saved = localStorage.getItem(STORAGE_KEY);
+      let parsed: {
+        step: number;
+        data: WizardData;
+        phase?: WizardPhase;
+        leadId?: string;
+        leadData?: LeadData;
+        extractionComplete?: boolean;
+      } | null = null;
+
       if (saved) {
-        const parsed = JSON.parse(saved) as {
+        parsed = JSON.parse(saved) as {
           step: number;
           data: WizardData;
-          phase?: "capture" | "assessment";
+          phase?: WizardPhase;
           leadId?: string;
           leadData?: LeadData;
+          extractionComplete?: boolean;
         };
-        if (parsed.data) {
-          setData(parsed.data);
+        if (parsed?.data) {
+          setData({
+            ...INITIAL_DATA,
+            ...parsed.data,
+            uploadedFiles: parsed.data.uploadedFiles ?? [],
+            projectComment: parsed.data.projectComment ?? "",
+          });
           setStep(Math.min(parsed.step ?? 1, TOTAL_WIZARD_STEPS));
-          if (parsed.phase) setPhase(parsed.phase);
           if (parsed.leadId) setLeadId(parsed.leadId);
           if (parsed.leadData) setLeadData(parsed.leadData);
         }
       }
+
+      if (pending && mode === "free") {
+        setPendingQuoteName(pending.name);
+        const alreadyExtractedForFile =
+          parsed?.extractionComplete === true &&
+          parsed?.data?.quoteFileName === pending.name;
+
+        if (!alreadyExtractedForFile) {
+          setExtractFile(pending);
+          setPhase("extract");
+        } else if (parsed?.phase) {
+          setPhase(parsed.phase);
+        }
+      } else if (parsed?.phase) {
+        setPhase(parsed.phase);
+      }
     } catch { /* ignore */ }
-    const pending = peekPendingQuote();
-    if (pending) setPendingQuoteName(pending.name);
     setHydrated(true);
-  }, [STORAGE_KEY]);
+  }, [STORAGE_KEY, mode]);
 
   useEffect(() => {
     if (!hydrated) return;
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ step, data, phase, leadId, leadData }));
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          step,
+          data,
+          phase,
+          leadId,
+          leadData,
+          extractionComplete: phase !== "extract" && !!extractionResult && !!data.quoteFileName,
+        })
+      );
     } catch { /* ignore */ }
-  }, [step, data, phase, leadId, leadData, hydrated, STORAGE_KEY]);
+  }, [step, data, phase, leadId, leadData, extractionResult, hydrated, STORAGE_KEY]);
+
+  function handleExtractionComplete(result: QuoteExtractionResult) {
+    setExtractionResult(result);
+    setData((prev) => ({
+      ...prev,
+      ...result.wizardPrefill,
+      hasQuote: true,
+      quoteFileName: result.fileName,
+    }));
+    setPhase("capture");
+  }
+
+  function handleExtractionSkip() {
+    setPhase("capture");
+  }
 
   function handleLeadCaptured(id: string, ld: LeadData) {
     setLeadId(id);
@@ -219,6 +275,7 @@ export function AssessmentWizard({ mode = "free", leadId: initialLeadId }: Asses
         uploadedQuoteUrl: result.storagePath,
         quoteFileName: pendingFile.name,
         hasQuote: true,
+        uploadedFiles: [{ name: pendingFile.name, storagePath: result.storagePath }],
       }));
       setPhase("assessment");
       setStep(1);
@@ -272,6 +329,17 @@ export function AssessmentWizard({ mode = "free", leadId: initialLeadId }: Asses
 
   const sidebar = SIDEBAR_CONTENT[step - 1];
   const CONTINUE_LABELS = ["Continue to Location", "Continue to Current Stage", "Continue to Budget", ""];
+  const flowTitle = mode === "free" ? "Preliminary Assessment" : "Project Intake";
+
+  const stepBenefits = sidebar.benefits.map((b) => {
+    if (mode === "paid" && b.label === "Potential Savings") {
+      return { ...b, label: "Expert Review", desc: "Personalised analysis from Eduardo Mendes." };
+    }
+    if (mode === "paid" && b.label === "Potential Savings Opportunities") {
+      return { ...b, label: "Expert Review", desc: "Personalised analysis from Eduardo Mendes." };
+    }
+    return b;
+  });
 
   if (!hydrated || isUploadingQuote) {
     return (
@@ -284,199 +352,140 @@ export function AssessmentWizard({ mode = "free", leadId: initialLeadId }: Asses
     );
   }
 
+  // ── Quote extraction (after upload, before lead form) ─────────────────────
+  if (phase === "extract" && extractFile) {
+    return (
+      <WizardShell flowTitle={flowTitle} phaseLabel="Document Review" narrow>
+        <WizardCard>
+          <StepQuoteExtraction
+            file={extractFile}
+            onComplete={handleExtractionComplete}
+            onSkip={handleExtractionSkip}
+          />
+        </WizardCard>
+      </WizardShell>
+    );
+  }
+
   // ── Step 0: Lead Capture ──────────────────────────────────────────────────
   if (phase === "capture") {
     return (
-      <div className="flex flex-col flex-1">
-        <header className="bg-navy px-6 py-5 border-b border-white/10">
-          <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
-            <div className="min-w-0">
-              <Link href="/" className="flex items-center gap-3">
-                <img
-                  src="https://rdeavyxckvkfwjvmxugs.supabase.co/storage/v1/object/public/media/logo%20EM_hor%20white.png"
-                  alt="Eduardo Mendes Advisory"
-                  className="h-9 w-auto"
-                />
-              </Link>
-              <p className="text-white/70 text-xs mt-2">
-                Preliminary AI Assessment &nbsp;·&nbsp;
-                <span className="text-amber font-medium">Your Details</span>
-                &nbsp;·&nbsp; ~2 minutes
+      <WizardShell
+        flowTitle={flowTitle}
+        phaseLabel="Your Details"
+        sidebar={
+          <>
+            <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] border border-[#ece8e1] p-5">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#111A24] mb-1">What you&apos;ll receive</p>
+              <div className="w-8 h-[2px] bg-[#b67c2c] mb-4" />
+              <p className="text-xs text-[#4b5564] leading-relaxed">
+                A personalised preliminary assessment based on your project details and uploaded documents.
               </p>
             </div>
-            <div className="hidden sm:flex items-center gap-2.5 border border-white/15 rounded-xl px-4 py-2.5 shrink-0">
-              <ShieldCheck size={18} className="text-amber shrink-0" />
-              <div className="text-xs leading-tight">
-                <p className="text-white font-medium">Your information is secure</p>
-                <p className="text-white/40">We never share your data</p>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        <main className="flex-1 px-4 py-8">
-          <div className="max-w-6xl mx-auto grid lg:grid-cols-[1fr_300px] gap-6 items-start">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-              <StepLeadCapture
-                onComplete={handleLeadCaptured}
-                pendingQuoteName={pendingQuoteName}
-              />
-            </div>
-
-            {/* Sidebar */}
-            <aside className="space-y-4 hidden lg:block">
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-                <div className="flex items-start gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-xl bg-amber/10 flex items-center justify-center shrink-0">
-                    <BarChart3 size={20} className="text-amber" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-navy text-sm">What you&apos;ll get</p>
-                    <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
-                      A personalised preliminary assessment based on your project details.
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-                <p className="font-semibold text-navy text-sm mb-4">Your preliminary results include</p>
-                <div className="space-y-3">
-                  {[
-                    { icon: BarChart3,    label: "Opportunity Score",     desc: "See your project's potential rating." },
-                    { icon: TrendingDown, label: "Potential Savings",      desc: "Estimated range based on your details." },
-                    { icon: AlertTriangle,label: "Risk Areas Identified",  desc: "Key risks flagged for your project type." },
-                    { icon: ChevronRight, label: "Recommended Actions",    desc: "Priority steps to move forward." },
-                  ].map((b) => (
-                    <div key={b.label} className="flex items-start gap-3">
-                      <div className="w-7 h-7 rounded-lg bg-amber/10 flex items-center justify-center shrink-0 mt-0.5">
-                        <b.icon size={14} className="text-amber" />
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold text-navy">{b.label}</p>
-                        <p className="text-xs text-gray-500 leading-relaxed">{b.desc}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-                <div className="flex items-start gap-3">
-                  <ShieldCheck size={18} className="text-green-600 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-xs font-semibold text-green-700">Trusted by Owner Builders</p>
-                    <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
-                      Thousands of Owner Builders Australia-wide trust Eduardo Mendes for expert guidance.
-                    </p>
-                    <div className="flex items-center gap-1.5 mt-2">
-                      {[1,2,3,4,5].map((n) => (
-                        <Star key={n} size={12} className={n < 5 ? "fill-amber text-amber" : "fill-amber/40 text-amber/40"} />
-                      ))}
-                      <span className="text-xs text-gray-500">4.9 (120+ reviews)</span>
+            <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] border border-[#ece8e1] p-5">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#111A24] mb-1">Your results include</p>
+              <div className="w-8 h-[2px] bg-[#b67c2c] mb-4" />
+              <div className="space-y-3.5">
+                {[
+                  { icon: BarChart3, label: "Opportunity score", desc: "Your project's potential rating." },
+                  { icon: TrendingDown, label: "Potential savings", desc: "Estimated range for your build." },
+                  { icon: AlertTriangle, label: "Risk areas", desc: "Key risks for your project type." },
+                  { icon: ChevronRight, label: "Next steps", desc: "Priority actions to move forward." },
+                ].map((b) => (
+                  <div key={b.label} className="flex items-start gap-3 pb-3 border-b border-[#ece8e1] last:border-0 last:pb-0">
+                    <b.icon size={15} className="text-[#b67c2c] shrink-0 mt-0.5" strokeWidth={1.8} />
+                    <div>
+                      <p className="text-xs font-semibold text-[#111A24]">{b.label}</p>
+                      <p className="text-[11px] text-[#6b7280] leading-relaxed mt-0.5">{b.desc}</p>
                     </div>
                   </div>
+                ))}
+              </div>
+            </div>
+            <div className="rounded-2xl border border-[#ece8e1] bg-[#faf9f7] p-5">
+              <div className="flex items-start gap-3">
+                <ShieldCheck size={16} className="text-[#b67c2c] shrink-0 mt-0.5" strokeWidth={1.8} />
+                <div>
+                  <p className="text-xs font-semibold text-[#111A24]">Trusted advisory</p>
+                  <p className="text-[11px] text-[#6b7280] mt-1 leading-relaxed">
+                    Independent guidance for owner builders and homeowners across Australia.
+                  </p>
                 </div>
               </div>
-            </aside>
-          </div>
-        </main>
-
-        <footer className="bg-white border-t border-gray-100 py-4 px-6">
-          <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4 text-xs text-gray-400">
-            <div className="flex items-center gap-2">
-              <Lock size={13} />
-              <span className="font-medium text-gray-600">Secure SSL encryption</span>
-              <span>256-bit protection</span>
             </div>
-            <div className="flex items-center gap-2">
-              <MessageCircle size={13} />
-              <span>Need help? <a href="/contact" className="text-navy hover:underline">Chat with our team</a></span>
-            </div>
-            <div className="flex items-center gap-2">
-              <img
-                src={FOOTER_BRAND_LOGO}
-                alt="Eduardo Mendes Advisory"
-                className="h-6 w-auto"
-              />
-              <span>Owner Builder Advisor</span>
-            </div>
-          </div>
-        </footer>
-      </div>
+          </>
+        }
+      >
+        <WizardCard>
+          <StepLeadCapture
+            onComplete={handleLeadCaptured}
+            pendingQuoteName={pendingQuoteName}
+            initialData={
+              extractionResult || data.hasQuote
+                ? {
+                    suburb: extractionResult?.wizardPrefill.suburb ?? data.suburb,
+                    state: extractionResult?.wizardPrefill.state ?? data.state,
+                  }
+                : undefined
+            }
+            aiPrefilledFields={
+              extractionResult || (data.hasQuote && (data.suburb || data.state))
+                ? (["suburb", "state"] as const)
+                : undefined
+            }
+          />
+        </WizardCard>
+      </WizardShell>
     );
   }
 
   // ── Steps 1–4: Assessment ─────────────────────────────────────────────────
   const displayStep = step;
-  const headerTitle = mode === "free" ? "Preliminary AI Assessment" : "Project Intake";
+  const stepLabels = ["Project Type", "Location", "Current Stage", "Budget"];
 
   return (
-    <div className="flex flex-col flex-1">
-      {/* ── Dark header ───────────────────────────────────────────── */}
-      <header className="bg-navy px-6 py-5 border-b border-white/10">
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
-          <div className="min-w-0">
-            <Link href="/" className="flex items-center gap-3">
-              <img
-                src="https://rdeavyxckvkfwjvmxugs.supabase.co/storage/v1/object/public/media/logo%20EM_hor%20white.png"
-                alt="Eduardo Mendes Advisory"
-                className="h-9 w-auto"
-              />
-            </Link>
-            <p className="text-white/70 text-xs mt-2">
-              {headerTitle} &nbsp;·&nbsp;
-              <span className="text-amber font-medium">Step {displayStep} of 5</span>
-              &nbsp;·&nbsp; ~2 minutes
-            </p>
+    <WizardShell
+      flowTitle={flowTitle}
+      phaseLabel={`Step ${displayStep} of 4 - ${stepLabels[displayStep - 1] ?? ""}`}
+      displayStep={displayStep}
+      showStepper
+      sidebar={
+        <>
+          <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] border border-[#ece8e1] p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#111A24] mb-1">{sidebar.whyTitle}</p>
+            <div className="w-8 h-[2px] bg-[#b67c2c] mb-4" />
+            <p className="text-xs text-[#4b5564] leading-relaxed">{sidebar.whyBody}</p>
           </div>
-
-          {/* Step progress */}
-          <nav className="hidden md:flex items-center gap-0" aria-label="Assessment steps">
-            {STEPS_CONFIG.map((s, i) => {
-              const idx = i + 1;
-              const isDone = idx < displayStep;
-              const isActive = idx === displayStep;
-              return (
-                <div key={s.label} className="flex items-center">
-                  <div className="flex flex-col items-center gap-1">
-                    <div className={cn(
-                      "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all",
-                      isDone   && "bg-amber text-navy",
-                      isActive && "bg-amber text-navy ring-2 ring-amber/30",
-                      !isDone && !isActive && "border border-white/25 text-white/40"
-                    )}>
-                      {isDone ? <Check size={14} strokeWidth={3} /> : idx}
-                    </div>
-                    <span className={cn(
-                      "text-[10px] whitespace-nowrap",
-                      isActive ? "text-amber font-medium" : isDone ? "text-white/60" : "text-white/30"
-                    )}>
-                      {s.shortLabel}
-                    </span>
+          <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] border border-[#ece8e1] p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#111A24] mb-1">In your results</p>
+            <div className="w-8 h-[2px] bg-[#b67c2c] mb-4" />
+            <div className="space-y-3.5">
+              {stepBenefits.map((b) => (
+                <div key={b.label} className="flex items-start gap-3 pb-3 border-b border-[#ece8e1] last:border-0 last:pb-0">
+                  <b.icon size={15} className="text-[#b67c2c] shrink-0 mt-0.5" strokeWidth={1.8} />
+                  <div>
+                    <p className="text-xs font-semibold text-[#111A24]">{b.label}</p>
+                    <p className="text-[11px] text-[#6b7280] leading-relaxed mt-0.5">{b.desc}</p>
                   </div>
-                  {i < STEPS_CONFIG.length - 1 && (
-                    <div className={cn("w-10 h-px mx-1 mb-4", idx < displayStep ? "bg-amber/60" : "bg-white/15")} />
-                  )}
                 </div>
-              );
-            })}
-          </nav>
-
-          <div className="hidden sm:flex items-center gap-2.5 border border-white/15 rounded-xl px-4 py-2.5 shrink-0">
-            <ShieldCheck size={18} className="text-amber shrink-0" />
-            <div className="text-xs leading-tight">
-              <p className="text-white font-medium">Your information is secure</p>
-              <p className="text-white/40">We never share your data</p>
+              ))}
             </div>
           </div>
-        </div>
-      </header>
-
-      {/* ── Body ──────────────────────────────────────────────────── */}
-      <main className="flex-1 px-4 py-8">
-        <div className="max-w-6xl mx-auto grid lg:grid-cols-[1fr_300px] gap-6 items-start">
-
-          {/* Left: content card */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+          <div className="rounded-2xl border border-[#ece8e1] bg-[#faf9f7] p-5">
+            <div className="flex items-start gap-3">
+              <ShieldCheck size={16} className="text-[#b67c2c] shrink-0 mt-0.5" strokeWidth={1.8} />
+              <div>
+                <p className="text-xs font-semibold text-[#111A24]">Trusted advisory</p>
+                <p className="text-[11px] text-[#6b7280] mt-1 leading-relaxed">
+                  Independent guidance for owner builders and homeowners across Australia.
+                </p>
+              </div>
+            </div>
+          </div>
+        </>
+      }
+    >
+      <WizardCard>
             {step === 1 && (
               <StepProjectType value={data.projectType} onChange={(v) => updateData({ projectType: v })} />
             )}
@@ -498,6 +507,8 @@ export function AssessmentWizard({ mode = "free", leadId: initialLeadId }: Asses
                   hasQuote: data.hasQuote,
                   quoteFileName: data.quoteFileName,
                   uploadedQuoteUrl: data.uploadedQuoteUrl,
+                  uploadedFiles: data.uploadedFiles,
+                  projectComment: data.projectComment,
                 }}
                 onChange={updateData}
               />
@@ -509,13 +520,12 @@ export function AssessmentWizard({ mode = "free", leadId: initialLeadId }: Asses
               </div>
             )}
 
-            {/* Navigation */}
-            <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-100">
+            <div className="flex items-center justify-between mt-8 pt-6 border-t border-[#ece8e1]">
               <button
                 type="button"
                 onClick={handleBack}
                 disabled={isPending}
-                className="flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-navy transition-colors"
+                className="flex items-center gap-1.5 text-sm font-medium text-[#6b7280] hover:text-[#111A24] transition-colors"
               >
                 <ChevronLeft size={16} />
                 Back
@@ -526,102 +536,33 @@ export function AssessmentWizard({ mode = "free", leadId: initialLeadId }: Asses
                   type="button"
                   onClick={handleNext}
                   disabled={isPending}
-                  className="flex items-center gap-2 bg-navy hover:bg-navy/90 text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm"
+                  className="inline-flex items-center gap-2 bg-[#b67c2c] hover:bg-[#9f6c27] text-white font-semibold px-6 py-3 rounded-lg transition-colors text-sm uppercase tracking-[0.12em]"
                 >
                   {CONTINUE_LABELS[step - 1]}
-                  <ChevronRight size={16} />
+                  <ChevronRight size={16} strokeWidth={2.25} />
                 </button>
               ) : (
                 <button
                   type="button"
                   onClick={handleSubmit}
                   disabled={isPending}
-                  className="flex items-center gap-2 bg-navy hover:bg-navy/90 text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm min-w-[200px] justify-center"
+                  className="inline-flex items-center gap-2 bg-[#b67c2c] hover:bg-[#9f6c27] disabled:opacity-60 text-white font-semibold px-6 py-3 rounded-lg transition-colors text-sm uppercase tracking-[0.12em] min-w-[220px] justify-center"
                 >
                   {isPending ? (
-                    <><Loader2 size={15} className="animate-spin" /> Generating Results…</>
+                    <>
+                      <Loader2 size={15} className="animate-spin" />
+                      {mode === "paid" ? "Submitting..." : "Generating..."}
+                    </>
                   ) : (
-                    <><BarChart3 size={15} /> Get My Assessment Results</>
+                    <>
+                      <BarChart3 size={15} />
+                      {mode === "paid" ? "Submit project" : "Get my results"}
+                    </>
                   )}
                 </button>
               )}
             </div>
-          </div>
-
-          {/* Right: contextual sidebar */}
-          <aside className="space-y-4 hidden lg:block">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-              <div className="flex items-start gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-amber/10 flex items-center justify-center shrink-0">
-                  <sidebar.icon size={20} className="text-amber" />
-                </div>
-                <div>
-                  <p className="font-semibold text-navy text-sm">{sidebar.whyTitle}</p>
-                  <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{sidebar.whyBody}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-              <p className="font-semibold text-navy text-sm mb-4">What you&apos;ll get in results</p>
-              <div className="space-y-3">
-                {sidebar.benefits.map((b) => (
-                  <div key={b.label} className="flex items-start gap-3">
-                    <div className="w-7 h-7 rounded-lg bg-amber/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <b.icon size={14} className="text-amber" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold text-navy">{b.label}</p>
-                      <p className="text-xs text-gray-500 leading-relaxed">{b.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-              <div className="flex items-start gap-3">
-                <ShieldCheck size={18} className="text-green-600 shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-xs font-semibold text-green-700">Trusted by Owner Builders</p>
-                  <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
-                    Thousands of Owner Builders Australia-wide trust Eduardo Mendes for expert guidance.
-                  </p>
-                  <div className="flex items-center gap-1.5 mt-2">
-                    {[1,2,3,4,5].map((n) => (
-                      <Star key={n} size={12} className={n < 5 ? "fill-amber text-amber" : "fill-amber/40 text-amber/40"} />
-                    ))}
-                    <span className="text-xs text-gray-500">4.9 (120+ reviews)</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </main>
-
-      {/* ── Trust footer ──────────────────────────────────────────── */}
-      <footer className="bg-white border-t border-gray-100 py-4 px-6">
-        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4 text-xs text-gray-400">
-          <div className="flex items-center gap-2">
-            <Lock size={13} />
-            <span className="font-medium text-gray-600">Secure SSL encryption</span>
-            <span>256-bit protection</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <MessageCircle size={13} />
-            <span>Need help? <a href="/contact" className="text-navy hover:underline">Chat with our team</a></span>
-          </div>
-          <div className="flex items-center gap-2">
-            <img
-              src={FOOTER_BRAND_LOGO}
-              alt="Eduardo Mendes Advisory"
-              className="h-6 w-auto"
-            />
-            <span>Owner Builder Advisor</span>
-          </div>
-        </div>
-      </footer>
-    </div>
+      </WizardCard>
+    </WizardShell>
   );
 }

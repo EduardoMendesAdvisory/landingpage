@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
+import { UploadQuoteButton } from "@/components/shared/UploadQuoteButton";
 
 const navLinks = [
   { label: "How It Works", href: "/#how-it-works" },
@@ -116,15 +115,12 @@ export function PublicNav() {
             >
               Sign In
             </Link>
-            <Link
-              href="/assessment"
-              className={cn(
-                buttonVariants({ size: "sm" }),
-                "bg-[#b67c2c] hover:bg-[#9f6c27] text-white border-transparent font-bold uppercase tracking-wider"
-              )}
-            >
-              Get Started
-            </Link>
+            <UploadQuoteButton
+              label="Get Started"
+              variant="nav"
+              size="sm"
+              showArrow={false}
+            />
           </div>
 
           {/* Mobile menu toggle */}
@@ -189,16 +185,13 @@ export function PublicNav() {
               >
                 Sign In
               </Link>
-              <Link
-                href="/assessment"
-                className={cn(
-                  buttonVariants({ size: "sm" }),
-                  "bg-[#b67c2c] hover:bg-[#9f6c27] text-white border-transparent justify-center"
-                )}
-                onClick={() => setMobileOpen(false)}
-              >
-                Free Assessment
-              </Link>
+              <UploadQuoteButton
+                label="Free Assessment"
+                variant="nav"
+                size="sm"
+                showArrow={false}
+                className="justify-center w-full"
+              />
             </div>
           </nav>
         </div>

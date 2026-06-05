@@ -6,8 +6,7 @@ import { DashboardCard } from "@/components/shared/DashboardCard";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ProgressCircle } from "@/components/shared/ProgressCircle";
 import { StatusBadge } from "@/components/shared/StatusBadge";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { UploadQuoteButton } from "@/components/shared/UploadQuoteButton";
 import Link from "next/link";
 import {
   FileSearch,
@@ -141,15 +140,12 @@ export default async function BuildIQDashboardPage() {
             title="Your project is being set up"
             description="Eduardo will activate your BuildIQ project after your strategy call. In the meantime, complete your free assessment."
             action={
-              <Link
-                href="/assessment"
-                className={cn(
-                  buttonVariants(),
-                  "bg-navy hover:bg-navy/90 text-white border-transparent"
-                )}
-              >
-                Complete Assessment
-              </Link>
+              <UploadQuoteButton
+                label="Complete Assessment"
+                variant="primary"
+                size="compact"
+                showArrow={false}
+              />
             }
           />
         )}

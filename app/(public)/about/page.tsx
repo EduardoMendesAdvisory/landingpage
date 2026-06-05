@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { EDUARDO_PORTRAIT_URL } from "@/lib/media";
 
 export const metadata: Metadata = {
   title: "About Eduardo Mendes",
@@ -106,8 +107,7 @@ const TESTIMONIALS = [
   },
 ];
 
-const EDUARDO_HERO =
-  "https://rdeavyxckvkfwjvmxugs.supabase.co/storage/v1/object/public/media/eduardo3.png";
+const EDUARDO_HERO = EDUARDO_PORTRAIT_URL;
 const EDUARDO_QUOTE =
   "https://rdeavyxckvkfwjvmxugs.supabase.co/storage/v1/object/public/media/edu%203.png";
 

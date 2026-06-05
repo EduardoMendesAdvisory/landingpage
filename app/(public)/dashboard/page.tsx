@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Clock, FileText, MessageCircle, Phone, ShieldCheck, Star } from "lucide-react";
+import { Clock, FileText, MessageCircle, ShieldCheck, Star } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "My Dashboard | Eduardo Mendes Advisory",
@@ -95,9 +95,11 @@ export default function DashboardPage() {
               <p className="text-[11px] text-gray-500 leading-relaxed">Email us any time and we&apos;ll get back to you promptly.</p>
             </div>
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 text-center">
-              <Phone size={20} className="text-amber mx-auto mb-2" />
-              <p className="text-xs font-semibold text-navy mb-1">Call Eduardo</p>
-              <a href="tel:0419112555" className="text-sm font-semibold text-navy hover:underline">0419 112 555</a>
+              <MessageCircle size={20} className="text-amber mx-auto mb-2" />
+              <p className="text-xs font-semibold text-navy mb-1">Book a Call</p>
+              <Link href="/book-call" className="text-sm font-semibold text-navy hover:underline">
+                Choose your service
+              </Link>
             </div>
           </div>
 

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { UploadQuoteButton } from "@/components/shared/UploadQuoteButton";
+import { EDUARDO_PORTRAIT_URL } from "@/lib/media";
 import {
   Upload,
   Play,
@@ -298,7 +299,7 @@ export default function HomePage() {
             {/* Right: Eduardo photo */}
             <div className="relative bg-[#111A24] min-h-[420px] flex items-center justify-center overflow-hidden">
               <img
-                src="https://rdeavyxckvkfwjvmxugs.supabase.co/storage/v1/object/public/media/eduardo3.png"
+                src={EDUARDO_PORTRAIT_URL}
                 alt="Eduardo Mendes"
                 className="absolute inset-0 w-full h-full object-cover object-top scale-[0.92]"
               />
@@ -459,12 +460,12 @@ export default function HomePage() {
                 Upload your builder quote and get an independent expert assessment. No risk, no obligation.
               </p>
             </div>
-            <Link
-              href="/assessment"
-              className="inline-flex items-center gap-2 border-2 border-white text-white hover:bg-white hover:text-[#b67c2c] font-semibold px-8 py-3.5 rounded-lg text-sm uppercase tracking-[0.14em] transition-all whitespace-nowrap shrink-0"
-            >
-              Let&apos;s Get Started <ArrowRight size={15} />
-            </Link>
+            <UploadQuoteButton
+              label="Let's Get Started"
+              variant="cta-outline"
+              size="large"
+              showUploadIcon={false}
+            />
           </div>
         </section>
 

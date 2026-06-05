@@ -1,10 +1,13 @@
 import Link from "next/link";
 
+const FOOTER_LINK_CLASS =
+  "text-xs text-white/50 hover:text-[#b67c2c] transition-colors duration-200 block py-0.5";
+
 export function PublicFooter() {
   return (
     <footer className="bg-[#111A24] text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-8 gap-x-10 sm:gap-10">
 
           {/* Col 1: Brand */}
           <div>
@@ -34,10 +37,10 @@ export function PublicFooter() {
                 { label: "Construction Advisory",         href: "/services/construction-advisory" },
                 { label: "Owner Builder Program",         href: "/services/owner-builder-program" },
                 { label: "Site Visits & Inspections",     href: "/services/site-visits-inspections" },
-                { label: "Free AI Assessment",            href: "/assessment" },
+                { label: "Free AI Assessment", href: "/assessment" },
               ].map((l) => (
-                <li key={l.href}>
-                  <Link href={l.href} className="text-xs text-white/50 hover:text-white transition-colors">
+                <li key={l.label}>
+                  <Link href={l.href} className={FOOTER_LINK_CLASS}>
                     {l.label}
                   </Link>
                 </li>
@@ -58,7 +61,7 @@ export function PublicFooter() {
                 { label: "Contact",         href: "/contact" },
               ].map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="text-xs text-white/50 hover:text-white transition-colors">
+                  <Link href={l.href} className={FOOTER_LINK_CLASS}>
                     {l.label}
                   </Link>
                 </li>
@@ -72,7 +75,7 @@ export function PublicFooter() {
             <div className="space-y-2.5 text-xs text-white/50">
               <p>Queensland, Australia</p>
               <p>Australia-Wide Advisory</p>
-              <a href="mailto:contact@eduardomendes.com.au" className="block hover:text-white transition-colors">
+              <a href="mailto:contact@eduardomendes.com.au" className={FOOTER_LINK_CLASS}>
                 contact@eduardomendes.com.au
               </a>
             </div>
@@ -85,7 +88,7 @@ export function PublicFooter() {
           </div>
         </div>
 
-        <div className="mt-12 pt-6 border-t border-white/8 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="mt-12 pt-6 border-t border-white/8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-center sm:text-left">
           <p className="text-white/30 text-xs">
             © {new Date().getFullYear()} Eduardo Mendes Owner Builder Advisory.
           </p>
@@ -93,13 +96,13 @@ export function PublicFooter() {
         </div>
 
         <div className="mt-4 px-1">
-          <p className="text-[11px] text-white/55 leading-relaxed text-justify">
+          <p className="text-[11px] text-white/55 leading-relaxed sm:text-justify">
             Independent construction advisory services. AI-assisted analysis, benchmarking, and reporting tools may be used and are reviewed by Eduardo Mendes before final delivery. Information provided is general in nature and is intended for educational and informational purposes only.
           </p>
-          <p className="text-[11px] text-white/55 leading-relaxed text-justify mt-2">
+          <p className="text-[11px] text-white/55 leading-relaxed sm:text-justify mt-2">
             Services do not constitute legal, financial, engineering, structural, building certification, surveying, quantity surveying, insurance, or other regulated professional advice. Cost comparisons, savings estimates, benchmarks, and project insights are indicative only and should not be relied upon as guarantees of future outcomes, project costs, approvals, contractor performance, or financial savings.
           </p>
-          <p className="text-[11px] text-white/55 leading-relaxed text-justify mt-2">
+          <p className="text-[11px] text-white/55 leading-relaxed sm:text-justify mt-2">
             Clients remain responsible for obtaining independent advice from appropriately qualified professionals where required and for all decisions made in relation to their project.
           </p>
           <p className="text-[11px] text-white/40 text-center mt-3">
@@ -108,7 +111,7 @@ export function PublicFooter() {
               href="https://www.heliowoi.com"
               target="_blank"
               rel="noreferrer"
-              className="text-white/60 hover:text-white underline underline-offset-2 transition-colors"
+              className="text-white/60 hover:text-[#b67c2c] underline underline-offset-2 transition-colors duration-200"
             >
               Helio Woi
             </a>

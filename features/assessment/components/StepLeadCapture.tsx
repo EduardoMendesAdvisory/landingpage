@@ -1,9 +1,17 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { User, Mail, Phone, MapPin, Loader2, ShieldCheck, FileText } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  ArrowRight,
+  CheckCircle2,
+  FileText,
+  Loader2,
+  Lock,
+  Mail,
+  MapPin,
+  Phone,
+  User,
+} from "lucide-react";
 import { saveLead } from "@/features/assessment/actions";
 import { cn } from "@/lib/utils";
 
@@ -20,7 +28,12 @@ export interface LeadData {
 interface StepLeadCaptureProps {
   onComplete: (leadId: string, leadData: LeadData) => void;
   pendingQuoteName?: string | null;
+  initialData?: Partial<Pick<LeadData, "suburb" | "state">>;
+  aiPrefilledFields?: ReadonlyArray<keyof Pick<LeadData, "suburb" | "state">>;
 }
+
+const INPUT_CLASS =
+  "h-11 w-full rounded-lg border border-[#e7e1d8] bg-white px-3 text-sm text-[#111A24] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#b67c2c]/25 focus:border-[#b67c2c] transition-colors";
 
 function validate(data: LeadData): string | null {
   if (!data.fullName.trim()) return "Please enter your full name.";
@@ -31,20 +44,53 @@ function validate(data: LeadData): string | null {
   return null;
 }
 
-export function StepLeadCapture({ onComplete, pendingQuoteName }: StepLeadCaptureProps) {
+function FieldLabel({
+  htmlFor,
+  children,
+  hint,
+}: {
+  htmlFor?: string;
+  children: React.ReactNode;
+  hint?: string;
+}) {
+  return (
+    <label htmlFor={htmlFor} className="block mb-1.5">
+      <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#4b5564]">
+        {children}
+      </span>
+      {hint && (
+        <span className="ml-2 text-[10px] font-medium normal-case tracking-normal text-[#b67c2c]">
+          {hint}
+        </span>
+      )}
+    </label>
+  );
+}
+
+export function StepLeadCapture({
+  onComplete,
+  pendingQuoteName,
+  initialData,
+  aiPrefilledFields,
+}: StepLeadCaptureProps) {
   const [data, setData] = useState<LeadData>({
     fullName: "",
     email: "",
     phone: "",
-    suburb: "",
-    state: "",
+    suburb: initialData?.suburb ?? "",
+    state: initialData?.state ?? "",
   });
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
+  const hasQuotePrefill = aiPrefilledFields && aiPrefilledFields.length > 0;
+
   function handleSubmit() {
     const err = validate(data);
-    if (err) { setError(err); return; }
+    if (err) {
+      setError(err);
+      return;
+    }
     setError(null);
 
     startTransition(async () => {
@@ -58,152 +104,203 @@ export function StepLeadCapture({ onComplete, pendingQuoteName }: StepLeadCaptur
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <p className="text-xs font-semibold text-amber uppercase tracking-widest mb-1">
-          Free Preliminary AI Assessment
+    <div className="space-y-0">
+      <div className="pb-6 border-b border-[#ece8e1]">
+        <p className="text-[#b67c2c] text-xs font-semibold uppercase tracking-[0.18em] mb-3">
+          Preliminary Assessment
         </p>
-        <h2 className="text-2xl font-bold text-navy">
-          Let&apos;s get started
+        <h2 className="text-2xl sm:text-3xl font-bold text-[#111A24] leading-tight mb-2">
+          Your contact details
         </h2>
-        <p className="text-sm text-gray-500 mt-1.5">
+        <p className="text-sm text-[#4b5564] leading-relaxed">
           Tell us a little about yourself so we can personalise your assessment. Your details are kept completely private.
         </p>
       </div>
 
       {pendingQuoteName && (
-        <div className="flex items-start gap-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3 text-xs text-green-800">
-          <FileText size={16} className="shrink-0 mt-0.5 text-green-600" />
-          <div>
-            <p className="font-semibold text-green-800">Quote ready to send</p>
-            <p className="mt-0.5 leading-relaxed">
-              <span className="font-medium">{pendingQuoteName}</span> will be uploaded securely after you submit your details.
-            </p>
+        <div className="py-5 border-b border-[#ece8e1]">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-lg bg-[#faf9f7] border border-[#e7e1d8] flex items-center justify-center shrink-0">
+                <FileText size={18} className="text-[#b67c2c]" strokeWidth={1.8} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs text-[#4b5564]">Attached document</p>
+                <p className="text-sm font-semibold text-[#111A24] truncate">{pendingQuoteName}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-[#4b5564]">
+              <CheckCircle2 size={14} className="text-[#b67c2c] shrink-0" />
+              Ready to upload
+            </div>
           </div>
+          <p className="mt-3 text-xs text-[#6b7280] leading-relaxed">
+            Your file will be uploaded securely once you submit this form.
+          </p>
         </div>
       )}
 
-      <div className="space-y-4">
-        {/* Full name */}
-        <div className="space-y-1.5">
-          <Label htmlFor="fullName" className="text-sm">Full Name <span className="text-red-500">*</span></Label>
-          <div className="relative">
-            <User size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <Input
-              id="fullName"
-              value={data.fullName}
-              onChange={(e) => setData((d) => ({ ...d, fullName: e.target.value }))}
-              placeholder="e.g. Sarah Johnson"
-              className="h-11 pl-9"
-              autoComplete="name"
-            />
-          </div>
+      <div className="py-6 border-b border-[#ece8e1] space-y-5">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#111A24] mb-1">
+            Contact
+          </p>
+          <div className="w-8 h-[2px] bg-[#b67c2c] mb-4" />
         </div>
 
-        {/* Email */}
-        <div className="space-y-1.5">
-          <Label htmlFor="email" className="text-sm">Email Address <span className="text-red-500">*</span></Label>
-          <div className="relative">
-            <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <Input
-              id="email"
-              type="email"
-              value={data.email}
-              onChange={(e) => setData((d) => ({ ...d, email: e.target.value }))}
-              placeholder="e.g. sarah@example.com"
-              className="h-11 pl-9"
-              autoComplete="email"
-            />
-          </div>
-        </div>
-
-        {/* Phone (optional) */}
-        <div className="space-y-1.5">
-          <Label htmlFor="phone" className="text-sm">
-            Phone Number <span className="text-gray-400 font-normal">(optional)</span>
-          </Label>
-          <div className="relative">
-            <Phone size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <Input
-              id="phone"
-              type="tel"
-              value={data.phone}
-              onChange={(e) => setData((d) => ({ ...d, phone: e.target.value }))}
-              placeholder="e.g. 0412 345 678"
-              className="h-11 pl-9"
-              autoComplete="tel"
-            />
-          </div>
-        </div>
-
-        {/* Suburb + State row */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-1.5">
-            <Label htmlFor="suburb" className="text-sm">Suburb <span className="text-red-500">*</span></Label>
+        <div className="space-y-4">
+          <div>
+            <FieldLabel htmlFor="fullName">
+              Full name <span className="text-[#b67c2c]">*</span>
+            </FieldLabel>
             <div className="relative">
-              <MapPin size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <Input
+              <User size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9ca3af]" />
+              <input
+                id="fullName"
+                value={data.fullName}
+                onChange={(e) => setData((d) => ({ ...d, fullName: e.target.value }))}
+                placeholder="Sarah Johnson"
+                className={cn(INPUT_CLASS, "pl-9")}
+                autoComplete="name"
+              />
+            </div>
+          </div>
+
+          <div>
+            <FieldLabel htmlFor="email">
+              Email address <span className="text-[#b67c2c]">*</span>
+            </FieldLabel>
+            <div className="relative">
+              <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9ca3af]" />
+              <input
+                id="email"
+                type="email"
+                value={data.email}
+                onChange={(e) => setData((d) => ({ ...d, email: e.target.value }))}
+                placeholder="sarah@example.com"
+                className={cn(INPUT_CLASS, "pl-9")}
+                autoComplete="email"
+              />
+            </div>
+          </div>
+
+          <div>
+            <FieldLabel htmlFor="phone">Phone number</FieldLabel>
+            <div className="relative">
+              <Phone size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9ca3af]" />
+              <input
+                id="phone"
+                type="tel"
+                value={data.phone}
+                onChange={(e) => setData((d) => ({ ...d, phone: e.target.value }))}
+                placeholder="Optional"
+                className={cn(INPUT_CLASS, "pl-9")}
+                autoComplete="tel"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="py-6 border-b border-[#ece8e1] space-y-4">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#111A24] mb-1">
+            Project location
+          </p>
+          <div className="w-8 h-[2px] bg-[#b67c2c] mb-1" />
+          {hasQuotePrefill && (
+            <p className="text-xs text-[#6b7280] mt-2 mb-3">
+              Pre-filled from your quote — please confirm or edit.
+            </p>
+          )}
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <FieldLabel
+              htmlFor="suburb"
+              hint={aiPrefilledFields?.includes("suburb") ? "From quote" : undefined}
+            >
+              Suburb <span className="text-[#b67c2c]">*</span>
+            </FieldLabel>
+            <div className="relative">
+              <MapPin size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9ca3af]" />
+              <input
                 id="suburb"
                 value={data.suburb}
                 onChange={(e) => setData((d) => ({ ...d, suburb: e.target.value }))}
-                placeholder="e.g. Buderim"
-                className="h-11 pl-9"
+                placeholder="Buderim"
+                className={cn(INPUT_CLASS, "pl-9")}
                 autoComplete="address-level2"
               />
             </div>
           </div>
-          <div className="space-y-1.5">
-            <Label className="text-sm">State <span className="text-red-500">*</span></Label>
+          <div>
+            <FieldLabel hint={aiPrefilledFields?.includes("state") ? "From quote" : undefined}>
+              State <span className="text-[#b67c2c]">*</span>
+            </FieldLabel>
             <select
               value={data.state}
               onChange={(e) => setData((d) => ({ ...d, state: e.target.value }))}
               className={cn(
-                "h-11 w-full rounded-md border border-input bg-background px-3 text-sm",
-                "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-                !data.state && "text-gray-400"
+                INPUT_CLASS,
+                !data.state && "text-[#9ca3af]"
               )}
             >
-              <option value="" disabled>Select state</option>
+              <option value="" disabled>
+                Select state
+              </option>
               {STATES.map((s) => (
-                <option key={s} value={s}>{s}</option>
+                <option key={s} value={s}>
+                  {s}
+                </option>
               ))}
             </select>
           </div>
         </div>
       </div>
 
-      {/* Privacy note */}
-      <div className="flex items-start gap-3 bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 text-xs text-blue-700">
-        <ShieldCheck size={14} className="shrink-0 mt-0.5 text-blue-600" />
-        <span>
-          Your information is kept 100% confidential and never shared with third parties. We only use it to personalise your assessment.
-        </span>
-      </div>
-
-      {/* Error */}
-      {error && (
-        <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-          {error}
+      <div className="pt-6 space-y-4">
+        <div className="flex items-start gap-2.5 text-xs text-[#6b7280] leading-relaxed">
+          <Lock size={13} className="text-[#4b5564] shrink-0 mt-0.5" strokeWidth={2} />
+          <span>
+            Your information is confidential and never shared with third parties. We only use it to personalise your assessment.
+          </span>
         </div>
-      )}
 
-      {/* CTA */}
-      <button
-        type="button"
-        onClick={handleSubmit}
-        disabled={isPending}
-        className="w-full flex items-center justify-center gap-2 bg-navy hover:bg-navy/90 text-white font-semibold px-6 py-3.5 rounded-xl transition-colors text-sm"
-      >
-        {isPending ? (
-          <><Loader2 size={15} className="animate-spin" /> Saving...</>
-        ) : (
-          "Start My Free Assessment ->"
+        {error && (
+          <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
         )}
-      </button>
 
-      <p className="text-center text-xs text-gray-400">
-        Free | No obligation | Results in under 2 minutes
-      </p>
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={isPending}
+          className={cn(
+            "w-full inline-flex items-center justify-center gap-2",
+            "bg-[#b67c2c] hover:bg-[#9f6c27] disabled:opacity-60 disabled:cursor-not-allowed",
+            "text-white font-semibold px-6 py-3.5 rounded-lg text-sm uppercase tracking-[0.12em] transition-colors"
+          )}
+        >
+          {isPending ? (
+            <>
+              <Loader2 size={16} className="animate-spin" />
+              Saving...
+            </>
+          ) : (
+            <>
+              Start my free assessment
+              <ArrowRight size={16} strokeWidth={2.25} />
+            </>
+          )}
+        </button>
+
+        <p className="text-center text-[11px] text-[#9ca3af] tracking-wide">
+          Free · No obligation · Results in under 2 minutes
+        </p>
+      </div>
     </div>
   );
 }

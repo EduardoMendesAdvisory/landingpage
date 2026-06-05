@@ -7,17 +7,23 @@ import {
   Building2,
   HardHat,
   Building,
-  Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  OptionCheck,
+  StepFootnote,
+  StepHeader,
+  StepSection,
+  optionButtonClass,
+} from "./wizard-ui";
 
 const PROJECT_TYPES = [
-  { value: "new_home_build",    label: "New Home",         sub: "New build from scratch",      icon: Home },
-  { value: "major_renovation",  label: "Renovation",       sub: "Existing home upgrade",       icon: Hammer },
-  { value: "addition_extension",label: "Extension",        sub: "Adding space to your home",   icon: PlusSquare },
-  { value: "granny_flat",       label: "Granny Flat",      sub: "Secondary dwelling",          icon: Building2 },
-  { value: "owner_builder",     label: "Owner Builder",    sub: "Self-managed build",          icon: HardHat },
-  { value: "commercial_small",  label: "Commercial",       sub: "Small commercial project",    icon: Building },
+  { value: "new_home_build", label: "New Home", sub: "New build from scratch", icon: Home },
+  { value: "major_renovation", label: "Renovation", sub: "Existing home upgrade", icon: Hammer },
+  { value: "addition_extension", label: "Extension", sub: "Adding space to your home", icon: PlusSquare },
+  { value: "granny_flat", label: "Granny Flat", sub: "Secondary dwelling", icon: Building2 },
+  { value: "owner_builder", label: "Owner Builder", sub: "Self-managed build", icon: HardHat },
+  { value: "commercial_small", label: "Commercial", sub: "Small commercial project", icon: Building },
 ] as const;
 
 interface StepProjectTypeProps {
@@ -27,56 +33,63 @@ interface StepProjectTypeProps {
 
 export function StepProjectType({ value, onChange }: StepProjectTypeProps) {
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-navy">What are you building?</h2>
-        <p className="text-sm text-gray-500 mt-1.5">
-          Select your project type and tell us a bit more about it.
-        </p>
-      </div>
+    <div className="space-y-0">
+      <StepHeader
+        overline="Step 1 of 4"
+        title="What are you building?"
+        description="Select the project type that best describes your build or renovation."
+      />
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        {PROJECT_TYPES.map((type) => {
-          const Icon = type.icon;
-          const selected = value === type.value;
-          return (
-            <button
-              key={type.value}
-              type="button"
-              onClick={() => onChange(type.value)}
-              className={cn(
-                "relative flex flex-col items-center gap-3 p-5 rounded-xl border-2 transition-all text-center",
-                selected
-                  ? "border-amber bg-amber/5"
-                  : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
-              )}
-            >
-              {selected && (
-                <span className="absolute top-2 right-2 w-5 h-5 rounded-full bg-amber flex items-center justify-center">
-                  <Check size={11} strokeWidth={3} className="text-white" />
-                </span>
-              )}
-              <div className={cn(
-                "w-12 h-12 rounded-xl flex items-center justify-center",
-                selected ? "bg-amber/15" : "bg-gray-100"
-              )}>
-                <Icon size={24} className={selected ? "text-amber" : "text-gray-500"} />
-              </div>
-              <div>
-                <p className={cn("text-sm font-semibold leading-tight", selected ? "text-navy" : "text-gray-800")}>
-                  {type.label}
-                </p>
-                <p className="text-xs text-gray-400 mt-0.5 leading-tight">{type.sub}</p>
-              </div>
-            </button>
-          );
-        })}
-      </div>
+      <StepSection title="Project type" hint="Choose the option that closest matches your plans." last>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {PROJECT_TYPES.map((type) => {
+            const Icon = type.icon;
+            const selected = value === type.value;
+            return (
+              <button
+                key={type.value}
+                type="button"
+                onClick={() => onChange(type.value)}
+                className={cn(
+                  optionButtonClass(selected),
+                  "flex flex-col items-center gap-3 p-4 text-center"
+                )}
+              >
+                <OptionCheck selected={selected} />
+                <div
+                  className={cn(
+                    "w-11 h-11 rounded-lg border flex items-center justify-center",
+                    selected
+                      ? "border-[#b67c2c]/30 bg-[#faf9f7]"
+                      : "border-[#ece8e1] bg-[#faf9f7]"
+                  )}
+                >
+                  <Icon
+                    size={22}
+                    className={selected ? "text-[#b67c2c]" : "text-[#6b7280]"}
+                    strokeWidth={1.8}
+                  />
+                </div>
+                <div>
+                  <p
+                    className={cn(
+                      "text-sm font-semibold leading-tight",
+                      selected ? "text-[#111A24]" : "text-[#374151]"
+                    )}
+                  >
+                    {type.label}
+                  </p>
+                  <p className="text-[11px] text-[#6b7280] mt-1 leading-snug">{type.sub}</p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </StepSection>
 
-      <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 flex items-start gap-3 text-xs text-blue-700">
-        <span className="shrink-0 mt-0.5">ℹ</span>
-        <span>This helps us provide a more accurate estimate and identify potential cost-saving opportunities for your project.</span>
-      </div>
+      <StepFootnote>
+        Your project type helps us benchmark costs and identify relevant savings opportunities.
+      </StepFootnote>
     </div>
   );
 }

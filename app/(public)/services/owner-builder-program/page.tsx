@@ -9,8 +9,8 @@ import {
   Target,
   Wrench,
 } from "lucide-react";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { BookConsultationLink } from "@/components/shared/BookConsultationLink";
+import { ServiceConsultationCard } from "@/components/shared/ServiceConsultationCard";
 
 export const metadata: Metadata = {
   title: "Owner Builder Program",
@@ -96,12 +96,7 @@ export default function OwnerBuilderProgramPage() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 mb-8">
-              <Link
-                href="/book-call"
-                className="inline-flex items-center justify-center bg-[#b67c2c] hover:bg-[#9f6c27] text-white font-semibold px-7 py-3.5 rounded-lg text-sm uppercase tracking-[0.14em] transition-colors"
-              >
-                Explore The Program
-              </Link>
+              <BookConsultationLink service="owner-builder-program" />
             </div>
 
             <div className="flex flex-wrap gap-x-6 gap-y-2 text-[11px] text-[#4b5564]/80 border-t border-[#ddd8cc] pt-5">
@@ -229,13 +224,10 @@ export default function OwnerBuilderProgramPage() {
             </p>
           </div>
           <div className="text-center md:text-right">
-            <Link
-              href="/book-call"
-              className="inline-flex items-center justify-center gap-2 bg-[#b67c2c] hover:bg-[#9f6c27] text-white font-semibold px-6 py-3 rounded-lg text-sm uppercase tracking-[0.12em] transition-colors min-w-[320px]"
-            >
-              Explore The Program
-            </Link>
-            <p className="text-[#4b5564] text-sm mt-2">or call 0419 112 555</p>
+            <BookConsultationLink
+              service="owner-builder-program"
+              className="min-w-[320px] px-6 py-3 tracking-[0.12em]"
+            />
           </div>
         </div>
       </section>
@@ -268,28 +260,7 @@ export default function OwnerBuilderProgramPage() {
             </div>
 
             <div className="space-y-5">
-              <div className="bg-light-bg rounded-2xl p-6">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                  Program investment
-                </p>
-                <p className="text-3xl font-bold text-navy">From $350</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Includes a free 15-minute intro call
-                </p>
-                <p className="text-sm text-muted-foreground mt-3 leading-relaxed">
-                  Most owner builder clients save significantly through better
-                  planning, trade decisions and independent oversight.
-                </p>
-                <Link
-                  href="/assessment"
-                  className={cn(
-                    buttonVariants(),
-                    "mt-4 bg-navy hover:bg-navy/90 text-white border-transparent"
-                  )}
-                >
-                  Start With Free Assessment
-                </Link>
-              </div>
+              <ServiceConsultationCard service="owner-builder-program" />
             </div>
           </div>
         </div>

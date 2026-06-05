@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import { UploadQuoteButton } from "@/components/shared/UploadQuoteButton";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -22,15 +23,13 @@ export default function BookingConfirmationPage() {
           Eduardo can review your project before you speak.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link
-            href="/assessment"
-            className={cn(
-              buttonVariants(),
-              "bg-navy hover:bg-navy/90 text-white border-transparent"
-            )}
-          >
-            Complete Assessment
-          </Link>
+          <UploadQuoteButton
+            label="Complete Assessment"
+            variant="primary"
+            size="compact"
+            showArrow={false}
+            className="justify-center"
+          />
           <Link href="/" className={cn(buttonVariants({ variant: "outline" }))}>
             Back to Home
           </Link>

@@ -10,7 +10,7 @@ export default function AssessmentLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8F9FA]">
+    <div className="min-h-screen flex flex-col bg-[#faf9f7]">
       {children}
     </div>
   );

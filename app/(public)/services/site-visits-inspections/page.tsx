@@ -10,8 +10,8 @@ import {
   MessageCircle,
   Target,
 } from "lucide-react";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { BookConsultationLink } from "@/components/shared/BookConsultationLink";
+import { ServiceConsultationCard } from "@/components/shared/ServiceConsultationCard";
 
 export const metadata: Metadata = {
   title: "Site Visits & Inspections",
@@ -99,12 +99,7 @@ export default function SiteVisitsPage() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 mb-8">
-              <Link
-                href="/book-call"
-                className="inline-flex items-center justify-center bg-[#b67c2c] hover:bg-[#9f6c27] text-white font-semibold px-7 py-3.5 rounded-lg text-sm uppercase tracking-[0.14em] transition-colors"
-              >
-                Book a Site Visit
-              </Link>
+              <BookConsultationLink service="site-visits-inspections" />
             </div>
 
             <div className="flex flex-wrap gap-x-6 gap-y-2 text-[11px] text-[#4b5564]/80 border-t border-[#ddd8cc] pt-5">
@@ -275,13 +270,10 @@ export default function SiteVisitsPage() {
             </div>
           </div>
           <div className="text-center md:text-right">
-            <Link
-              href="/book-call"
-              className="inline-flex items-center justify-center gap-2 bg-[#b67c2c] hover:bg-[#9f6c27] text-white font-semibold px-6 py-3 rounded-lg text-sm uppercase tracking-[0.12em] transition-colors min-w-[320px]"
-            >
-              Book a Site Visit
-            </Link>
-            <p className="text-[#4b5564] text-sm mt-2">or call 0419 112 555</p>
+            <BookConsultationLink
+              service="site-visits-inspections"
+              className="min-w-[320px] px-6 py-3 tracking-[0.12em]"
+            />
           </div>
         </div>
       </section>
@@ -317,22 +309,7 @@ export default function SiteVisitsPage() {
                 ))}
               </ul>
 
-              <div className="bg-light-bg rounded-2xl p-6 mt-4">
-                <p className="text-sm font-semibold text-navy mb-1">Starting from</p>
-                <p className="text-3xl font-bold text-navy">$350</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Includes a free 15-minute intro call
-                </p>
-                <Link
-                  href="/assessment"
-                  className={cn(
-                    buttonVariants(),
-                    "mt-4 bg-navy hover:bg-navy/90 text-white border-transparent"
-                  )}
-                >
-                  Get Started Free
-                </Link>
-              </div>
+              <ServiceConsultationCard service="site-visits-inspections" />
             </div>
           </div>
         </div>

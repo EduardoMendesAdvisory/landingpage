@@ -34,7 +34,7 @@ export async function notifyAssessmentCompleted(
         "View your full results and recommended next steps:",
         `${input.siteUrl}/assessment/results?id=${input.assessmentId}`,
         "",
-        "Book a free 30-minute strategy call with Eduardo:",
+        "Book a free 15-minute consultation with Eduardo:",
         `${input.siteUrl}/book-call`,
         "",
         "Best regards,",
