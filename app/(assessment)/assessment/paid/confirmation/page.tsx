@@ -75,8 +75,8 @@ export default async function PaidConfirmationPage({ searchParams }: PageProps) 
               />
             </Link>
             <p className="text-white/70 text-xs mt-2">
-              Project Intake &nbsp;·&nbsp;
-              <span className="text-amber font-medium">Step 5 of 5 — Submitted</span>
+              Project Intake &nbsp;Â·&nbsp;
+              <span className="text-amber font-medium">Step 5 of 5 -- Submitted</span>
             </p>
           </div>
 
@@ -154,7 +154,7 @@ export default async function PaidConfirmationPage({ searchParams }: PageProps) 
                 <div className="bg-gray-50 rounded-xl p-4 text-center">
                   <div className="text-xs font-medium text-gray-500 mb-2">Potential Savings</div>
                   <div className="text-base font-bold text-green-600 leading-tight">
-                    {formatCurrency(savingsMin)}<br/>– {formatCurrency(savingsMax)}
+                    {formatCurrency(savingsMin)}<br/>- {formatCurrency(savingsMax)}
                   </div>
                   <p className="text-[10px] text-gray-400 mt-2 leading-tight">Based on similar projects in your area.</p>
                 </div>
@@ -263,7 +263,7 @@ export default async function PaidConfirmationPage({ searchParams }: PageProps) 
                   <p className="text-xs font-semibold text-navy">Estimated Turnaround</p>
                 </div>
               </div>
-              <p className="text-2xl font-bold text-navy mb-1">48 – 72 Hours</p>
+              <p className="text-2xl font-bold text-navy mb-1">48 - 72 Hours</p>
               <p className="text-xs text-gray-500 leading-relaxed">
                 You&apos;ll be notified via email when your assessment is ready.
               </p>

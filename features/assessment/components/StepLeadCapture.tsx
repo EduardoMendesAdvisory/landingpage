@@ -182,14 +182,14 @@ export function StepLeadCapture({ onComplete }: StepLeadCaptureProps) {
         className="w-full flex items-center justify-center gap-2 bg-navy hover:bg-navy/90 text-white font-semibold px-6 py-3.5 rounded-xl transition-colors text-sm"
       >
         {isPending ? (
-          <><Loader2 size={15} className="animate-spin" /> Saving…</>
+          <><Loader2 size={15} className="animate-spin" /> Saving...</>
         ) : (
           "Start My Free Assessment ?"
         )}
       </button>
 
       <p className="text-center text-xs text-gray-400">
-        Free · No obligation · Results in under 2 minutes
+        Free Â· No obligation Â· Results in under 2 minutes
       </p>
     </div>
   );

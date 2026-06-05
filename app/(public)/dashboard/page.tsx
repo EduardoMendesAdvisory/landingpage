@@ -4,7 +4,7 @@ import { Clock, FileText, MessageCircle, Phone, ShieldCheck, Star } from "lucide
 
 export const metadata: Metadata = {
   title: "My Dashboard | Eduardo Mendes Advisory",
-  description: "Your project dashboard — track progress and review updates from Eduardo.",
+  description: "Your project dashboard -- track progress and review updates from Eduardo.",
 };
 
 export default function DashboardPage() {
@@ -78,7 +78,7 @@ export default function DashboardPage() {
             </div>
 
             <div className="bg-gray-50 rounded-xl px-4 py-3">
-              <p className="text-xs text-gray-500">Estimated delivery: <span className="font-semibold text-navy">48 – 72 hours</span></p>
+              <p className="text-xs text-gray-500">Estimated delivery: <span className="font-semibold text-navy">48 - 72 hours</span></p>
             </div>
           </div>
 
@@ -102,7 +102,7 @@ export default function DashboardPage() {
           </div>
 
           <p className="text-center text-xs text-gray-400 mt-8">
-            Full client dashboard coming soon — you&apos;ll be notified when it&apos;s available.
+            Full client dashboard coming soon -- you&apos;ll be notified when it&apos;s available.
           </p>
         </div>
       </main>

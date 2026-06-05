@@ -223,7 +223,7 @@ export default async function RecommendedServicePage({ params }: PageProps) {
                   <span className="text-3xl font-bold text-navy">{formatPrice(service.price ?? 0)}</span>
                   <span className="text-sm text-gray-400">{service.currency ?? "AUD"}</span>
                 </div>
-                <p className="text-xs text-gray-400 mt-0.5">One-time payment ù GST included</p>
+                <p className="text-xs text-gray-400 mt-0.5">One-time payment  GST included</p>
               </div>
 
               {/* Key benefits */}
@@ -282,7 +282,7 @@ export default async function RecommendedServicePage({ params }: PageProps) {
                     {[1,2,3,4,5].map((n) => (
                       <Star key={n} size={12} className={n < 5 ? "fill-amber text-amber" : "fill-amber/40 text-amber/40"} />
                     ))}
-                    <span className="text-xs text-gray-500 ml-1">4.9 ù 120+ Google Reviews</span>
+                    <span className="text-xs text-gray-500 ml-1">4.9  120+ Google Reviews</span>
                   </div>
                 </div>
               </div>
@@ -319,7 +319,7 @@ export default async function RecommendedServicePage({ params }: PageProps) {
             </div>
           </div>
           <div className="border-t border-white/10 pt-4 text-center text-white/30 text-xs">
-            ù {new Date().getFullYear()} Eduardo Mendes Owner Builder Advisory. All rights reserved.
+             {new Date().getFullYear()} Eduardo Mendes Owner Builder Advisory. All rights reserved.
           </div>
         </div>
       </footer>
