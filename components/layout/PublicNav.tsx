@@ -13,11 +13,11 @@ const navLinks = [
 ];
 
 const serviceLinks = [
-  { label: "Pre-Construction Advisory", href: "/services/pre-construction-advisory" },
-  { label: "BuildCheck™ Assessment", href: "/buildcheck" },
-  { label: "Contract & Quote Review", href: "/services/construction-advisory" },
-  { label: "Builder Selection Support", href: "/services/site-visits-inspections" },
-  { label: "Owner Builder Mentoring", href: "/services/owner-builder-program" },
+  { label: "BuildCheck",                  href: "/buildcheck" },
+  { label: "Pre-Construction Advisory",   href: "/services/pre-construction-advisory" },
+  { label: "Construction Advisory",       href: "/services/construction-advisory" },
+  { label: "Site Visits & Inspections",   href: "/services/site-visits-inspections" },
+  { label: "Owner Builder Program",       href: "/services/owner-builder-program" },
 ];
 
 export function PublicNav() {
@@ -51,7 +51,7 @@ export function PublicNav() {
                 }`}
               />
               <img
-                src="https://rdeavyxckvkfwjvmxugs.supabase.co/storage/v1/object/public/media/hero%20banner%20icon%202.png"
+                src="https://rdeavyxckvkfwjvmxugs.supabase.co/storage/v1/object/public/media/logo%20icon.png"
                 alt="Eduardo Mendes icon"
                 className={`absolute left-0 top-1/2 -translate-y-1/2 h-10 w-10 object-contain transition-opacity duration-200 ${
                   hasScrolled ? "opacity-100" : "opacity-0"
