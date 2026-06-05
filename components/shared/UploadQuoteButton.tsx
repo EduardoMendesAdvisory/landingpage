@@ -2,16 +2,36 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowRight, Upload } from "lucide-react";
 import { setPendingQuote } from "@/lib/pending-quote";
 import { ALLOWED_EXTENSIONS, MAX_FILE_SIZE } from "@/utils/validators";
 import { cn } from "@/lib/utils";
 
 const ACCEPT = ALLOWED_EXTENSIONS.map((ext) => `.${ext}`).join(",");
 
+type UploadQuoteVariant = "primary" | "outline";
+type UploadQuoteSize = "default" | "compact" | "large" | "hero";
+
 interface UploadQuoteButtonProps {
-  children: React.ReactNode;
+  label?: string;
+  variant?: UploadQuoteVariant;
+  size?: UploadQuoteSize;
+  showArrow?: boolean;
   className?: string;
 }
+
+const VARIANT_STYLES: Record<UploadQuoteVariant, string> = {
+  primary: "bg-[#b67c2c] hover:bg-[#9f6c27] text-white border-transparent",
+  outline:
+    "border-2 border-white text-white hover:bg-white hover:text-[#b67c2c] bg-transparent",
+};
+
+const SIZE_STYLES: Record<UploadQuoteSize, string> = {
+  default: "px-7 py-3.5 text-sm tracking-[0.14em]",
+  compact: "px-6 py-3 text-sm tracking-[0.12em]",
+  large: "px-8 py-4 text-sm tracking-[0.12em] min-w-[280px] sm:min-w-[320px]",
+  hero: "w-full px-6 py-3.5 text-sm tracking-wider font-bold",
+};
 
 function validateQuoteFile(file: File): string | null {
   const ext = file.name.split(".").pop()?.toLowerCase();
@@ -24,7 +44,13 @@ function validateQuoteFile(file: File): string | null {
   return null;
 }
 
-export function UploadQuoteButton({ children, className }: UploadQuoteButtonProps) {
+export function UploadQuoteButton({
+  label = "Upload Your Quote",
+  variant = "primary",
+  size = "default",
+  showArrow = true,
+  className,
+}: UploadQuoteButtonProps) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
@@ -50,8 +76,16 @@ export function UploadQuoteButton({ children, className }: UploadQuoteButtonProp
     e.target.value = "";
   }
 
+  const iconSize = size === "large" ? 17 : size === "hero" ? 16 : 15;
+
   return (
-    <span className="inline-flex flex-col items-stretch">
+    <div
+      className={cn(
+        "inline-flex flex-col",
+        size === "hero" && "w-full max-w-[640px]",
+        className
+      )}
+    >
       <input
         ref={inputRef}
         type="file"
@@ -61,12 +95,27 @@ export function UploadQuoteButton({ children, className }: UploadQuoteButtonProp
         tabIndex={-1}
         aria-hidden
       />
-      <button type="button" onClick={openFilePicker} className={cn(className)}>
-        {children}
+      <button
+        type="button"
+        onClick={openFilePicker}
+        className={cn(
+          "inline-flex items-center justify-center gap-2.5",
+          "font-semibold uppercase rounded-lg transition-colors",
+          "cursor-pointer select-none whitespace-nowrap",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b67c2c]/50 focus-visible:ring-offset-2",
+          VARIANT_STYLES[variant],
+          SIZE_STYLES[size]
+        )}
+      >
+        <Upload size={iconSize} className="shrink-0" strokeWidth={2.25} />
+        <span>{label}</span>
+        {showArrow && (
+          <ArrowRight size={iconSize - 1} className="shrink-0" strokeWidth={2.25} />
+        )}
       </button>
       {error && (
         <span className="text-xs text-red-600 mt-1.5 text-center">{error}</span>
       )}
-    </span>
+    </div>
   );
 }
