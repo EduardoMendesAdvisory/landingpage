@@ -1,0 +1,7 @@
+[build]
+  command = "npm run build"
+
+[[redirects]]
+  from = "/favicon.ico"
+  to = "/favicon-48.png"
+  status = 200
