@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AdvisorSidebar } from "@/components/layout/AdvisorSidebar";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdvisorLayout({
   children,
 }: {

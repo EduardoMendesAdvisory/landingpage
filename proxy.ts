@@ -3,27 +3,27 @@ import {
   mergeSessionCookies,
   updateSession,
 } from "@/lib/supabase/middleware";
-import { hasClientAccess } from "@/lib/auth/post-login-redirect";
 
 /**
- * RBAC Proxy — runs on every request (Next.js 16 proxy convention).
+ * Proxy — Next.js 16 convention (replaces middleware.ts).
  *
- * Rules:
- * - /buildiq/* requires client access (role = client or clients row)
- * - /advisor/* requires role = admin
- * - Unauthenticated users → redirect to /login
- * - Wrong role → redirect to /unauthorized
+ * DESIGN: This layer performs an OPTIMISTIC session check only.
+ * It verifies that a session JWT exists in cookies; it does NOT make DB
+ * queries. DB-based role / access checks live in each layout so that a
+ * transient DB error never forces a logout.
  *
- * Session cookies from updateSession are always forwarded on redirects.
+ * Protected routes:
+ *   /buildiq/*  — requires authenticated session
+ *   /advisor/*  — requires authenticated session
  */
 export async function proxy(request: NextRequest) {
-  const { supabaseResponse, user, supabase } = await updateSession(request);
+  const { supabaseResponse, user } = await updateSession(request);
   const { pathname } = request.nextUrl;
 
-  const isAdvisorRoute = pathname.startsWith("/advisor");
-  const isBuildiqRoute = pathname.startsWith("/buildiq");
+  const isProtected =
+    pathname.startsWith("/advisor") || pathname.startsWith("/buildiq");
 
-  if (!isAdvisorRoute && !isBuildiqRoute) {
+  if (!isProtected) {
     return supabaseResponse;
   }
 
@@ -33,34 +33,6 @@ export async function proxy(request: NextRequest) {
     return mergeSessionCookies(
       supabaseResponse,
       NextResponse.redirect(loginUrl)
-    );
-  }
-
-  const { data: userData } = await supabase
-    .from("users")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  const { data: clientRecord } = await supabase
-    .from("clients")
-    .select("id")
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  const role = (userData as { role: string } | null)?.role;
-
-  if (isAdvisorRoute && role !== "admin") {
-    return mergeSessionCookies(
-      supabaseResponse,
-      NextResponse.redirect(new URL("/unauthorized", request.url))
-    );
-  }
-
-  if (isBuildiqRoute && !hasClientAccess(role, Boolean(clientRecord))) {
-    return mergeSessionCookies(
-      supabaseResponse,
-      NextResponse.redirect(new URL("/unauthorized", request.url))
     );
   }
 
