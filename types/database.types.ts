@@ -638,30 +638,43 @@ export type Database = {
       }
       messages: {
         Row: {
+          client_id: string | null
           content: string
           created_at: string
           id: string
           is_read: boolean | null
-          project_id: string
+          project_id: string | null
           sender_id: string
+          subject: string | null
         }
         Insert: {
+          client_id?: string | null
           content: string
           created_at?: string
           id?: string
           is_read?: boolean | null
-          project_id: string
+          project_id?: string | null
           sender_id: string
+          subject?: string | null
         }
         Update: {
+          client_id?: string | null
           content?: string
           created_at?: string
           id?: string
           is_read?: boolean | null
-          project_id?: string
+          project_id?: string | null
           sender_id?: string
+          subject?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "messages_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "messages_project_id_fkey"
             columns: ["project_id"]
@@ -1291,6 +1304,7 @@ export type Database = {
       tasks: {
         Row: {
           assigned_to: string | null
+          client_id: string | null
           completed_at: string | null
           created_at: string
           description: string | null
@@ -1304,6 +1318,7 @@ export type Database = {
         }
         Insert: {
           assigned_to?: string | null
+          client_id?: string | null
           completed_at?: string | null
           created_at?: string
           description?: string | null
@@ -1317,6 +1332,7 @@ export type Database = {
         }
         Update: {
           assigned_to?: string | null
+          client_id?: string | null
           completed_at?: string | null
           created_at?: string
           description?: string | null
@@ -1329,6 +1345,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "tasks_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tasks_assigned_to_fkey"
             columns: ["assigned_to"]

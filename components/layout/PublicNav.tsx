@@ -110,7 +110,7 @@ export function PublicNav() {
           {/* Desktop CTAs */}
           <div className="hidden md:flex items-center gap-3">
             <Link
-              href="/login"
+              href="/login?redirect=/buildiq/dashboard"
               className="text-sm text-white/80 hover:text-white transition-colors"
             >
               Sign In
@@ -179,7 +179,7 @@ export function PublicNav() {
             ))}
             <div className="pt-3 border-t border-white/10 flex flex-col gap-2">
               <Link
-                href="/login"
+                href="/login?redirect=/buildiq/dashboard"
                 className="text-sm text-white/80 hover:text-white transition-colors py-1"
                 onClick={() => setMobileOpen(false)}
               >

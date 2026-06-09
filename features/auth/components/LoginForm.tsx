@@ -13,24 +13,32 @@ interface LoginFormProps {
   message?: string;
 }
 
-export function LoginForm({ redirectPath: _redirectPath, message }: LoginFormProps) {
+export function LoginForm({ redirectPath, message }: LoginFormProps) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const isClientPortalLogin = redirectPath?.startsWith("/buildiq");
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     startTransition(async () => {
-      const result = await loginUser({ email, password });
+      const result = await loginUser({ email, password, redirectPath });
       if (result?.error) setError(result.error);
     });
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {isClientPortalLogin && (
+        <div className="rounded-lg bg-[#111A24]/5 border border-[#111A24]/10 px-4 py-3 text-sm text-[#111A24]">
+          Sign in to access your client portal, project dashboard and documents.
+        </div>
+      )}
+
       {message && (
         <div className="rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700">
           {message}

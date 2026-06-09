@@ -4,6 +4,9 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resend, FROM } from "@/lib/resend";
+import { resolvePostLoginPath } from "@/lib/auth/post-login-redirect";
+
+import { resolvePostRegisterPath, type RegisterOnboardingPath } from "@/lib/auth/onboarding-paths";
 
 // ── Register ─────────────────────────────────────────────────
 
@@ -13,6 +16,8 @@ export interface RegisterInput {
   email: string;
   phone: string;
   password: string;
+  onboardingPath?: RegisterOnboardingPath;
+  serviceSlug?: string;
 }
 
 export async function registerUser(
@@ -44,6 +49,26 @@ export async function registerUser(
         phone: input.phone,
       });
 
+      await admin
+        .from("leads")
+        .update({
+          full_name: [input.firstName, input.lastName].filter(Boolean).join(" "),
+          email: input.email.trim().toLowerCase(),
+          phone: input.phone?.trim() || null,
+          lead_status: "assessment_started",
+          source:
+            input.onboardingPath === "quote"
+              ? "quote_upload"
+              : input.onboardingPath === "service"
+                ? `service_${input.serviceSlug ?? "general"}`
+                : "free_assessment",
+          notes:
+            input.onboardingPath === "service" && input.serviceSlug
+              ? `Interested service: ${input.serviceSlug}`
+              : null,
+        })
+        .eq("user_id", data.user.id);
+
       await admin.from("audit_logs").insert({
         user_id: data.user.id,
         action: "user_registered",
@@ -59,14 +84,16 @@ export async function registerUser(
         from: FROM,
         to: input.email,
         subject: "Welcome to Eduardo Mendes Advisory",
-        text: `Hi ${input.firstName},\n\nWelcome! Your account has been created.\n\nYour next step is to complete your free project assessment at ${process.env.NEXT_PUBLIC_SITE_URL}/assessment\n\nBest regards,\nEduardo Mendes`,
+        text: `Hi ${input.firstName},\n\nWelcome! Your account has been created.\n\nContinue your project onboarding here: ${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/assessment\n\nBest regards,\nEduardo Mendes`,
       });
     } catch (emailError) {
       console.error("[registerUser] Welcome email failed:", emailError);
     }
   }
 
-  redirect("/assessment");
+  redirect(
+    resolvePostRegisterPath(input.onboardingPath ?? "assessment", input.serviceSlug)
+  );
 }
 
 // ── Login ────────────────────────────────────────────────────
@@ -74,6 +101,7 @@ export async function registerUser(
 export interface LoginInput {
   email: string;
   password: string;
+  redirectPath?: string;
 }
 
 export async function loginUser(
@@ -89,17 +117,16 @@ export async function loginUser(
   if (error) return { error: error.message };
 
   if (data.user) {
-    const { data: userData } = await supabase
-      .from("users")
-      .select("role")
-      .eq("id", data.user.id)
-      .single();
+    const [{ data: userData }, { data: clientRecord }] = await Promise.all([
+      supabase.from("users").select("role").eq("id", data.user.id).single(),
+      supabase.from("clients").select("id").eq("user_id", data.user.id).maybeSingle(),
+    ]);
 
     const role = (userData as { role: string } | null)?.role;
+    const hasClientRecord = Boolean(clientRecord);
+    const redirectPath = input.redirectPath?.startsWith("/") ? input.redirectPath : undefined;
 
-    if (role === "admin") redirect("/advisor/dashboard");
-    if (role === "client") redirect("/buildiq/dashboard");
-    redirect("/assessment");
+    redirect(resolvePostLoginPath(role, hasClientRecord, redirectPath));
   }
 
   return { error: "Login failed. Please try again." };

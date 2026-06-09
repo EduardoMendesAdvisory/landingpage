@@ -8,7 +8,13 @@ export function getCalendlyBaseUrl(): string {
 
 export function buildCalendlyUrl(
   baseUrl: string,
-  options?: { service?: string | null; lead?: string | null }
+  options?: {
+    service?: string | null;
+    lead?: string | null;
+    email?: string | null;
+    name?: string | null;
+    clientId?: string | null;
+  }
 ): string {
   const url = new URL(baseUrl);
   if (options?.service) {
@@ -16,6 +22,15 @@ export function buildCalendlyUrl(
   }
   if (options?.lead) {
     url.searchParams.set("utm_campaign", options.lead);
+  }
+  if (options?.clientId) {
+    url.searchParams.set("utm_term", options.clientId);
+  }
+  if (options?.email) {
+    url.searchParams.set("email", options.email);
+  }
+  if (options?.name) {
+    url.searchParams.set("name", options.name);
   }
   return url.toString();
 }

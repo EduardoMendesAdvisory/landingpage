@@ -9,22 +9,17 @@ import {
   Edit3,
   Home,
   MapPin,
-  PlusCircle,
   TrendingUp,
 } from "lucide-react";
 import { ProgressCircle } from "@/components/shared/ProgressCircle";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { ProjectTimeline } from "@/components/shared/ProjectTimeline";
+import { getClientContext } from "@/lib/buildiq/get-client-context";
+import { getClientTasks } from "@/lib/buildiq/get-client-tasks";
+import { getEffectiveActiveIndex, getNextStepCta } from "@/lib/buildiq/project-stages";
+import { ClientTaskList } from "@/components/buildiq/ClientTaskList";
 
 export const metadata: Metadata = { title: "My Project" };
-
-const JOURNEY_STEPS = [
-  { key: "assessment",           label: "Assessment" },
-  { key: "strategy_call",        label: "Strategy Call" },
-  { key: "quote_review",         label: "Quote Review" },
-  { key: "builder_selection",    label: "Builder Selection" },
-  { key: "construction_support", label: "Construction Support" },
-  { key: "completed",            label: "Project Completion" },
-];
 
 type Project = {
   id: string;
@@ -52,11 +47,6 @@ type Milestone = {
   order_index: number;
 };
 
-function getJourneyIndex(stage: string | null): number {
-  const idx = JOURNEY_STEPS.findIndex((s) => s.key === stage);
-  return idx >= 0 ? idx : 0;
-}
-
 function formatDate(dateStr: string | null): string {
   if (!dateStr) return "--";
   return new Date(dateStr).toLocaleDateString("en-AU", { dateStyle: "medium" });
@@ -65,6 +55,7 @@ function formatDate(dateStr: string | null): string {
 export default async function MyProjectPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  const { project: ctxProject, assessmentSubmitted } = await getClientContext(user!.id);
 
   const clientResult = await supabase
     .from("clients")
@@ -76,9 +67,10 @@ export default async function MyProjectPage() {
 
   let project: Project | null = null;
   let milestones: Milestone[] = [];
+  let tasks: Awaited<ReturnType<typeof getClientTasks>> = [];
 
   if (client?.id) {
-    const [projectRes, milestonesRes] = await Promise.all([
+    const [projectRes, tasksList] = await Promise.all([
       supabase
         .from("projects")
         .select("id, project_name, project_type, project_status, project_stage, location, suburb, state, budget_range, confidence_score, notes, started_at, created_at")
@@ -86,13 +78,11 @@ export default async function MyProjectPage() {
         .order("created_at", { ascending: false })
         .limit(1)
         .single(),
-      supabase
-        .from("project_timeline")
-        .select("id, milestone_name, milestone_description, status, due_date, completed_at, order_index")
-        .order("order_index", { ascending: true }),
+      getClientTasks(supabase, client.id, { limit: 20 }),
     ]);
 
     project = projectRes.data as Project | null;
+    tasks = tasksList;
     if (project?.id) {
       milestones = ((await supabase
         .from("project_timeline")
@@ -102,7 +92,12 @@ export default async function MyProjectPage() {
     }
   }
 
-  const journeyIndex = getJourneyIndex(project?.project_stage ?? null);
+  const journeyIndex = getEffectiveActiveIndex(project?.project_stage ?? null, {
+    assessmentSubmitted,
+  });
+  const nextStepCta = getNextStepCta(project?.project_stage ?? ctxProject?.project_stage, {
+    assessmentSubmitted,
+  });
   const completedMilestones = milestones.filter((m) => m.status === "completed").length;
   const progress = milestones.length > 0 ? Math.round((completedMilestones / milestones.length) * 100) : 0;
 
@@ -115,11 +110,11 @@ export default async function MyProjectPage() {
           <p className="text-sm text-muted-foreground mt-0.5">Overview and progress of your project journey.</p>
         </div>
         <Link
-          href="/buildiq/messages"
+          href="/buildiq/meetings"
           className="inline-flex items-center gap-2 bg-[#111A24] hover:bg-[#1d2a38] text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
         >
-          <PlusCircle size={15} />
-          New Project
+          <CalendarDays size={15} />
+          Book a Meeting
         </Link>
       </div>
 
@@ -129,15 +124,16 @@ export default async function MyProjectPage() {
             <div className="h-16 w-16 rounded-full bg-[#b67c2c]/10 flex items-center justify-center mb-4">
               <Home size={28} className="text-[#b67c2c]" />
             </div>
-            <h2 className="text-lg font-bold text-[#111A24] mb-2">No project yet</h2>
+            <h2 className="text-lg font-bold text-[#111A24] mb-2">Project setup in progress</h2>
             <p className="text-sm text-muted-foreground max-w-md mb-6 leading-relaxed">
-              Eduardo will set up your project after your strategy call. Complete your free assessment to get started.
+              Eduardo is configuring your project workspace. Book a meeting anytime for updates or to share new documents.
             </p>
             <Link
-              href="/assessment"
+              href="/buildiq/meetings"
               className="inline-flex items-center gap-2 bg-[#b67c2c] hover:bg-[#9f6c27] text-white font-semibold px-6 py-3 rounded-lg text-sm transition-colors"
             >
-              Start Free Assessment
+              <CalendarDays size={15} />
+              Book a Meeting
             </Link>
           </div>
         ) : (
@@ -193,55 +189,16 @@ export default async function MyProjectPage() {
 
             {/* Journey + At a Glance */}
             <div className="grid lg:grid-cols-[1fr_280px] gap-5">
-              {/* Journey timeline */}
+              {/* Journey timeline — reusable component */}
               <div className="bg-white rounded-2xl border border-gray-100 p-6">
                 <p className="text-sm font-bold text-[#111A24] mb-5">Project Journey</p>
-                <div className="flex items-start">
-                  {JOURNEY_STEPS.map((step, idx) => {
-                    const done = idx < journeyIndex;
-                    const active = idx === journeyIndex;
-                    return (
-                      <div key={step.key} className="flex flex-col items-center flex-1">
-                        <div className="flex items-center w-full">
-                          {idx > 0 && (
-                            <div className={`flex-1 h-0.5 ${done ? "bg-green-500" : "bg-gray-200"}`} />
-                          )}
-                          <div
-                            className={`h-9 w-9 rounded-full flex items-center justify-center shrink-0 border-2 ${
-                              done
-                                ? "bg-green-500 border-green-500"
-                                : active
-                                  ? "bg-white border-[#b67c2c]"
-                                  : "bg-white border-gray-200"
-                            }`}
-                          >
-                            {done ? (
-                              <CheckCircle2 size={16} className="text-white" />
-                            ) : active ? (
-                              <div className="h-3 w-3 rounded-full bg-[#b67c2c]" />
-                            ) : (
-                              <Circle size={14} className="text-gray-300" />
-                            )}
-                          </div>
-                          {idx < JOURNEY_STEPS.length - 1 && (
-                            <div className={`flex-1 h-0.5 ${done ? "bg-green-500" : "bg-gray-200"}`} />
-                          )}
-                        </div>
-                        <p className={`text-[10px] font-medium text-center mt-2 leading-tight px-0.5 ${
-                          done ? "text-[#111A24]" : active ? "text-[#b67c2c]" : "text-gray-400"
-                        }`}>
-                          {step.label}
-                        </p>
-                        <p className={`text-[9px] font-semibold uppercase tracking-wide mt-0.5 ${
-                          done ? "text-green-600" : active ? "text-[#b67c2c]" : "text-transparent"
-                        }`}>
-                          {done ? "Done" : active ? "In Progress" : "."}
-                        </p>
-                      </div>
-                    );
-                  })}
-                </div>
-
+                <ProjectTimeline
+                  stage={project.project_stage}
+                  size="compact"
+                  assessmentSubmitted={assessmentSubmitted}
+                  nextStepHref={nextStepCta?.href}
+                  nextStepCtaLabel={nextStepCta?.label}
+                />
                 {project.notes && (
                   <div className="mt-5 bg-[#b67c2c]/5 border border-[#b67c2c]/15 rounded-xl p-4">
                     <p className="text-xs font-semibold text-[#b67c2c] mb-1">Current Stage Notes</p>
@@ -254,7 +211,7 @@ export default async function MyProjectPage() {
               <div className="bg-white rounded-2xl border border-gray-100 p-5">
                 <div className="flex items-center justify-between mb-4">
                   <p className="text-sm font-bold text-[#111A24]">Project At a Glance</p>
-                  <Link href="/buildiq/messages" className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+                  <Link href="/buildiq/profile" className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
                     <Edit3 size={14} className="text-muted-foreground" />
                   </Link>
                 </div>
@@ -327,10 +284,10 @@ export default async function MyProjectPage() {
                 <p className="text-sm font-bold text-[#111A24] mb-4">Project Progress</p>
                 <div className="space-y-4">
                   {[
-                    { label: "Planning & Preparation", pct: journeyIndex >= 1 ? 100 : journeyIndex === 0 ? 60 : 0 },
-                    { label: "Builder Selection", pct: journeyIndex >= 3 ? 100 : journeyIndex === 2 ? 65 : 0 },
-                    { label: "Construction", pct: journeyIndex >= 4 ? 65 : 0 },
-                    { label: "Handover", pct: journeyIndex >= 5 ? 100 : 0 },
+                    { label: "Assessment & Strategy", pct: journeyIndex >= 2 ? 100 : journeyIndex === 1 ? 70 : journeyIndex === 0 ? 40 : 0 },
+                    { label: "Detailed Review", pct: journeyIndex >= 4 ? 100 : journeyIndex === 3 ? 65 : 0 },
+                    { label: "Advisory Support", pct: journeyIndex >= 5 ? 65 : 0 },
+                    { label: "Completion", pct: journeyIndex >= 6 ? 100 : 0 },
                   ].map((bar) => (
                     <div key={bar.label}>
                       <div className="flex justify-between items-center mb-1.5">
@@ -357,6 +314,17 @@ export default async function MyProjectPage() {
                       : "Your project is just getting started. Eduardo will guide you through each step."}
                   </p>
                 </div>
+              </div>
+
+              <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                <p className="text-sm font-bold text-[#111A24] mb-4">My Tasks</p>
+                {tasks.length > 0 ? (
+                  <ClientTaskList tasks={tasks} />
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No pending tasks. Eduardo will assign action items here when needed.
+                  </p>
+                )}
               </div>
             </div>
           </>

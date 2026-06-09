@@ -132,9 +132,18 @@ interface AssessmentWizardProps {
   mode?: WizardMode;
   /** For paid mode: pre-existing lead ID (from Stripe session) */
   leadId?: string;
+  /** Skip contact capture when user already registered and has a lead row */
+  skipLeadCapture?: boolean;
+  /** Lead ID for authenticated users coming from registration */
+  registeredLeadId?: string;
 }
 
-export function AssessmentWizard({ mode = "free", leadId: initialLeadId }: AssessmentWizardProps) {
+export function AssessmentWizard({
+  mode = "free",
+  leadId: initialLeadId,
+  skipLeadCapture = false,
+  registeredLeadId,
+}: AssessmentWizardProps) {
   const STORAGE_KEY = `em_assessment_wizard_${mode}`;
   const TOTAL_WIZARD_STEPS = 4;
 
@@ -203,12 +212,20 @@ export function AssessmentWizard({ mode = "free", leadId: initialLeadId }: Asses
         } else if (parsed?.phase) {
           setPhase(parsed.phase);
         }
+      } else if (skipLeadCapture && registeredLeadId) {
+        setLeadId(registeredLeadId);
+        if (parsed?.phase && parsed.phase !== "capture") {
+          setPhase(parsed.phase);
+        } else {
+          setPhase("assessment");
+          setStep(1);
+        }
       } else if (parsed?.phase) {
         setPhase(parsed.phase);
       }
     } catch { /* ignore */ }
     setHydrated(true);
-  }, [STORAGE_KEY, mode]);
+  }, [STORAGE_KEY, mode, skipLeadCapture, registeredLeadId]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -227,24 +244,8 @@ export function AssessmentWizard({ mode = "free", leadId: initialLeadId }: Asses
     } catch { /* ignore */ }
   }, [step, data, phase, leadId, leadData, extractionResult, hydrated, STORAGE_KEY]);
 
-  function handleExtractionComplete(result: QuoteExtractionResult) {
-    setExtractionResult(result);
-    setData((prev) => ({
-      ...prev,
-      ...result.wizardPrefill,
-      hasQuote: true,
-      quoteFileName: result.fileName,
-    }));
-    setPhase("capture");
-  }
-
-  function handleExtractionSkip() {
-    setPhase("capture");
-  }
-
-  function handleLeadCaptured(id: string, ld: LeadData) {
+  function continueWithLead(id: string) {
     setLeadId(id);
-    setLeadData(ld);
 
     const pendingFile = consumePendingQuote();
     if (!pendingFile) {
@@ -282,6 +283,37 @@ export function AssessmentWizard({ mode = "free", leadId: initialLeadId }: Asses
     });
   }
 
+  function handleExtractionComplete(result: QuoteExtractionResult) {
+    setExtractionResult(result);
+    setData((prev) => ({
+      ...prev,
+      ...result.wizardPrefill,
+      hasQuote: true,
+      quoteFileName: result.fileName,
+    }));
+
+    if (skipLeadCapture && registeredLeadId) {
+      continueWithLead(registeredLeadId);
+      return;
+    }
+
+    setPhase("capture");
+  }
+
+  function handleExtractionSkip() {
+    if (skipLeadCapture && registeredLeadId) {
+      continueWithLead(registeredLeadId);
+      return;
+    }
+
+    setPhase("capture");
+  }
+
+  function handleLeadCaptured(id: string, ld: LeadData) {
+    setLeadData(ld);
+    continueWithLead(id);
+  }
+
   function updateData(patch: Partial<WizardData>) {
     setData((prev) => ({ ...prev, ...patch }));
     setValidationError(null);
@@ -296,7 +328,7 @@ export function AssessmentWizard({ mode = "free", leadId: initialLeadId }: Asses
 
   function handleBack() {
     setValidationError(null);
-    if (step === 1 && mode === "free") {
+    if (step === 1 && mode === "free" && !skipLeadCapture) {
       setPhase("capture");
       return;
     }
@@ -367,8 +399,8 @@ export function AssessmentWizard({ mode = "free", leadId: initialLeadId }: Asses
     );
   }
 
-  // ── Step 0: Lead Capture ──────────────────────────────────────────────────
-  if (phase === "capture") {
+  // ── Step 0: Lead Capture (anonymous visitors only) ───────────────────────
+  if (phase === "capture" && !skipLeadCapture) {
     return (
       <WizardShell
         flowTitle={flowTitle}

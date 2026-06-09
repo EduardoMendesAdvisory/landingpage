@@ -7,6 +7,7 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { formatDate } from "@/utils/formatters";
 import { Users, Phone, FileCheck, Briefcase } from "lucide-react";
 import Link from "next/link";
+import { ActivateClientButton } from "@/features/clients/components/ActivateClientButton";
 
 export const metadata: Metadata = { title: "Advisor Dashboard" };
 
@@ -20,6 +21,7 @@ export default async function AdvisorDashboardPage() {
     meetingsResult,
     buildchecksResult,
     recentLeadsResult,
+    activeClientUserIdsResult,
   ] = await Promise.all([
     supabase
       .from("leads")
@@ -45,6 +47,7 @@ export default async function AdvisorDashboardPage() {
       )
       .order("created_at", { ascending: false })
       .limit(5),
+    supabase.from("clients").select("user_id"),
   ]);
 
   const newLeads = leadsResult.count ?? 0;
@@ -58,6 +61,24 @@ export default async function AdvisorDashboardPage() {
     project_type: string | null;
     user_id: string;
   }>;
+
+  const activeClientUserIds = new Set(
+    ((activeClientUserIdsResult.data ?? []) as Array<{ user_id: string }>).map(
+      (client) => client.user_id
+    )
+  );
+
+  const leadUserIds = recentLeads.map((lead) => lead.user_id);
+  const { data: leadUsers } = leadUserIds.length
+    ? await supabase.from("users").select("id, email").in("id", leadUserIds)
+    : { data: [] as Array<{ id: string; email: string }> };
+
+  const emailByUserId = new Map(
+    ((leadUsers ?? []) as Array<{ id: string; email: string }>).map((user) => [
+      user.id,
+      user.email,
+    ])
+  );
 
   return (
     <>
@@ -135,6 +156,9 @@ export default async function AdvisorDashboardPage() {
                     <th className="text-left px-5 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                       Date
                     </th>
+                    <th className="text-right px-5 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                      Portal
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -148,7 +172,7 @@ export default async function AdvisorDashboardPage() {
                           href={`/advisor/leads/${lead.id}`}
                           className="text-navy font-medium hover:text-warm-soil transition-colors text-xs"
                         >
-                          {lead.user_id.slice(0, 8)}…
+                          {emailByUserId.get(lead.user_id) ?? `${lead.user_id.slice(0, 8)}…`}
                         </Link>
                       </td>
                       <td className="px-5 py-3 text-muted-foreground text-xs">
@@ -161,6 +185,13 @@ export default async function AdvisorDashboardPage() {
                       </td>
                       <td className="px-5 py-3 text-muted-foreground text-xs">
                         {formatDate(lead.created_at)}
+                      </td>
+                      <td className="px-5 py-3 text-right">
+                        <ActivateClientButton
+                          userId={lead.user_id}
+                          userEmail={emailByUserId.get(lead.user_id) ?? "Unknown"}
+                          isClient={activeClientUserIds.has(lead.user_id)}
+                        />
                       </td>
                     </tr>
                   ))}

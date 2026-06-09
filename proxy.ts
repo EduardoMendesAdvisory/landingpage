@@ -1,11 +1,12 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
+import { hasClientAccess } from "@/lib/auth/post-login-redirect";
 
 /**
  * RBAC Middleware — runs on every request (Edge runtime).
  *
  * Rules:
- * - /buildiq/* requires role = client
+ * - /buildiq/* requires client access (role = client or clients row)
  * - /advisor/* requires role = admin
  * - Unauthenticated users → redirect to /login
  * - Wrong role → redirect to /unauthorized
@@ -40,13 +41,19 @@ export async function proxy(request: NextRequest) {
     .eq("id", user.id)
     .single();
 
+  const { data: clientRecord } = await supabase
+    .from("clients")
+    .select("id")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
   const role = (userData as { role: string } | null)?.role;
 
   if (isAdvisorRoute && role !== "admin") {
     return NextResponse.redirect(new URL("/unauthorized", request.url));
   }
 
-  if (isBuildiqRoute && role !== "client") {
+  if (isBuildiqRoute && !hasClientAccess(role, Boolean(clientRecord))) {
     return NextResponse.redirect(new URL("/unauthorized", request.url));
   }
 

@@ -57,7 +57,7 @@ export function PublicFooter() {
                 { label: "About Eduardo",   href: "/about" },
                 { label: "Terms of Service",href: "/terms-of-service" },
                 { label: "Book a Call",     href: "/book-call" },
-                { label: "Client Portal",   href: "/buildiq/dashboard" },
+                { label: "Client Portal",   href: "/login?redirect=/buildiq/dashboard" },
                 { label: "Contact",         href: "/contact" },
               ].map((l) => (
                 <li key={l.href}>

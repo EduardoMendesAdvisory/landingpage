@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { LoginForm } from "@/features/auth/components/LoginForm";
+import { createClient } from "@/lib/supabase/server";
+import { resolvePostLoginPath } from "@/lib/auth/post-login-redirect";
 
 export const metadata: Metadata = { title: "Sign In" };
 
@@ -10,6 +13,20 @@ interface LoginPageProps {
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const { redirect: redirectPath, message } = await searchParams;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    const [{ data: userData }, { data: clientRecord }] = await Promise.all([
+      supabase.from("users").select("role").eq("id", user.id).single(),
+      supabase.from("clients").select("id").eq("user_id", user.id).maybeSingle(),
+    ]);
+
+    const role = (userData as { role: string } | null)?.role;
+    redirect(resolvePostLoginPath(role, Boolean(clientRecord), redirectPath));
+  }
 
   return (
     <div className="w-full">

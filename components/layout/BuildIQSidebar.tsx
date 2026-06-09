@@ -3,51 +3,38 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Home,
-  FileSearch,
+  LayoutDashboard,
   FolderOpen,
   Layers,
   CalendarDays,
-  MessageSquare,
-  BookOpen,
   User,
-  Settings,
   LogOut,
   MessageCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { label: "Home",        href: "/buildiq/dashboard",  icon: Home },
-  { label: "BuildCheck™", href: "/buildiq/buildcheck", icon: FileSearch },
-  { label: "Documents",   href: "/buildiq/documents",  icon: FolderOpen },
-  { label: "Projects",    href: "/buildiq/project",    icon: Layers },
-  { label: "Meetings",    href: "/buildiq/meetings",   icon: CalendarDays },
-  { label: "Messages",    href: "/buildiq/messages",   icon: MessageSquare },
-  { label: "Resources",   href: "/buildiq/resources",  icon: BookOpen },
-  { label: "My Profile",  href: "/buildiq/profile",    icon: User },
-  { label: "Settings",    href: "/buildiq/settings",   icon: Settings },
+  { label: "Dashboard", href: "/buildiq/dashboard", icon: LayoutDashboard },
+  { label: "Documents", href: "/buildiq/documents", icon: FolderOpen },
+  { label: "Projects", href: "/buildiq/project", icon: Layers },
+  { label: "Meetings", href: "/buildiq/meetings", icon: CalendarDays },
+  { label: "My Profile", href: "/buildiq/profile", icon: User },
 ];
 
 interface BuildIQSidebarProps {
   userName?: string;
   userInitials?: string;
-  unreadMessages?: number;
 }
 
-export function BuildIQSidebar({
-  userName,
-  userInitials,
-  unreadMessages = 0,
-}: BuildIQSidebarProps) {
+export function BuildIQSidebar({ userName, userInitials }: BuildIQSidebarProps) {
   const pathname = usePathname();
 
-  const initials = userInitials ??
+  const initials =
+    userInitials ??
     (userName ? userName.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() : "?");
 
   return (
     <aside className="flex flex-col w-[200px] min-h-screen bg-[#111A24] text-white border-r border-white/5">
-      {/* Logo */}
       <div className="px-5 pt-6 pb-5 border-b border-white/8">
         <img
           src="https://rdeavyxckvkfwjvmxugs.supabase.co/storage/v1/object/public/media/logo%20EM_hor%20white.png"
@@ -59,11 +46,9 @@ export function BuildIQSidebar({
         </p>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-0.5">
         {navItems.map(({ label, href, icon: Icon }) => {
-          const active =
-            pathname === href || pathname.startsWith(href + "/");
+          const active = pathname === href || pathname.startsWith(href + "/");
           return (
             <Link
               key={href}
@@ -83,17 +68,11 @@ export function BuildIQSidebar({
                 )}
               />
               <span className="flex-1">{label}</span>
-              {label === "Messages" && unreadMessages > 0 && (
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#b67c2c] text-[10px] font-bold text-white">
-                  {unreadMessages > 9 ? "9+" : unreadMessages}
-                </span>
-              )}
             </Link>
           );
         })}
       </nav>
 
-      {/* Need help widget */}
       <div className="px-3 pb-3">
         <div className="rounded-xl border border-[#b67c2c]/30 bg-[#b67c2c]/8 px-4 py-3">
           <div className="flex items-center gap-2 mb-1">
@@ -101,15 +80,14 @@ export function BuildIQSidebar({
             <p className="text-[11px] font-semibold text-[#b67c2c]">Need help?</p>
           </div>
           <Link
-            href="/buildiq/messages"
+            href="/buildiq/meetings"
             className="text-[11px] text-white/70 hover:text-white transition-colors"
           >
-            Message Eduardo
+            Book a meeting with Eduardo
           </Link>
         </div>
       </div>
 
-      {/* User + sign out */}
       <div className="px-3 pb-4 border-t border-white/8 pt-3">
         <div className="flex items-center gap-2.5 px-1 mb-2">
           <div className="h-8 w-8 rounded-full bg-[#b67c2c] flex items-center justify-center shrink-0">
@@ -117,13 +95,13 @@ export function BuildIQSidebar({
           </div>
           <div className="min-w-0">
             <p className="text-xs font-medium text-white truncate leading-tight">
-              {userName ?? "My Account"}
+              {userName ?? "Client Account"}
             </p>
             <Link
               href="/buildiq/profile"
               className="text-[10px] text-white/50 hover:text-[#b67c2c] transition-colors"
             >
-              View Profile
+              Client Profile
             </Link>
           </div>
         </div>
