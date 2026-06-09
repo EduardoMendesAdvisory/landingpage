@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { FileText, FolderOpen } from "lucide-react";
@@ -31,10 +32,12 @@ export default async function DocumentsPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  if (!user) redirect("/login?redirect=/buildiq/documents");
+
   const clientResult = await supabase
     .from("clients")
     .select("id")
-    .eq("user_id", user!.id)
+    .eq("user_id", user.id)
     .single();
 
   const client = clientResult.data as { id: string } | null;

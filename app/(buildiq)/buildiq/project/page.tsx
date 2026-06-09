@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import {
@@ -55,12 +56,15 @@ function formatDate(dateStr: string | null): string {
 export default async function MyProjectPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const { project: ctxProject, assessmentSubmitted } = await getClientContext(user!.id);
+
+  if (!user) redirect("/login?redirect=/buildiq/project");
+
+  const { project: ctxProject, assessmentSubmitted } = await getClientContext(user.id);
 
   const clientResult = await supabase
     .from("clients")
     .select("id")
-    .eq("user_id", user!.id)
+    .eq("user_id", user.id)
     .single();
 
   const client = clientResult.data as { id: string } | null;

@@ -12,7 +12,7 @@ export default async function ProfilePage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) redirect("/login");
+  if (!user) redirect("/login?redirect=/buildiq/profile");
 
   const { firstName, fullName, client } = await getClientContext(user.id);
 

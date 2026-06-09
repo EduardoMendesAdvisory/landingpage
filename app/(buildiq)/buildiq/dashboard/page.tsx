@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import {
@@ -23,8 +24,10 @@ export const metadata: Metadata = { title: "Dashboard" };
 export default async function BuildIQDashboardPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login?redirect=/buildiq/dashboard");
+
   const { firstName, client, project, assessmentSubmitted } =
-    await getClientContext(user!.id);
+    await getClientContext(user.id);
 
   let buildcheck = null;
   let upcomingMeeting = null;

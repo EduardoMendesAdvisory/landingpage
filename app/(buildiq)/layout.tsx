@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { BuildIQSidebar } from "@/components/layout/BuildIQSidebar";
 import { resolveClientNames } from "@/lib/buildiq/get-client-context";
 
+export const dynamic = "force-dynamic";
+
 export default async function BuildIQLayout({
   children,
 }: {

@@ -13,7 +13,7 @@ export default async function MeetingsPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) redirect("/login");
+  if (!user) redirect("/login?redirect=/buildiq/meetings");
 
   const [clientResult, profileResult] = await Promise.all([
     supabase.from("clients").select("id").eq("user_id", user.id).maybeSingle(),
