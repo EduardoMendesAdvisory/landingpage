@@ -18,7 +18,11 @@ const CATEGORIES: { value: DocumentCategory; label: string }[] = [
   { value: "other", label: "Other" },
 ];
 
-export function DocumentUploadButton() {
+interface Props {
+  userId: string;
+}
+
+export function DocumentUploadButton({ userId }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [category, setCategory] = useState<DocumentCategory>("other");
   const [error, setError] = useState<string | null>(null);
@@ -34,31 +38,27 @@ export function DocumentUploadButton() {
     const file = files[0];
     setError(null);
 
-    const supabase = createClient();
-    // #region agent log
-    const cookieNames = document.cookie.split(';').map(c => c.trim().split('=')[0]).filter(Boolean);
-    const {
-      data: { user },
-      error: getUserError,
-    } = await supabase.auth.getUser();
-    fetch('http://127.0.0.1:7897/ingest/0b40bcdf-20cc-46c3-ab5a-b68a1f5e1bf9',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'ca573b'},body:JSON.stringify({sessionId:'ca573b',runId:'run1',hypothesisId:'B',location:'DocumentUploadButton.tsx:40',message:'browser getUser result',data:{hasUser:!!user,getUserError:getUserError?.message??null,cookieNames,cookieCount:cookieNames.length,hasSbCookie:cookieNames.some(n=>n.startsWith('sb-'))},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
-    if (!user) {
-      setError("You must be signed in.");
-      return;
-    }
-
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const storagePath = `${user.id}/${Date.now()}-${safeName}`;
+    const storagePath = `${userId}/${Date.now()}-${safeName}`;
 
     startTransition(async () => {
+      // Use the singleton browser client — no getUser() call here, we received
+      // userId from the authenticated server component, so the user is signed in.
+      const supabase = createClient();
+
       const { error: uploadError } = await supabase.storage
         .from("client-documents")
         .upload(storagePath, file, { upsert: false });
 
       if (uploadError) {
         console.error("[DocumentUpload]", uploadError);
-        setError("Upload failed. Please try again.");
+        if (uploadError.message.toLowerCase().includes("auth") ||
+            uploadError.message.toLowerCase().includes("unauthorized") ||
+            uploadError.message.toLowerCase().includes("jwt")) {
+          setError("Session expired. Please refresh the page and try again.");
+        } else {
+          setError("Upload failed. Please try again.");
+        }
         return;
       }
 
