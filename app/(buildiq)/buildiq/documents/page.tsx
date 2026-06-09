@@ -7,6 +7,7 @@ import { DocumentUploadButton } from "@/components/buildiq/DocumentUploadButton"
 import { DocumentRowActions } from "@/components/buildiq/DocumentRowActions";
 import { getDocumentDownloadUrl } from "@/features/buildiq/actions";
 
+export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Documents" };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -38,7 +39,7 @@ export default async function DocumentsPage() {
     .from("clients")
     .select("id")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   const client = clientResult.data as { id: string } | null;
 

@@ -5,6 +5,7 @@ import { buildCalendlyUrl, getCalendlyBaseUrl } from "@/lib/calendly";
 import { FREE_CONSULTATION_LIMIT } from "@/lib/buildiq/portal-config";
 import { MeetingsBookingPanel } from "@/components/buildiq/MeetingsBookingPanel";
 
+export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Meetings" };
 
 export default async function MeetingsPage() {

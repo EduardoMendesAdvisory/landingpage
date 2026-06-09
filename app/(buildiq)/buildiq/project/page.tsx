@@ -20,6 +20,7 @@ import { getClientTasks } from "@/lib/buildiq/get-client-tasks";
 import { getEffectiveActiveIndex, getNextStepCta } from "@/lib/buildiq/project-stages";
 import { ClientTaskList } from "@/components/buildiq/ClientTaskList";
 
+export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "My Project" };
 
 type Project = {
@@ -65,7 +66,7 @@ export default async function MyProjectPage() {
     .from("clients")
     .select("id")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   const client = clientResult.data as { id: string } | null;
 
@@ -81,7 +82,7 @@ export default async function MyProjectPage() {
         .eq("client_id", client.id)
         .order("created_at", { ascending: false })
         .limit(1)
-        .single(),
+        .maybeSingle(),
       getClientTasks(supabase, client.id, { limit: 20 }),
     ]);
 

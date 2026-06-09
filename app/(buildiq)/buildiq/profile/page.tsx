@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getClientContext, resolveClientNames } from "@/lib/buildiq/get-client-context";
 import { ProfileEditor } from "@/components/buildiq/ProfileEditor";
 
+export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "My Profile" };
 
 export default async function ProfilePage() {

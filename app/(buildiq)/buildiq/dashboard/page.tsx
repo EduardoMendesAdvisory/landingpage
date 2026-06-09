@@ -19,6 +19,7 @@ import { resolveClientNextAction } from "@/lib/buildiq/client-next-action";
 import { getNextStepCta } from "@/lib/buildiq/project-stages";
 import { ClientTaskList } from "@/components/buildiq/ClientTaskList";
 
+export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Dashboard" };
 
 export default async function BuildIQDashboardPage() {
