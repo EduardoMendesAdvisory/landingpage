@@ -5,19 +5,14 @@ import type { Database } from "@/types/database.types";
 export type SessionUser = { id: string };
 
 /**
- * Refreshes the Supabase session on every request and returns the active
- * session user (or null).
+ * Refreshes the Supabase session on every request.
  *
- * Uses getSession() — not getClaims() — because getClaims() rejects expired
- * JWTs with AuthInvalidJwtError, causing the proxy to see no user and redirect
- * to /login even when a valid refresh token is present.
- *
- * getSession() reads the session from cookies and, if the access token is
- * expired, silently refreshes it using the refresh token. The new tokens are
- * written back to the response via the setAll handler.
- *
- * The layouts use getUser() for cryptographically verified auth; getSession()
- * here is intentionally optimistic (used only for redirect decisions).
+ * Uses getUser() — not getSession() or getClaims() — so that any token
+ * refresh (and the resulting refresh-token rotation) happens HERE in the
+ * proxy, where setAll CAN write the new cookies to the response. If refresh
+ * happened inside a Server Component (read-only cookie context), the new
+ * tokens would be silently dropped, the old refresh token would be invalid,
+ * and the next request would be logged out.
  */
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -31,13 +26,17 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet, headers) {
+          // Update the in-memory request so downstream Server Components
+          // see the refreshed tokens via cookies().
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
+          // Rebuild the response with the updated request and set cookies.
           supabaseResponse = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
           );
+          // Forward cache-control headers that prevent CDN caching of auth responses.
           Object.entries(headers).forEach(([key, value]) =>
             supabaseResponse.headers.set(key, value)
           );
@@ -46,16 +45,13 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // getSession() reads from cookies; if the access token is expired it uses
-  // the refresh token and fires TOKEN_REFRESHED → setAll saves new cookies.
-  // Do NOT add code between createServerClient and getSession().
+  // IMPORTANT: Do not add any code between createServerClient and getUser().
+  // getUser() contacts the Supabase auth server; if the access token is
+  // expired it uses the refresh token (rotating it) and calls setAll above
+  // to persist the new tokens in the response before the page renders.
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  const user: SessionUser | null = session?.user?.id
-    ? { id: session.user.id }
-    : null;
+    data: { user },
+  } = await supabase.auth.getUser();
 
   return { supabaseResponse, user };
 }
