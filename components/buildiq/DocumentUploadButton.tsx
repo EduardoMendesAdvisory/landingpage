@@ -35,10 +35,14 @@ export function DocumentUploadButton() {
     setError(null);
 
     const supabase = createClient();
+    // #region agent log
+    const cookieNames = document.cookie.split(';').map(c => c.trim().split('=')[0]).filter(Boolean);
     const {
       data: { user },
+      error: getUserError,
     } = await supabase.auth.getUser();
-
+    fetch('http://127.0.0.1:7897/ingest/0b40bcdf-20cc-46c3-ab5a-b68a1f5e1bf9',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'ca573b'},body:JSON.stringify({sessionId:'ca573b',runId:'run1',hypothesisId:'B',location:'DocumentUploadButton.tsx:40',message:'browser getUser result',data:{hasUser:!!user,getUserError:getUserError?.message??null,cookieNames,cookieCount:cookieNames.length,hasSbCookie:cookieNames.some(n=>n.startsWith('sb-'))},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     if (!user) {
       setError("You must be signed in.");
       return;

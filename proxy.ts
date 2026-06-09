@@ -36,6 +36,11 @@ export async function proxy(request: NextRequest) {
     );
   }
 
+  // Always prevent CDN/edge caching of authenticated pages.
+  supabaseResponse.headers.set("cache-control", "no-store, no-cache, must-revalidate");
+  supabaseResponse.headers.set("pragma", "no-cache");
+  supabaseResponse.headers.set("expires", "0");
+
   return supabaseResponse;
 }
 
