@@ -79,13 +79,15 @@ export function AdvisorSidebar({ userName }: AdvisorSidebarProps) {
             {userName}
           </p>
         )}
-        <Link
-          href="/api/auth/signout"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground transition-colors"
-        >
-          <LogOut size={16} />
-          Sign Out
-        </Link>
+        <form action="/api/auth/signout" method="post">
+          <button
+            type="submit"
+            className="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground transition-colors"
+          >
+            <LogOut size={16} />
+            Sign Out
+          </button>
+        </form>
       </div>
     </aside>
   );

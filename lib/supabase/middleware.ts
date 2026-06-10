@@ -8,12 +8,6 @@ import {
 
 export type SessionUser = { id: string };
 
-type CookieToSet = {
-  name: string;
-  value: string;
-  options?: Parameters<NextResponse["cookies"]["set"]>[2];
-};
-
 /**
  * Refreshes the Supabase session on every request.
  *
@@ -21,11 +15,7 @@ type CookieToSet = {
  * in the proxy, where setAll CAN write cookies to the response.
  */
 export async function updateSession(request: NextRequest) {
-  const requestHeaders = new Headers(request.headers);
-  let pendingCookies: CookieToSet[] = [];
-  let supabaseResponse = NextResponse.next({
-    request: { headers: requestHeaders },
-  });
+  let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -36,13 +26,12 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet, headers) {
-          pendingCookies = cookiesToSet;
+          // Mutating request.cookies updates the Cookie header forwarded to
+          // Server Components, so RSC sees the refreshed tokens too.
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
-          supabaseResponse = NextResponse.next({
-            request: { headers: requestHeaders },
-          });
+          supabaseResponse = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
           );
@@ -61,17 +50,21 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (user) {
-    requestHeaders.set(AUTH_USER_ID_HEADER, user.id);
-    if (user.email) requestHeaders.set(AUTH_USER_EMAIL_HEADER, user.email);
-  }
+    // Forward verified identity to Server Components (Netlify RSC gap).
+    request.headers.set(AUTH_USER_ID_HEADER, user.id);
+    if (user.email) request.headers.set(AUTH_USER_EMAIL_HEADER, user.email);
 
-  // Rebuild once so Server Components receive auth headers (Netlify RSC gap).
-  supabaseResponse = NextResponse.next({
-    request: { headers: requestHeaders },
-  });
-  pendingCookies.forEach(({ name, value, options }) =>
-    supabaseResponse.cookies.set(name, value, options)
-  );
+    const refreshedCookies = supabaseResponse.cookies.getAll();
+    const carriedHeaders = ["cache-control", "expires", "pragma"]
+      .map((name) => [name, supabaseResponse.headers.get(name)] as const)
+      .filter((entry): entry is readonly [string, string] => Boolean(entry[1]));
+
+    supabaseResponse = NextResponse.next({ request });
+    refreshedCookies.forEach((cookie) => supabaseResponse.cookies.set(cookie));
+    carriedHeaders.forEach(([name, value]) =>
+      supabaseResponse.headers.set(name, value)
+    );
+  }
 
   return { supabaseResponse, user };
 }
@@ -81,8 +74,8 @@ export function mergeSessionCookies(
   sessionResponse: NextResponse,
   response: NextResponse
 ): NextResponse {
-  sessionResponse.cookies.getAll().forEach(({ name, value }) => {
-    response.cookies.set(name, value);
+  sessionResponse.cookies.getAll().forEach((cookie) => {
+    response.cookies.set(cookie);
   });
   for (const header of ["cache-control", "expires", "pragma"]) {
     const value = sessionResponse.headers.get(header);

@@ -91,5 +91,10 @@ export async function getAuthContext(): Promise<{
     return { user: session.user, supabase };
   }
 
-  return { user, supabase: createAdminClient() };
+  try {
+    return { user, supabase: createAdminClient() };
+  } catch (error) {
+    console.error("[getAuthContext] admin client unavailable:", error);
+    return { user, supabase };
+  }
 }

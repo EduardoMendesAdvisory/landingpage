@@ -105,13 +105,15 @@ export function BuildIQSidebar({ userName, userInitials }: BuildIQSidebarProps) 
             </Link>
           </div>
         </div>
-        <Link
-          href="/api/auth/signout"
-          className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-white/50 hover:bg-white/6 hover:text-white transition-colors"
-        >
-          <LogOut size={14} />
-          Sign Out
-        </Link>
+        <form action="/api/auth/signout" method="post">
+          <button
+            type="submit"
+            className="flex w-full items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-white/50 hover:bg-white/6 hover:text-white transition-colors"
+          >
+            <LogOut size={14} />
+            Sign Out
+          </button>
+        </form>
       </div>
     </aside>
   );
