@@ -42,6 +42,8 @@ export async function updateSession(request: NextRequest) {
           );
         },
       },
+      cookieOptions:
+        process.env.NODE_ENV === "production" ? { secure: true } : undefined,
     }
   );
 

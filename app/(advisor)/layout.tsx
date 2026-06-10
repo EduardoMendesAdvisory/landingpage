@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getServerUser } from "@/lib/supabase/server";
 import { AdvisorSidebar } from "@/components/layout/AdvisorSidebar";
 
 export const dynamic = "force-dynamic";
@@ -9,12 +9,11 @@ export default async function AdvisorLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getServerUser();
 
   if (!user) redirect("/login");
+
+  const supabase = await createClient();
 
   const { data: userData } = await supabase
     .from("users")

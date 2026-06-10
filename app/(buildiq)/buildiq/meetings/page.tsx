@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getServerUser } from "@/lib/supabase/server";
 import { buildCalendlyUrl, getCalendlyBaseUrl } from "@/lib/calendly";
 import { FREE_CONSULTATION_LIMIT } from "@/lib/buildiq/portal-config";
 import { MeetingsBookingPanel } from "@/components/buildiq/MeetingsBookingPanel";
@@ -9,12 +9,11 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Meetings" };
 
 export default async function MeetingsPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getServerUser();
 
   if (!user) redirect("/login?redirect=/buildiq/meetings");
+
+  const supabase = await createClient();
 
   const [clientResult, profileResult] = await Promise.all([
     supabase.from("clients").select("id").eq("user_id", user.id).maybeSingle(),

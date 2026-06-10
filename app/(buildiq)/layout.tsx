@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getServerUser } from "@/lib/supabase/server";
 import { BuildIQSidebar } from "@/components/layout/BuildIQSidebar";
 import { resolveClientNames } from "@/lib/buildiq/get-client-context";
 
@@ -10,18 +10,17 @@ export default async function BuildIQLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getServerUser();
 
   if (!user) redirect("/login");
+
+  const supabase = await createClient();
 
   const profileResult = await supabase
     .from("user_profiles")
     .select("first_name, last_name")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   const profile = profileResult.data as {
     first_name: string | null;

@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getServerUser } from "@/lib/supabase/server";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -23,9 +23,10 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Dashboard" };
 
 export default async function BuildIQDashboardPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getServerUser();
   if (!user) redirect("/login?redirect=/buildiq/dashboard");
+
+  const supabase = await createClient();
 
   const { firstName, client, project, assessmentSubmitted } =
     await getClientContext(user.id);

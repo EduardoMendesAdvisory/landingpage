@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getServerUser } from "@/lib/supabase/server";
 import { getClientContext, resolveClientNames } from "@/lib/buildiq/get-client-context";
 import { ProfileEditor } from "@/components/buildiq/ProfileEditor";
 
@@ -8,12 +8,11 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "My Profile" };
 
 export default async function ProfilePage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getServerUser();
 
   if (!user) redirect("/login?redirect=/buildiq/profile");
+
+  const supabase = await createClient();
 
   const { firstName, fullName, client } = await getClientContext(user.id);
 
