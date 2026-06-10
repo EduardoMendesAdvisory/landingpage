@@ -3,6 +3,7 @@ import Link from "next/link";
 import { CalendarCheck2, Lock, Paperclip } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { EDUARDO_QUOTE_URL } from "@/lib/media";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -229,7 +230,7 @@ export default function ContactPage() {
         <div className="max-w-6xl mx-auto rounded-xl overflow-hidden grid lg:grid-cols-[300px_1fr]">
           <div className="relative min-h-[220px]">
             <img
-              src="https://rdeavyxckvkfwjvmxugs.supabase.co/storage/v1/object/public/media/edu%203.png"
+              src={EDUARDO_QUOTE_URL}
               alt="Eduardo Mendes"
               className="absolute inset-0 w-full h-full object-cover"
             />
