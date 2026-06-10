@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { createClient, getServerUser } from "@/lib/supabase/server";
 import { buildCalendlyUrl, getCalendlyBaseUrl } from "@/lib/calendly";
 import { FREE_CONSULTATION_LIMIT } from "@/lib/buildiq/portal-config";
@@ -10,8 +9,7 @@ export const metadata: Metadata = { title: "Meetings" };
 
 export default async function MeetingsPage() {
   const user = await getServerUser();
-
-  if (!user) redirect("/login?redirect=/buildiq/meetings");
+  if (!user) return null;
 
   const supabase = await createClient();
 

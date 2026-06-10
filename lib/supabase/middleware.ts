@@ -1,21 +1,31 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 import type { Database } from "@/types/database.types";
+import {
+  AUTH_USER_EMAIL_HEADER,
+  AUTH_USER_ID_HEADER,
+} from "@/lib/supabase/auth-headers";
 
 export type SessionUser = { id: string };
+
+type CookieToSet = {
+  name: string;
+  value: string;
+  options?: Parameters<NextResponse["cookies"]["set"]>[2];
+};
 
 /**
  * Refreshes the Supabase session on every request.
  *
- * Uses getUser() — not getSession() or getClaims() — so that any token
- * refresh (and the resulting refresh-token rotation) happens HERE in the
- * proxy, where setAll CAN write the new cookies to the response. If refresh
- * happened inside a Server Component (read-only cookie context), the new
- * tokens would be silently dropped, the old refresh token would be invalid,
- * and the next request would be logged out.
+ * Uses getUser() so token refresh (and refresh-token rotation) happens HERE
+ * in the proxy, where setAll CAN write cookies to the response.
  */
 export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({ request });
+  const requestHeaders = new Headers(request.headers);
+  let pendingCookies: CookieToSet[] = [];
+  let supabaseResponse = NextResponse.next({
+    request: { headers: requestHeaders },
+  });
 
   const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -26,17 +36,16 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet, headers) {
-          // Update the in-memory request so downstream Server Components
-          // see the refreshed tokens via cookies().
+          pendingCookies = cookiesToSet;
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
-          // Rebuild the response with the updated request and set cookies.
-          supabaseResponse = NextResponse.next({ request });
+          supabaseResponse = NextResponse.next({
+            request: { headers: requestHeaders },
+          });
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
           );
-          // Forward cache-control headers that prevent CDN caching of auth responses.
           Object.entries(headers).forEach(([key, value]) =>
             supabaseResponse.headers.set(key, value)
           );
@@ -47,13 +56,22 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // IMPORTANT: Do not add any code between createServerClient and getUser().
-  // getUser() contacts the Supabase auth server; if the access token is
-  // expired it uses the refresh token (rotating it) and calls setAll above
-  // to persist the new tokens in the response before the page renders.
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  if (user) {
+    requestHeaders.set(AUTH_USER_ID_HEADER, user.id);
+    if (user.email) requestHeaders.set(AUTH_USER_EMAIL_HEADER, user.email);
+  }
+
+  // Rebuild once so Server Components receive auth headers (Netlify RSC gap).
+  supabaseResponse = NextResponse.next({
+    request: { headers: requestHeaders },
+  });
+  pendingCookies.forEach(({ name, value, options }) =>
+    supabaseResponse.cookies.set(name, value, options)
+  );
 
   return { supabaseResponse, user };
 }

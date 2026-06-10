@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { getAuthContext } from "@/lib/supabase/server";
 import { resend, FROM } from "@/lib/resend";
 import { ADVISOR_EMAIL } from "@/lib/buildiq/portal-config";
 import type { Database } from "@/types/database.types";
@@ -26,12 +26,9 @@ export async function sendClientMessage(input: {
     return { error: "Please write at least a few sentences." };
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return { error: "You must be signed in." };
+  const auth = await getAuthContext();
+  if (!auth) return { error: "You must be signed in." };
+  const { user, supabase } = auth;
 
   const { data: clientRow } = await supabase
     .from("clients")
@@ -131,12 +128,9 @@ export type SignedUploadUrlResult =
 export async function getSignedUploadUrl(input: {
   fileName: string;
 }): Promise<SignedUploadUrlResult> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return { error: "You must be signed in." };
+  const auth = await getAuthContext();
+  if (!auth) return { error: "You must be signed in." };
+  const { user, supabase } = auth;
 
   const safeName = input.fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
   const storagePath = `${user.id}/${Date.now()}-${safeName}`;
@@ -164,12 +158,9 @@ export async function registerUploadedDocument(input: {
   fileType: string;
   category: DocumentCategory;
 }): Promise<UploadDocumentResult> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return { error: "You must be signed in." };
+  const auth = await getAuthContext();
+  if (!auth) return { error: "You must be signed in." };
+  const { user, supabase } = auth;
 
   const { data: clientRow } = await supabase
     .from("clients")
@@ -221,12 +212,9 @@ export async function registerUploadedDocument(input: {
 export async function getDocumentDownloadUrl(
   documentId: string
 ): Promise<{ url: string } | { error: string }> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return { error: "Unauthorized." };
+  const auth = await getAuthContext();
+  if (!auth) return { error: "Unauthorized." };
+  const { user, supabase } = auth;
 
   const { data: doc } = await supabase
     .from("documents")
@@ -264,12 +252,9 @@ export type DeleteDocumentResult = { success: true } | { error: string };
 export async function deleteClientDocument(
   documentId: string
 ): Promise<DeleteDocumentResult> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return { error: "You must be signed in." };
+  const auth = await getAuthContext();
+  if (!auth) return { error: "You must be signed in." };
+  const { user, supabase } = auth;
 
   const { data: doc } = await supabase
     .from("documents")
@@ -327,12 +312,9 @@ export async function updateUserProfile(input: {
   suburb: string;
   state: string;
 }): Promise<UpdateProfileResult> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return { error: "You must be signed in." };
+  const auth = await getAuthContext();
+  if (!auth) return { error: "You must be signed in." };
+  const { user, supabase } = auth;
 
   const firstName = input.firstName.trim();
   const lastName = input.lastName.trim();

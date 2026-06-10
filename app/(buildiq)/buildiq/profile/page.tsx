@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { createClient, getServerUser } from "@/lib/supabase/server";
 import { getClientContext, resolveClientNames } from "@/lib/buildiq/get-client-context";
 import { ProfileEditor } from "@/components/buildiq/ProfileEditor";
@@ -9,8 +8,7 @@ export const metadata: Metadata = { title: "My Profile" };
 
 export default async function ProfilePage() {
   const user = await getServerUser();
-
-  if (!user) redirect("/login?redirect=/buildiq/profile");
+  if (!user) return null;
 
   const supabase = await createClient();
 

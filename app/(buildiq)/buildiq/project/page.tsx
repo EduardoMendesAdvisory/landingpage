@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { createClient, getServerUser } from "@/lib/supabase/server";
 import Link from "next/link";
 import {
@@ -56,8 +55,7 @@ function formatDate(dateStr: string | null): string {
 
 export default async function MyProjectPage() {
   const user = await getServerUser();
-
-  if (!user) redirect("/login?redirect=/buildiq/project");
+  if (!user) return null;
 
   const supabase = await createClient();
 

@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { createClient, getServerUser } from "@/lib/supabase/server";
 import Link from "next/link";
 import { FileText, FolderOpen } from "lucide-react";
@@ -29,8 +28,7 @@ function formatFileSize(bytes: number | null): string {
 
 export default async function DocumentsPage() {
   const user = await getServerUser();
-
-  if (!user) redirect("/login?redirect=/buildiq/documents");
+  if (!user) return null;
 
   const supabase = await createClient();
 

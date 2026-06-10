@@ -11,7 +11,13 @@ export default async function AdvisorLayout({
 }) {
   const user = await getServerUser();
 
-  if (!user) redirect("/login");
+  if (!user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-light-bg">
+        <p className="text-sm text-muted-foreground">Session unavailable.</p>
+      </div>
+    );
+  }
 
   const supabase = await createClient();
 
