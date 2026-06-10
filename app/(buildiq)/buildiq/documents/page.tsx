@@ -76,7 +76,7 @@ export default async function DocumentsPage() {
             Your files are stored securely and only visible to you and Eduardo.
           </p>
         </div>
-        <DocumentUploadButton userId={user.id} />
+        <DocumentUploadButton />
       </div>
       <div className="px-8 py-6">
         {documents.length === 0 ? (

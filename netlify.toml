@@ -1,6 +1,22 @@
 [build]
   command = "npm run build"
 
+# Prevent Netlify CDN from caching authenticated dashboard pages.
+# The proxy also sets these headers, but this is a belt-and-suspenders safeguard.
+[[headers]]
+  for = "/buildiq/*"
+  [headers.values]
+    Cache-Control = "no-store, no-cache, must-revalidate"
+    Pragma = "no-cache"
+    Expires = "0"
+
+[[headers]]
+  for = "/advisor/*"
+  [headers.values]
+    Cache-Control = "no-store, no-cache, must-revalidate"
+    Pragma = "no-cache"
+    Expires = "0"
+
 [[redirects]]
   from = "/favicon.ico"
   to = "/favicon-48.png"

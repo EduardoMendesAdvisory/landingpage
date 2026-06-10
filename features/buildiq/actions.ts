@@ -119,6 +119,40 @@ export async function sendClientMessage(input: {
   return { success: true, messageId };
 }
 
+export type SignedUploadUrlResult =
+  | { signedUrl: string; token: string; storagePath: string }
+  | { error: string };
+
+/**
+ * Creates a time-limited signed upload URL so the browser can PUT a file
+ * directly to Supabase Storage without needing a browser-side auth session.
+ * Authentication is validated here on the server (always has fresh cookies).
+ */
+export async function getSignedUploadUrl(input: {
+  fileName: string;
+}): Promise<SignedUploadUrlResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: "You must be signed in." };
+
+  const safeName = input.fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
+  const storagePath = `${user.id}/${Date.now()}-${safeName}`;
+
+  const { data, error } = await supabase.storage
+    .from("client-documents")
+    .createSignedUploadUrl(storagePath, { upsert: false });
+
+  if (error || !data) {
+    console.error("[getSignedUploadUrl]:", error);
+    return { error: "Could not prepare upload. Please try again." };
+  }
+
+  return { signedUrl: data.signedUrl, token: data.token, storagePath };
+}
+
 export type UploadDocumentResult =
   | { success: true; documentId: string }
   | { error: string };

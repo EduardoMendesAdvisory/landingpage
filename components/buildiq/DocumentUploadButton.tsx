@@ -2,8 +2,10 @@
 
 import { useRef, useState, useTransition } from "react";
 import { Upload, Loader2 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
-import { registerUploadedDocument } from "@/features/buildiq/actions";
+import {
+  getSignedUploadUrl,
+  registerUploadedDocument,
+} from "@/features/buildiq/actions";
 import type { Database } from "@/types/database.types";
 
 type DocumentCategory = Database["public"]["Enums"]["document_category"];
@@ -18,11 +20,7 @@ const CATEGORIES: { value: DocumentCategory; label: string }[] = [
   { value: "other", label: "Other" },
 ];
 
-interface Props {
-  userId: string;
-}
-
-export function DocumentUploadButton({ userId }: Props) {
+export function DocumentUploadButton() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [category, setCategory] = useState<DocumentCategory>("other");
   const [error, setError] = useState<string | null>(null);
@@ -34,34 +32,38 @@ export function DocumentUploadButton({ userId }: Props) {
 
   async function handleFiles(files: FileList | null) {
     if (!files?.length) return;
-
     const file = files[0];
     setError(null);
 
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const storagePath = `${userId}/${Date.now()}-${safeName}`;
-
     startTransition(async () => {
-      // Use the singleton browser client — no getUser() call here, we received
-      // userId from the authenticated server component, so the user is signed in.
-      const supabase = createClient();
+      // Step 1: Get a signed upload URL from the server.
+      // The server validates auth using fresh server-side cookies —
+      // no browser Supabase client or session cookie needed here.
+      const urlResult = await getSignedUploadUrl({ fileName: file.name });
 
-      const { error: uploadError } = await supabase.storage
-        .from("client-documents")
-        .upload(storagePath, file, { upsert: false });
-
-      if (uploadError) {
-        console.error("[DocumentUpload]", uploadError);
-        if (uploadError.message.toLowerCase().includes("auth") ||
-            uploadError.message.toLowerCase().includes("unauthorized") ||
-            uploadError.message.toLowerCase().includes("jwt")) {
-          setError("Session expired. Please refresh the page and try again.");
-        } else {
-          setError("Upload failed. Please try again.");
-        }
+      if ("error" in urlResult) {
+        setError(urlResult.error);
         return;
       }
 
+      const { signedUrl, storagePath } = urlResult;
+
+      // Step 2: Upload directly to Supabase Storage via the signed URL.
+      // This is a plain HTTP PUT — no auth headers needed (signed URL embeds the token).
+      const uploadRes = await fetch(signedUrl, {
+        method: "PUT",
+        headers: { "Content-Type": file.type || "application/octet-stream" },
+        body: file,
+      });
+
+      if (!uploadRes.ok) {
+        const detail = await uploadRes.text().catch(() => "");
+        console.error("[DocumentUpload] PUT failed:", uploadRes.status, detail);
+        setError("Upload failed. Please try again.");
+        return;
+      }
+
+      // Step 3: Register the document in the database via server action.
       const result = await registerUploadedDocument({
         fileName: file.name,
         storagePath,
