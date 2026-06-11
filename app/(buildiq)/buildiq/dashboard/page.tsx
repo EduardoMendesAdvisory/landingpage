@@ -95,30 +95,31 @@ export default async function BuildIQDashboardPage() {
   return (
     <div className="flex-1 overflow-y-auto">
       {/* Top bar */}
-      <div className="bg-white border-b border-gray-100 px-8 py-4 flex items-center justify-between sticky top-0 z-10">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-[#b67c2c] mb-1">
+      <div className="bg-white border-b border-gray-100 pl-14 md:pl-8 pr-4 sm:pr-8 py-3 sm:py-4 flex items-center justify-between sticky top-0 z-10 gap-3">
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[#b67c2c] mb-0.5 hidden sm:block">
             Client Dashboard
           </p>
-          <h1 className="text-xl font-bold text-[#111A24]">
+          <h1 className="text-base sm:text-xl font-bold text-[#111A24] truncate">
             Welcome back, {firstName}
           </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 hidden sm:block">
             Here&apos;s the latest on your project with Eduardo.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           <Link
             href="/buildiq/meetings"
-            className="inline-flex items-center gap-2 bg-[#111A24] hover:bg-[#1d2a38] text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+            className="inline-flex items-center gap-1.5 sm:gap-2 bg-[#111A24] hover:bg-[#1d2a38] text-white text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
           >
-            <CalendarDays size={15} />
-            Book a Meeting
+            <CalendarDays size={14} />
+            <span className="hidden xs:inline">Book a Meeting</span>
+            <span className="xs:hidden">Book</span>
           </Link>
         </div>
       </div>
 
-      <div className="px-8 py-6 space-y-6">
+      <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6">
         {pendingInvoice && (
           <PendingInvoiceCard
             invoice={pendingInvoice as {
@@ -132,7 +133,7 @@ export default async function BuildIQDashboardPage() {
         )}
 
         {/* Row 1: Project banner + Readiness + Advisor */}
-        <div className="grid lg:grid-cols-[1fr_260px_240px] gap-5">
+        <div className="grid gap-4 sm:gap-5 lg:grid-cols-[1fr_260px_240px]">
           {/* Project banner */}
           <div className="rounded-2xl overflow-hidden relative min-h-[170px]">
             <img
@@ -253,7 +254,7 @@ export default async function BuildIQDashboardPage() {
         </div>
 
         {/* Row 2: Journey timeline + Next action */}
-        <div className="grid lg:grid-cols-[1fr_280px] gap-5 items-stretch">
+        <div className="grid gap-4 sm:gap-5 lg:grid-cols-[1fr_280px] items-stretch">
           {/* Journey timeline — reusable component */}
           <div className="bg-white rounded-2xl border border-gray-100 p-6">
             <div className="flex items-center justify-between mb-5">
@@ -310,7 +311,7 @@ export default async function BuildIQDashboardPage() {
         </div>
 
         {/* Row 3: Tasks + Quick actions */}
-        <div className="grid lg:grid-cols-[1fr_280px] gap-5 items-stretch">
+        <div className="grid gap-4 sm:gap-5 lg:grid-cols-[1fr_280px] items-stretch">
           {/* Tasks */}
           <div className="bg-white rounded-2xl border border-gray-100 p-6">
             <div className="flex items-center justify-between mb-4">
@@ -364,25 +365,27 @@ export default async function BuildIQDashboardPage() {
         </div>
 
         {/* Footer bar */}
-        <div className="bg-[#111A24] rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <p className="text-sm font-bold text-white">Build with confidence.</p>
-            <p className="text-xs text-white/60 mt-0.5">We&apos;re here every step of the way.</p>
-          </div>
-          <div className="flex flex-wrap gap-6">
-            {[
-              { icon: FolderOpen, label: "Independent Advice", sub: "We work for you, not the builder." },
-              { icon: Clock, label: "Save Time & Money", sub: "Avoid costly mistakes and delays." },
-              { icon: CheckCircle2, label: "Build with Confidence", sub: "Make informed decisions." },
-            ].map((item) => (
-              <div key={item.label} className="flex items-center gap-2.5">
-                <item.icon size={18} className="text-[#b67c2c] shrink-0" />
-                <div>
-                  <p className="text-xs font-semibold text-white">{item.label}</p>
-                  <p className="text-[10px] text-white/50">{item.sub}</p>
+        <div className="bg-[#111A24] rounded-2xl p-4 sm:p-5">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <p className="text-sm font-bold text-white">Build with confidence.</p>
+              <p className="text-xs text-white/60 mt-0.5">We&apos;re here every step of the way.</p>
+            </div>
+            <div className="flex flex-wrap gap-4 sm:gap-6">
+              {[
+                { icon: FolderOpen, label: "Independent Advice", sub: "We work for you, not the builder." },
+                { icon: Clock, label: "Save Time & Money", sub: "Avoid costly mistakes and delays." },
+                { icon: CheckCircle2, label: "Build with Confidence", sub: "Make informed decisions." },
+              ].map((item) => (
+                <div key={item.label} className="flex items-center gap-2">
+                  <item.icon size={16} className="text-[#b67c2c] shrink-0" />
+                  <div>
+                    <p className="text-xs font-semibold text-white">{item.label}</p>
+                    <p className="text-[10px] text-white/50 hidden sm:block">{item.sub}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>

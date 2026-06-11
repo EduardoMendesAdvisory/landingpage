@@ -5,6 +5,7 @@ import { FileText, FolderOpen } from "lucide-react";
 import { DocumentUploadButton } from "@/components/buildiq/DocumentUploadButton";
 import { DocumentRowActions } from "@/components/buildiq/DocumentRowActions";
 import { getDocumentDownloadUrl } from "@/features/buildiq/actions";
+import { isAdvisorSharedDocument } from "@/lib/documents/storage";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Documents" };
@@ -34,11 +35,11 @@ export default async function DocumentsPage() {
 
   const clientResult = await supabase
     .from("clients")
-    .select("id")
+    .select("id, user_id")
     .eq("user_id", user.id)
     .maybeSingle();
 
-  const client = clientResult.data as { id: string } | null;
+  const client = clientResult.data as { id: string; user_id: string } | null;
 
   let documents: Array<{
     id: string;
@@ -46,12 +47,14 @@ export default async function DocumentsPage() {
     category: string;
     file_size: number | null;
     created_at: string;
+    uploaded_by: string | null;
+    storage_path: string;
   }> = [];
 
   if (client?.id) {
     const result = await supabase
       .from("documents")
-      .select("id, file_name, category, file_size, created_at")
+      .select("id, file_name, category, file_size, created_at, uploaded_by, storage_path")
       .eq("client_id", client.id)
       .order("created_at", { ascending: false })
       .limit(50);
@@ -66,7 +69,7 @@ export default async function DocumentsPage() {
 
   return (
     <div className="flex-1 overflow-y-auto">
-      <div className="bg-white border-b border-gray-100 px-8 py-4 flex items-center justify-between sticky top-0 z-10">
+      <div className="bg-white border-b border-gray-100 pl-14 md:pl-8 pr-4 sm:pr-8 py-3 sm:py-4 flex items-center justify-between sticky top-0 z-10">
         <div>
           <h1 className="text-xl font-bold text-[#111A24]">Project Documents</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
@@ -108,6 +111,16 @@ export default async function DocumentsPage() {
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {CATEGORY_LABELS[doc.category] ?? doc.category}
+                      {client &&
+                        isAdvisorSharedDocument(
+                          doc.uploaded_by,
+                          client.user_id,
+                          doc.storage_path
+                        ) && (
+                          <span className="ml-2 text-[#b67c2c] font-medium">
+                            · From Eduardo
+                          </span>
+                        )}
                     </p>
                   </div>
                   <div className="text-right shrink-0 hidden sm:block">

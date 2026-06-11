@@ -2,8 +2,19 @@
 
 import { useEffect, useRef } from "react";
 
+export type CalendlyTrackingContext = {
+  service?: string | null;
+  leadId?: string | null;
+  clientId?: string | null;
+  /** Passed as fallback when Calendly API key is not configured */
+  email?: string | null;
+  /** Passed as fallback when Calendly API key is not configured */
+  name?: string | null;
+};
+
 interface CalendlyEmbedProps {
   url: string;
+  tracking?: CalendlyTrackingContext;
 }
 
 declare global {
@@ -16,8 +27,44 @@ declare global {
 
 const CALENDLY_SCRIPT = "https://assets.calendly.com/assets/external/widget.js";
 
-export function CalendlyEmbed({ url }: CalendlyEmbedProps) {
+async function syncBookingToServer(data: Record<string, unknown>, tracking?: CalendlyTrackingContext) {
+  console.log("[CalendlyEmbed] booking detected, syncing to server...", {
+    event: data.event,
+    tracking,
+    payload: data.payload,
+  });
+  try {
+    const res = await fetch("/api/calendly/sync-booking", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...data, tracking }),
+    });
+    const json = await res.json();
+    console.log("[CalendlyEmbed] sync result:", json);
+  } catch (err) {
+    console.error("[CalendlyEmbed] sync failed", err);
+  }
+}
+
+export function CalendlyEmbed({ url, tracking }: CalendlyEmbedProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const trackingRef = useRef(tracking);
+  trackingRef.current = tracking;
+
+  useEffect(() => {
+    function onMessage(event: MessageEvent) {
+      const data = event.data;
+      if (!data || typeof data !== "object") return;
+      const row = data as Record<string, unknown>;
+      if (typeof row.event !== "string") return;
+      if (row.event === "calendly.event_scheduled") {
+        void syncBookingToServer(row, trackingRef.current ?? undefined);
+      }
+    }
+
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
 
   useEffect(() => {
     const container = containerRef.current;

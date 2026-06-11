@@ -91,7 +91,8 @@ export async function createClientTask(input: {
     return { error: "Could not create task." };
   }
 
-  revalidatePath("/advisor/clients");
+  revalidatePath("/advisor/projects");
+  revalidatePath(`/advisor/projects/${input.clientId}`);
   revalidatePath(`/advisor/clients/${input.clientId}`);
   revalidatePath("/buildiq/dashboard");
   revalidatePath("/buildiq/project");
@@ -137,8 +138,11 @@ export async function updateClientTask(input: {
   }
 
   const clientId = (task as { client_id: string | null }).client_id;
-  revalidatePath("/advisor/clients");
-  if (clientId) revalidatePath(`/advisor/clients/${clientId}`);
+  revalidatePath("/advisor/projects");
+  if (clientId) {
+    revalidatePath(`/advisor/projects/${clientId}`);
+    revalidatePath(`/advisor/clients/${clientId}`);
+  }
   revalidatePath("/buildiq/dashboard");
   return { success: true };
 }
@@ -164,8 +168,11 @@ export async function deleteClientTask(taskId: string): Promise<ActionResult> {
   }
 
   const clientId = (task as { client_id: string | null }).client_id;
-  revalidatePath("/advisor/clients");
-  if (clientId) revalidatePath(`/advisor/clients/${clientId}`);
+  revalidatePath("/advisor/projects");
+  if (clientId) {
+    revalidatePath(`/advisor/projects/${clientId}`);
+    revalidatePath(`/advisor/clients/${clientId}`);
+  }
   revalidatePath("/buildiq/dashboard");
   return { success: true };
 }

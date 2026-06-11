@@ -1,12 +1,13 @@
 "use client";
 
 import { CalendlyEmbed } from "@/components/shared/CalendlyEmbed";
-import { CalendarDays, CreditCard, AlertCircle } from "lucide-react";
+import { CalendarDays, CreditCard, AlertCircle, Video, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import {
   FREE_CONSULTATION_LIMIT,
   PAID_CALENDLY_URL,
 } from "@/lib/buildiq/portal-config";
+import { meetingDurationLabel } from "@/lib/meetings/constants";
 
 type MeetingRow = {
   id: string;
@@ -14,10 +15,12 @@ type MeetingRow = {
   status: string;
   meeting_type: string;
   duration_minutes: number | null;
+  meeting_url: string | null;
 };
 
 interface MeetingsBookingPanelProps {
   calendlyUrl: string;
+  clientId?: string | null;
   usedCount: number;
   remainingFree: number;
   canBookFree: boolean;
@@ -33,6 +36,7 @@ const STATUS_LABELS: Record<string, string> = {
 
 export function MeetingsBookingPanel({
   calendlyUrl,
+  clientId,
   usedCount,
   remainingFree,
   canBookFree,
@@ -110,20 +114,28 @@ export function MeetingsBookingPanel({
 
       {canBookFree && (
         <div className="bg-white rounded-2xl border border-gray-100 p-4">
-          <CalendlyEmbed url={calendlyUrl} />
+          <CalendlyEmbed url={calendlyUrl} tracking={{ clientId }} />
         </div>
       )}
 
-      {meetings.length > 0 && (
+      {meetings.length > 0 && (() => {
+        const visibleMeetings = meetings.filter(
+          (m) => m.scheduled_at || m.status !== "scheduled"
+        );
+        if (visibleMeetings.length === 0) return null;
+
+        return (
         <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
             <CalendarDays size={16} className="text-[#b67c2c]" />
-            <p className="text-sm font-bold text-[#111A24]">Your meetings ({meetings.length})</p>
+            <p className="text-sm font-bold text-[#111A24]">
+              Your meetings ({visibleMeetings.length})
+            </p>
           </div>
           <div className="divide-y divide-gray-50">
-            {meetings.map((m) => (
-              <div key={m.id} className="flex items-center justify-between px-6 py-3.5">
-                <div>
+            {visibleMeetings.map((m) => (
+              <div key={m.id} className="flex items-center justify-between gap-4 px-6 py-3.5">
+                <div className="min-w-0">
                   <p className="text-sm font-medium text-[#111A24] capitalize">
                     {m.meeting_type.replace(/_/g, " ")}
                   </p>
@@ -134,17 +146,35 @@ export function MeetingsBookingPanel({
                           timeStyle: "short",
                         })
                       : "Date pending"}
-                    {m.duration_minutes ? ` - ${m.duration_minutes} min` : ""}
+                    {(() => {
+                      const label = meetingDurationLabel(m.meeting_type, m.duration_minutes);
+                      return label ? ` - ${label}` : "";
+                    })()}
                   </p>
                 </div>
-                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-gray-100 text-muted-foreground">
-                  {STATUS_LABELS[m.status] ?? m.status}
-                </span>
+                <div className="flex items-center gap-2 shrink-0">
+                  {m.status === "scheduled" && m.meeting_url && (
+                    <a
+                      href={m.meeting_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold bg-[#111A24] hover:bg-[#1d2a38] text-white px-3 py-1.5 rounded-lg transition-colors"
+                    >
+                      <Video size={13} />
+                      Join
+                      <ExternalLink size={11} className="opacity-70" />
+                    </a>
+                  )}
+                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-gray-100 text-muted-foreground">
+                    {STATUS_LABELS[m.status] ?? m.status}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
         </div>
-      )}
+        );
+      })()}
     </div>
   );
 }

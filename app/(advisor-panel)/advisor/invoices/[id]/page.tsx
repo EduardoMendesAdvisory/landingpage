@@ -112,7 +112,15 @@ export default async function InvoiceDetailPage({ params }: InvoiceDetailPagePro
           <div className="space-y-4">
             <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] p-5 space-y-4">
               <h3 className="text-sm font-semibold text-navy">Actions</h3>
-              <InvoiceActions invoiceId={row.id} status={row.status} />
+              <InvoiceActions
+                invoiceId={row.id}
+                status={row.status}
+                serviceName={serviceName}
+                amount={row.total_amount}
+                recipientName={row.recipient_name ?? row.recipient_email ?? "Client"}
+                paymentInstructions={row.payment_instructions ?? ""}
+                notes={row.proposal_items[0]?.description}
+              />
               <a
                 href={`/proposal/${row.id}`}
                 target="_blank"
@@ -142,7 +150,7 @@ export default async function InvoiceDetailPage({ params }: InvoiceDetailPagePro
         </div>
 
         <Link href="/advisor/invoices" className="text-sm text-warm-soil hover:underline">
-          ? Back to invoices
+          ← Back to invoices
         </Link>
       </div>
     </>

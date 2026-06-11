@@ -66,7 +66,7 @@ export async function updateSession(request: NextRequest) {
     );
   }
 
-  return { supabaseResponse, user };
+  return { supabaseResponse, user, supabase };
 }
 
 /** Copy refreshed session cookies onto redirect responses. */

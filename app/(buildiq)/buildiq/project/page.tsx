@@ -108,7 +108,7 @@ export default async function MyProjectPage() {
   return (
     <div className="flex-1 overflow-y-auto">
       {/* Header */}
-      <div className="bg-white border-b border-gray-100 px-8 py-4 flex items-center justify-between sticky top-0 z-10">
+      <div className="bg-white border-b border-gray-100 pl-14 md:pl-8 pr-4 sm:pr-8 py-3 sm:py-4 flex items-center justify-between sticky top-0 z-10">
         <div>
           <h1 className="text-xl font-bold text-[#111A24]">My Project</h1>
           <p className="text-sm text-muted-foreground mt-0.5">Overview and progress of your project journey.</p>

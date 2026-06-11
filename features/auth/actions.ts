@@ -119,23 +119,25 @@ export async function loginUser(
   if (data.user) {
     const [{ data: userData }, { data: clientRecord }] = await Promise.all([
       supabase.from("users").select("role").eq("id", data.user.id).single(),
-      supabase.from("clients").select("id").eq("user_id", data.user.id).maybeSingle(),
+      supabase
+        .from("clients")
+        .select("id, client_status")
+        .eq("user_id", data.user.id)
+        .maybeSingle(),
     ]);
 
     const role = (userData as { role: string } | null)?.role;
-
-    if (role === "admin") {
-      await supabase.auth.signOut();
-      return {
-        error:
-          "AdvisorHQ uses a separate master sign in. Go to /advisor/login",
-      };
-    }
-
     const hasClientRecord = Boolean(clientRecord);
     const redirectPath = input.redirectPath?.startsWith("/") ? input.redirectPath : undefined;
 
-    redirect(resolvePostLoginPath(role, hasClientRecord, redirectPath));
+    redirect(
+      resolvePostLoginPath(
+        role,
+        hasClientRecord,
+        redirectPath,
+        (clientRecord as { client_status: string } | null)?.client_status
+      )
+    );
   }
 
   return { error: "Login failed. Please try again." };

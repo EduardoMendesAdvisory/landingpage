@@ -6,15 +6,20 @@ export function getCalendlyBaseUrl(): string {
   return fromEnv || DEFAULT_CALENDLY_URL;
 }
 
+export type CalendlyUrlOptions = {
+  service?: string | null;
+  lead?: string | null;
+  email?: string | null;
+  name?: string | null;
+  phone?: string | null;
+  clientId?: string | null;
+  /** Calendly custom answer slots, e.g. { a1: "0412345678" } */
+  customAnswers?: Record<string, string>;
+};
+
 export function buildCalendlyUrl(
   baseUrl: string,
-  options?: {
-    service?: string | null;
-    lead?: string | null;
-    email?: string | null;
-    name?: string | null;
-    clientId?: string | null;
-  }
+  options?: CalendlyUrlOptions
 ): string {
   const url = new URL(baseUrl);
   if (options?.service) {
@@ -31,6 +36,14 @@ export function buildCalendlyUrl(
   }
   if (options?.name) {
     url.searchParams.set("name", options.name);
+  }
+  if (options?.phone) {
+    url.searchParams.set("phone", options.phone);
+  }
+  if (options?.customAnswers) {
+    for (const [key, value] of Object.entries(options.customAnswers)) {
+      if (value.trim()) url.searchParams.set(key, value.trim());
+    }
   }
   return url.toString();
 }

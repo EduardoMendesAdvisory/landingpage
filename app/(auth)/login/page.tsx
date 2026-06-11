@@ -40,11 +40,18 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
     const { data: clientRecord } = await supabase
       .from("clients")
-      .select("id")
+      .select("id, client_status")
       .eq("user_id", user.id)
       .maybeSingle();
 
-    redirect(resolvePostLoginPath(role, Boolean(clientRecord), redirectPath));
+    redirect(
+      resolvePostLoginPath(
+        role,
+        Boolean(clientRecord),
+        redirectPath,
+        (clientRecord as { client_status: string } | null)?.client_status
+      )
+    );
   }
 
   return (

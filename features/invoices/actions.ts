@@ -9,6 +9,12 @@ import {
   DEFAULT_PAYMENT_INSTRUCTIONS,
   serviceNameFromSlug,
 } from "@/lib/invoices/constants";
+import {
+  formatPaymentInstructions,
+  INVOICE_BANK_DETAILS_KEY,
+  parseSavedBankDetails,
+  type InvoiceBankDetails,
+} from "@/lib/invoices/bank-details";
 import type { PublicServiceSlug } from "@/lib/services-catalog";
 
 type ActionResult = { success: true; invoiceId?: string } | { error: string };
@@ -136,6 +142,49 @@ async function resolveRecipient(input: {
   return null;
 }
 
+export async function getSavedBankDetails(): Promise<InvoiceBankDetails | null> {
+  const auth = await requireAdmin();
+  if ("error" in auth) return null;
+
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("advisor_settings")
+    .select("value")
+    .eq("key", INVOICE_BANK_DETAILS_KEY)
+    .maybeSingle();
+
+  return parseSavedBankDetails((data as { value: unknown } | null)?.value);
+}
+
+export async function saveBankDetails(
+  details: InvoiceBankDetails
+): Promise<ActionResult> {
+  const auth = await requireAdmin();
+  if ("error" in auth) return auth;
+
+  const admin = createAdminClient();
+  const { error } = await admin.from("advisor_settings").upsert(
+    {
+      key: INVOICE_BANK_DETAILS_KEY,
+      value: {
+        accountName: details.accountName.trim(),
+        bsb: details.bsb.trim(),
+        accountNumber: details.accountNumber.trim(),
+        bankName: details.bankName?.trim() || null,
+      },
+      updated_by: auth.userId,
+    } as never,
+    { onConflict: "key" }
+  );
+
+  if (error) {
+    console.error("[saveBankDetails]", error);
+    return { error: "Could not save bank details." };
+  }
+
+  return { success: true };
+}
+
 export async function createInvoice(input: {
   leadId?: string;
   clientId?: string;
@@ -143,6 +192,8 @@ export async function createInvoice(input: {
   amount: number;
   notes?: string;
   paymentInstructions?: string;
+  bankDetails?: InvoiceBankDetails;
+  saveBankDetails?: boolean;
   validUntil?: string;
 }): Promise<ActionResult> {
   const auth = await requireAdmin();
@@ -167,8 +218,21 @@ export async function createInvoice(input: {
 
   const admin = createAdminClient();
   const serviceName = serviceNameFromSlug(input.serviceSlug);
-  const paymentInstructions =
-    input.paymentInstructions?.trim() || DEFAULT_PAYMENT_INSTRUCTIONS;
+
+  let paymentInstructions = input.paymentInstructions?.trim() || "";
+  if (!paymentInstructions && input.bankDetails) {
+    paymentInstructions = formatPaymentInstructions(
+      input.bankDetails,
+      recipient.name
+    );
+  }
+  if (!paymentInstructions) {
+    paymentInstructions = DEFAULT_PAYMENT_INSTRUCTIONS;
+  }
+
+  if (input.saveBankDetails && input.bankDetails) {
+    await saveBankDetails(input.bankDetails);
+  }
 
   const { data: proposal, error } = await admin
     .from("proposals")

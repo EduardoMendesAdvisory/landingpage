@@ -3,6 +3,10 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { resend, FROM } from "@/lib/resend";
+import {
+  linkLeadRecordsToClient,
+  resolveInitialProjectStage,
+} from "@/lib/clients/link-client-records";
 
 export interface ActivateClientInput {
   userId: string;
@@ -103,8 +107,6 @@ export async function activateClient(
       return { error: clientError?.message ?? "Failed to create client record." };
     }
 
-    const clientId = (client as { id: string }).id;
-
     const leadDetails = lead as {
       id: string;
       project_type: string | null;
@@ -115,6 +117,13 @@ export async function activateClient(
       state: string | null;
     } | null;
 
+    const clientId = (client as { id: string }).id;
+    const leadId = leadDetails?.id ?? null;
+
+    await linkLeadRecordsToClient(admin, { clientId, leadId });
+
+    const projectStage = await resolveInitialProjectStage(admin, leadId);
+
     const projectName =
       input.projectName ??
       (leadDetails?.project_type
@@ -122,21 +131,19 @@ export async function activateClient(
             .split("_")
             .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
             .join(" ")
-        : null);
+        : "Your Project");
 
-    if (projectName) {
-      await admin.from("projects").insert({
-        client_id: clientId,
-        project_name: projectName,
-        project_type: leadDetails?.project_type ?? null,
-        project_status: "planning",
-        project_stage: leadDetails?.project_stage ?? "strategy_call",
-        budget_range: leadDetails?.budget_range ?? null,
-        location: leadDetails?.location ?? null,
-        suburb: leadDetails?.suburb ?? null,
-        state: leadDetails?.state ?? null,
-      });
-    }
+    await admin.from("projects").insert({
+      client_id: clientId,
+      project_name: projectName,
+      project_type: leadDetails?.project_type ?? null,
+      project_status: "planning",
+      project_stage: projectStage,
+      budget_range: leadDetails?.budget_range ?? null,
+      location: leadDetails?.location ?? null,
+      suburb: leadDetails?.suburb ?? null,
+      state: leadDetails?.state ?? null,
+    });
 
     if (lead) {
       await admin

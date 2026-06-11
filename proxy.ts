@@ -3,16 +3,17 @@ import {
   mergeSessionCookies,
   updateSession,
 } from "@/lib/supabase/middleware";
+import { checkBuildIQPortalAccess } from "@/lib/auth/buildiq-access";
 
 const ADVISOR_LOGIN = "/advisor/login";
 
 /**
  * Protected routes:
- *   /buildiq/*   — client portal (session required)
+ *   /buildiq/*   — client portal (active client required)
  *   /advisor/*   — AdvisorHQ panel (session required, except master login)
  */
 export async function proxy(request: NextRequest) {
-  const { supabaseResponse, user } = await updateSession(request);
+  const { supabaseResponse, user, supabase } = await updateSession(request);
   const { pathname } = request.nextUrl;
 
   const isAdvisorLogin = pathname === ADVISOR_LOGIN;
@@ -35,6 +36,16 @@ export async function proxy(request: NextRequest) {
       supabaseResponse,
       NextResponse.redirect(loginUrl)
     );
+  }
+
+  if (isBuildiq) {
+    const access = await checkBuildIQPortalAccess(supabase, user.id);
+    if (!access.allowed) {
+      return mergeSessionCookies(
+        supabaseResponse,
+        NextResponse.redirect(new URL(access.redirectTo, request.url))
+      );
+    }
   }
 
   supabaseResponse.headers.set(

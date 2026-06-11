@@ -90,7 +90,12 @@ function CalendarSidebar({ serviceName }: { serviceName?: string }) {
   );
 }
 
-export default function BookCallFlow() {
+interface BookCallFlowProps {
+  leadPrefill?: { email?: string; name?: string; phone?: string } | null;
+  prefillParams?: Record<string, string>;
+}
+
+export default function BookCallFlow({ leadPrefill, prefillParams }: BookCallFlowProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const serviceSlug = searchParams.get("service");
@@ -100,13 +105,27 @@ export default function BookCallFlow() {
   const showCalendar = Boolean(serviceSlug || leadId);
   const activeStep = showCalendar ? 2 : 1;
 
+  const customAnswers: Record<string, string> = {};
+  if (prefillParams) {
+    for (const [key, value] of Object.entries(prefillParams)) {
+      if (key.startsWith("a") && value) customAnswers[key] = value;
+    }
+  }
+
   const calendlyUrl = buildCalendlyUrl(getCalendlyBaseUrl(), {
-    service: serviceSlug,
-    lead: leadId,
+    service: serviceSlug ?? prefillParams?.utm_content,
+    lead: leadId ?? prefillParams?.utm_campaign,
+    email: leadPrefill?.email ?? prefillParams?.email,
+    name: leadPrefill?.name ?? prefillParams?.name,
+    phone: leadPrefill?.phone ?? prefillParams?.phone,
+    customAnswers,
   });
 
   const goToCalendar = (slug: string) => {
-    router.push(`/book-call?service=${encodeURIComponent(slug)}`, { scroll: false });
+    const params = new URLSearchParams();
+    params.set("service", slug);
+    if (leadId) params.set("lead", leadId);
+    router.push(`/book-call?${params.toString()}`, { scroll: false });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -201,7 +220,16 @@ export default function BookCallFlow() {
               )}
 
               <div className="grid lg:grid-cols-[1fr_340px] gap-8 items-start">
-                <CalendlyEmbed key={calendlyUrl} url={calendlyUrl} />
+                <CalendlyEmbed
+                  key={calendlyUrl}
+                  url={calendlyUrl}
+                  tracking={{
+                    service: serviceSlug ?? prefillParams?.utm_content ?? null,
+                    leadId: leadId ?? prefillParams?.utm_campaign ?? null,
+                    email: leadPrefill?.email ?? prefillParams?.email ?? null,
+                    name: leadPrefill?.name ?? prefillParams?.name ?? null,
+                  }}
+                />
                 <CalendarSidebar serviceName={service?.name} />
               </div>
             </>

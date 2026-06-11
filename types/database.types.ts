@@ -110,6 +110,35 @@ export type Database = {
           },
         ]
       }
+      advisor_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advisor_settings_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
@@ -542,42 +571,60 @@ export type Database = {
         Row: {
           calendly_event_id: string | null
           calendly_event_url: string | null
+          calendly_invitee_uri: string | null
           client_id: string | null
           created_at: string
           duration_minutes: number | null
+          ended_at: string | null
+          form_responses: Json | null
           id: string
+          invitee_email: string | null
+          invitee_name: string | null
           lead_id: string | null
           meeting_type: string
           meeting_url: string | null
           scheduled_at: string | null
+          service_slug: string | null
           status: string
           updated_at: string
         }
         Insert: {
           calendly_event_id?: string | null
           calendly_event_url?: string | null
+          calendly_invitee_uri?: string | null
           client_id?: string | null
           created_at?: string
           duration_minutes?: number | null
+          ended_at?: string | null
+          form_responses?: Json | null
           id?: string
+          invitee_email?: string | null
+          invitee_name?: string | null
           lead_id?: string | null
           meeting_type?: string
           meeting_url?: string | null
           scheduled_at?: string | null
+          service_slug?: string | null
           status?: string
           updated_at?: string
         }
         Update: {
           calendly_event_id?: string | null
           calendly_event_url?: string | null
+          calendly_invitee_uri?: string | null
           client_id?: string | null
           created_at?: string
           duration_minutes?: number | null
+          ended_at?: string | null
+          form_responses?: Json | null
           id?: string
+          invitee_email?: string | null
+          invitee_name?: string | null
           lead_id?: string | null
           meeting_type?: string
           meeting_url?: string | null
           scheduled_at?: string | null
+          service_slug?: string | null
           status?: string
           updated_at?: string
         }

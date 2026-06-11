@@ -4,12 +4,19 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { InvoiceForm } from "@/features/invoices/components/InvoiceForm";
+import { getSavedBankDetails } from "@/features/invoices/actions";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "New Invoice" };
 
-export default async function NewInvoicePage() {
+export default async function NewInvoicePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ leadId?: string; clientId?: string }>;
+}) {
+  const { leadId, clientId } = await searchParams;
   const admin = createAdminClient();
+  const savedBankDetails = await getSavedBankDetails();
 
   const [{ data: leads }, { data: clients }] = await Promise.all([
     admin
@@ -64,13 +71,19 @@ export default async function NewInvoicePage() {
           description="Select a service, set the amount, and send payment instructions manually."
         />
         <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] p-6">
-          <InvoiceForm leads={leadOptions} clients={clientOptions} />
+          <InvoiceForm
+            leads={leadOptions}
+            clients={clientOptions}
+            defaultLeadId={leadId}
+            defaultClientId={clientId}
+            savedBankDetails={savedBankDetails}
+          />
         </div>
         <Link
           href="/advisor/invoices"
           className="text-sm text-warm-soil hover:underline"
         >
-          ? Back to invoices
+          ← Back to invoices
         </Link>
       </div>
     </>

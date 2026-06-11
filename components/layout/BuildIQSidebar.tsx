@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -10,6 +11,8 @@ import {
   User,
   LogOut,
   MessageCircle,
+  Menu,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +21,7 @@ const navItems = [
   { label: "Documents", href: "/buildiq/documents", icon: FolderOpen },
   { label: "Projects", href: "/buildiq/project", icon: Layers },
   { label: "Meetings", href: "/buildiq/meetings", icon: CalendarDays },
+  { label: "Messages", href: "/buildiq/messages", icon: MessageCircle },
   { label: "My Profile", href: "/buildiq/profile", icon: User },
 ];
 
@@ -26,15 +30,30 @@ interface BuildIQSidebarProps {
   userInitials?: string;
 }
 
-export function BuildIQSidebar({ userName, userInitials }: BuildIQSidebarProps) {
-  const pathname = usePathname();
-
+function SidebarContent({
+  userName,
+  userInitials,
+  pathname,
+  onNavClick,
+}: {
+  userName?: string;
+  userInitials?: string;
+  pathname: string;
+  onNavClick?: () => void;
+}) {
   const initials =
     userInitials ??
-    (userName ? userName.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() : "?");
+    (userName
+      ? userName
+          .split(" ")
+          .map((n) => n[0])
+          .join("")
+          .slice(0, 2)
+          .toUpperCase()
+      : "?");
 
   return (
-    <aside className="flex flex-col w-[200px] min-h-screen bg-[#111A24] text-white border-r border-white/5">
+    <>
       <div className="px-5 pt-6 pb-5 border-b border-white/8">
         <img
           src="https://rdeavyxckvkfwjvmxugs.supabase.co/storage/v1/object/public/media/logo%20EM_hor%20white.png"
@@ -46,13 +65,14 @@ export function BuildIQSidebar({ userName, userInitials }: BuildIQSidebarProps) 
         </p>
       </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-0.5">
+      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
         {navItems.map(({ label, href, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(href + "/");
           return (
             <Link
               key={href}
               href={href}
+              onClick={onNavClick}
               className={cn(
                 "group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors relative",
                 active
@@ -64,7 +84,9 @@ export function BuildIQSidebar({ userName, userInitials }: BuildIQSidebarProps) 
                 size={16}
                 className={cn(
                   "shrink-0 transition-colors",
-                  active ? "text-[#b67c2c]" : "text-white/50 group-hover:text-white/80"
+                  active
+                    ? "text-[#b67c2c]"
+                    : "text-white/50 group-hover:text-white/80"
                 )}
               />
               <span className="flex-1">{label}</span>
@@ -81,6 +103,7 @@ export function BuildIQSidebar({ userName, userInitials }: BuildIQSidebarProps) 
           </div>
           <Link
             href="/buildiq/meetings"
+            onClick={onNavClick}
             className="text-[11px] text-white/70 hover:text-white transition-colors"
           >
             Book a meeting with Eduardo
@@ -99,6 +122,7 @@ export function BuildIQSidebar({ userName, userInitials }: BuildIQSidebarProps) 
             </p>
             <Link
               href="/buildiq/profile"
+              onClick={onNavClick}
               className="text-[10px] text-white/50 hover:text-[#b67c2c] transition-colors"
             >
               Client Profile
@@ -115,6 +139,63 @@ export function BuildIQSidebar({ userName, userInitials }: BuildIQSidebarProps) 
           </button>
         </form>
       </div>
-    </aside>
+    </>
+  );
+}
+
+export function BuildIQSidebar({ userName, userInitials }: BuildIQSidebarProps) {
+  const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside className="hidden md:flex flex-col w-[200px] min-h-screen bg-[#111A24] text-white border-r border-white/5 shrink-0">
+        <SidebarContent
+          userName={userName}
+          userInitials={userInitials}
+          pathname={pathname}
+        />
+      </aside>
+
+      {/* Mobile hamburger */}
+      <button
+        type="button"
+        onClick={() => setMobileOpen(true)}
+        className="md:hidden fixed top-3.5 left-4 z-40 p-2 rounded-lg bg-[#111A24] text-white shadow-lg"
+        aria-label="Open menu"
+      >
+        <Menu size={18} />
+      </button>
+
+      {/* Mobile drawer overlay */}
+      {mobileOpen && (
+        <>
+          <div
+            className="md:hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+            onClick={() => setMobileOpen(false)}
+            aria-hidden
+          />
+          <aside className="md:hidden fixed inset-y-0 left-0 z-50 flex flex-col w-72 bg-[#111A24] text-white shadow-2xl">
+            <div className="flex items-center justify-end px-4 pt-4">
+              <button
+                type="button"
+                onClick={() => setMobileOpen(false)}
+                className="p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+                aria-label="Close menu"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <SidebarContent
+              userName={userName}
+              userInitials={userInitials}
+              pathname={pathname}
+              onNavClick={() => setMobileOpen(false)}
+            />
+          </aside>
+        </>
+      )}
+    </>
   );
 }

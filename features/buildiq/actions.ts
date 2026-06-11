@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getAuthContext } from "@/lib/supabase/server";
 import { resend, FROM } from "@/lib/resend";
 import { ADVISOR_EMAIL } from "@/lib/buildiq/portal-config";
+import { createDocumentSignedUrl } from "@/lib/documents/storage";
 import type { Database } from "@/types/database.types";
 
 type DocumentCategory = Database["public"]["Enums"]["document_category"];
@@ -113,6 +114,7 @@ export async function sendClientMessage(input: {
   }
 
   revalidatePath("/buildiq/messages");
+  revalidatePath("/advisor/messages");
   return { success: true, messageId };
 }
 
@@ -218,13 +220,17 @@ export async function getDocumentDownloadUrl(
 
   const { data: doc } = await supabase
     .from("documents")
-    .select("storage_path, client_id")
+    .select("storage_path, client_id, lead_id")
     .eq("id", documentId)
     .single();
 
   if (!doc) return { error: "Document not found." };
 
-  const docRow = doc as { storage_path: string; client_id: string | null };
+  const docRow = doc as {
+    storage_path: string;
+    client_id: string | null;
+    lead_id: string | null;
+  };
 
   const { data: clientRow } = await supabase
     .from("clients")
@@ -236,15 +242,15 @@ export async function getDocumentDownloadUrl(
     return { error: "Document not found." };
   }
 
-  const { data: signed, error } = await supabase.storage
-    .from("client-documents")
-    .createSignedUrl(docRow.storage_path, 3600);
+  const preferred =
+    docRow.lead_id && !docRow.storage_path.includes("/advisor-")
+      ? "lead-documents"
+      : "client-documents";
 
-  if (error || !signed?.signedUrl) {
-    return { error: "Could not generate download link." };
-  }
+  const url = await createDocumentSignedUrl(supabase, docRow.storage_path, preferred);
+  if (!url) return { error: "Could not generate download link." };
 
-  return { url: signed.signedUrl };
+  return { url: url };
 }
 
 export type DeleteDocumentResult = { success: true } | { error: string };
