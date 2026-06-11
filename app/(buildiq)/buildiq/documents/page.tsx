@@ -68,7 +68,7 @@ export default async function DocumentsPage() {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto">
+    <div className="flex-1 min-w-0 w-full max-w-full overflow-y-auto overflow-x-hidden">
       <div className="bg-white border-b border-gray-100 pl-14 md:pl-8 pr-4 sm:pr-8 py-3 sm:py-4 flex items-center justify-between sticky top-0 z-10">
         <div>
           <h1 className="text-xl font-bold text-[#111A24]">Project Documents</h1>

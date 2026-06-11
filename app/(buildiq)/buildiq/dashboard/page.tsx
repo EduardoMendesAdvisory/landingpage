@@ -93,9 +93,9 @@ export default async function BuildIQDashboardPage() {
   const nextStepCta = getNextStepCta(project?.project_stage, { assessmentSubmitted });
 
   return (
-    <div className="flex-1 overflow-y-auto">
+    <div className="flex-1 min-w-0 w-full max-w-full overflow-y-auto overflow-x-hidden">
       {/* Top bar */}
-      <div className="bg-white border-b border-gray-100 pl-14 md:pl-8 pr-4 sm:pr-8 py-3 sm:py-4 flex items-center justify-between sticky top-0 z-10 gap-3">
+      <div className="bg-white border-b border-gray-100 pl-14 md:pl-8 pr-4 sm:pr-8 py-3 sm:py-4 flex items-center justify-between sticky top-0 z-10 gap-3 min-w-0">
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-wider text-[#b67c2c] mb-0.5 hidden sm:block">
             Client Dashboard
@@ -119,7 +119,7 @@ export default async function BuildIQDashboardPage() {
         </div>
       </div>
 
-      <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6">
+      <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6 w-full min-w-0 max-w-full">
         {pendingInvoice && (
           <PendingInvoiceCard
             invoice={pendingInvoice as {
@@ -133,23 +133,23 @@ export default async function BuildIQDashboardPage() {
         )}
 
         {/* Row 1: Project banner + Readiness + Advisor */}
-        <div className="grid gap-4 sm:gap-5 lg:grid-cols-[1fr_260px_240px]">
+        <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-[1fr_260px_240px] min-w-0 w-full">
           {/* Project banner */}
-          <div className="rounded-2xl overflow-hidden relative min-h-[170px]">
+          <div className="rounded-2xl overflow-hidden relative min-h-[150px] sm:min-h-[170px] min-w-0 w-full">
             <img
               src="https://rdeavyxckvkfwjvmxugs.supabase.co/storage/v1/object/public/media/hero%20banner%20desktop.jpg"
               alt=""
               className="absolute inset-0 w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-[#111A24]/75 via-[#111A24]/45 to-[#111A24]/15" />
-            <div className="relative p-6">
+            <div className="relative p-4 sm:p-6 min-w-0">
               <p className="text-white/80 text-xs uppercase tracking-wider mb-1">Your Project</p>
               {project ? (
                 <>
-                  <h2 className="text-xl font-bold text-white mb-2 drop-shadow-sm">
+                  <h2 className="text-lg sm:text-xl font-bold text-white mb-2 drop-shadow-sm break-words">
                     {project.project_name}
                   </h2>
-                  <div className="flex items-center gap-3 flex-wrap">
+                  <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                     {project.project_stage && (
                       <div className="text-xs text-white/75">
                         Stage:{" "}
@@ -193,7 +193,7 @@ export default async function BuildIQDashboardPage() {
           </div>
 
           {/* Readiness score */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 flex flex-col">
+          <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5 flex flex-col min-w-0 w-full">
             <p className="text-xs font-semibold text-[#111A24] uppercase tracking-wider mb-3">
               Project Readiness Score
             </p>
@@ -216,7 +216,7 @@ export default async function BuildIQDashboardPage() {
           </div>
 
           {/* Advisor widget */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-5">
+          <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-5 min-w-0 w-full">
             <p className="text-xs font-semibold text-[#111A24] uppercase tracking-wider mb-4">
               Your Advisor
             </p>
@@ -254,12 +254,15 @@ export default async function BuildIQDashboardPage() {
         </div>
 
         {/* Row 2: Journey timeline + Next action */}
-        <div className="grid gap-4 sm:gap-5 lg:grid-cols-[1fr_280px] items-stretch">
+        <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-[1fr_280px] items-stretch min-w-0 w-full">
           {/* Journey timeline — reusable component */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-6">
-            <div className="flex items-center justify-between mb-5">
+          <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 min-w-0 w-full overflow-hidden">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-5 min-w-0">
               <p className="text-sm font-bold text-[#111A24]">Your Project Journey</p>
-              <Link href="/buildiq/project" className="text-xs text-[#b67c2c] hover:underline">
+              <Link
+                href="/buildiq/project"
+                className="text-xs text-[#b67c2c] hover:underline shrink-0 self-start sm:self-auto"
+              >
                 View Full Timeline →
               </Link>
             </div>
@@ -273,7 +276,7 @@ export default async function BuildIQDashboardPage() {
           </div>
 
           {/* Contextual next action */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-6 flex flex-col">
+          <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 flex flex-col min-w-0 w-full">
             <p className="text-xs font-semibold text-[#111A24] uppercase tracking-wider mb-4">
               {nextAction.eyebrow}
             </p>
@@ -311,9 +314,9 @@ export default async function BuildIQDashboardPage() {
         </div>
 
         {/* Row 3: Tasks + Quick actions */}
-        <div className="grid gap-4 sm:gap-5 lg:grid-cols-[1fr_280px] items-stretch">
+        <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-[1fr_280px] items-stretch min-w-0 w-full">
           {/* Tasks */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-6">
+          <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 min-w-0 w-full">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-bold text-[#111A24]">My Tasks</p>
               {tasks.length > 0 && (
@@ -334,7 +337,7 @@ export default async function BuildIQDashboardPage() {
           </div>
 
           {/* Quick actions */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-6 flex flex-col">
+          <div className="bg-white rounded-2xl border border-gray-100 p-4 sm:p-6 flex flex-col min-w-0 w-full">
             <p className="text-xs font-semibold text-[#111A24] uppercase tracking-wider mb-4">
               Quick Actions
             </p>

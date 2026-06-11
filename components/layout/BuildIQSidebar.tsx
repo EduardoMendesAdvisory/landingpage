@@ -149,7 +149,7 @@ export function BuildIQSidebar({ userName, userInitials }: BuildIQSidebarProps) 
 
   return (
     <>
-      {/* Desktop sidebar */}
+      {/* Desktop sidebar — only flex item from this component */}
       <aside className="hidden md:flex flex-col w-[200px] min-h-screen bg-[#111A24] text-white border-r border-white/5 shrink-0">
         <SidebarContent
           userName={userName}
@@ -158,17 +158,16 @@ export function BuildIQSidebar({ userName, userInitials }: BuildIQSidebarProps) 
         />
       </aside>
 
-      {/* Mobile hamburger */}
+      {/* Mobile menu — fixed, does not affect page width */}
       <button
         type="button"
         onClick={() => setMobileOpen(true)}
-        className="md:hidden fixed top-3.5 left-4 z-40 p-2 rounded-lg bg-[#111A24] text-white shadow-lg"
+        className="md:hidden fixed top-3.5 left-3 z-40 p-2 rounded-lg bg-[#111A24] text-white shadow-lg"
         aria-label="Open menu"
       >
         <Menu size={18} />
       </button>
 
-      {/* Mobile drawer overlay */}
       {mobileOpen && (
         <>
           <div
@@ -176,7 +175,7 @@ export function BuildIQSidebar({ userName, userInitials }: BuildIQSidebarProps) 
             onClick={() => setMobileOpen(false)}
             aria-hidden
           />
-          <aside className="md:hidden fixed inset-y-0 left-0 z-50 flex flex-col w-72 bg-[#111A24] text-white shadow-2xl">
+          <aside className="md:hidden fixed inset-y-0 left-0 z-50 flex flex-col w-[min(100vw-3rem,18rem)] max-w-[85vw] bg-[#111A24] text-white shadow-2xl">
             <div className="flex items-center justify-end px-4 pt-4">
               <button
                 type="button"

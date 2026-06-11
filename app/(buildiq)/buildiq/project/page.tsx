@@ -106,23 +106,23 @@ export default async function MyProjectPage() {
   const progress = milestones.length > 0 ? Math.round((completedMilestones / milestones.length) * 100) : 0;
 
   return (
-    <div className="flex-1 overflow-y-auto">
+    <div className="flex-1 min-w-0 w-full max-w-full overflow-y-auto overflow-x-hidden">
       {/* Header */}
-      <div className="bg-white border-b border-gray-100 pl-14 md:pl-8 pr-4 sm:pr-8 py-3 sm:py-4 flex items-center justify-between sticky top-0 z-10">
-        <div>
-          <h1 className="text-xl font-bold text-[#111A24]">My Project</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Overview and progress of your project journey.</p>
+      <div className="bg-white border-b border-gray-100 pl-14 md:pl-8 pr-4 sm:pr-8 py-3 sm:py-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sticky top-0 z-10 min-w-0">
+        <div className="min-w-0">
+          <h1 className="text-lg sm:text-xl font-bold text-[#111A24]">My Project</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">Overview and progress of your project journey.</p>
         </div>
         <Link
           href="/buildiq/meetings"
-          className="inline-flex items-center gap-2 bg-[#111A24] hover:bg-[#1d2a38] text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+          className="inline-flex items-center justify-center gap-2 bg-[#111A24] hover:bg-[#1d2a38] text-white text-xs sm:text-sm font-semibold px-3 sm:px-4 py-2 rounded-lg transition-colors shrink-0 self-start sm:self-auto"
         >
           <CalendarDays size={15} />
           Book a Meeting
         </Link>
       </div>
 
-      <div className="px-8 py-6 space-y-5">
+      <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-5 w-full min-w-0 max-w-full">
         {!project ? (
           <div className="bg-white rounded-2xl border border-gray-100 p-12 flex flex-col items-center justify-center text-center">
             <div className="h-16 w-16 rounded-full bg-[#b67c2c]/10 flex items-center justify-center mb-4">
