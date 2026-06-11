@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient, getServerUser } from "@/lib/supabase/server";
 import { AdvisorSidebar } from "@/components/layout/AdvisorSidebar";
+import { ADVISOR_LOGIN_PATH } from "@/lib/auth/master-access";
 
 export const dynamic = "force-dynamic";
 
@@ -12,11 +13,7 @@ export default async function AdvisorLayout({
   const user = await getServerUser();
 
   if (!user) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-light-bg">
-        <p className="text-sm text-muted-foreground">Session unavailable.</p>
-      </div>
-    );
+    redirect(ADVISOR_LOGIN_PATH);
   }
 
   const supabase = await createClient();

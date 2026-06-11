@@ -21,7 +21,7 @@ const navItems = [
   { label: "Leads", href: "/advisor/leads", icon: Users },
   { label: "Calls", href: "/advisor/calls", icon: Phone },
   { label: "Quote Reviews", href: "/advisor/quote-reviews", icon: FileCheck },
-  { label: "Proposals", href: "/advisor/proposals", icon: FileText },
+  { label: "Invoices", href: "/advisor/invoices", icon: FileText },
   { label: "Clients", href: "/advisor/clients", icon: Briefcase },
   { label: "Projects", href: "/advisor/projects", icon: FolderOpen },
   { label: "Reports", href: "/advisor/reports", icon: BarChart3 },
@@ -79,7 +79,7 @@ export function AdvisorSidebar({ userName }: AdvisorSidebarProps) {
             {userName}
           </p>
         )}
-        <form action="/api/auth/signout" method="post">
+        <form action="/api/auth/signout?next=/advisor/login" method="post">
           <button
             type="submit"
             className="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground transition-colors"

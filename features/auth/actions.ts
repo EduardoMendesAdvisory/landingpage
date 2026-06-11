@@ -123,6 +123,15 @@ export async function loginUser(
     ]);
 
     const role = (userData as { role: string } | null)?.role;
+
+    if (role === "admin") {
+      await supabase.auth.signOut();
+      return {
+        error:
+          "AdvisorHQ uses a separate master sign in. Go to /advisor/login",
+      };
+    }
+
     const hasClientRecord = Boolean(clientRecord);
     const redirectPath = input.redirectPath?.startsWith("/") ? input.redirectPath : undefined;
 

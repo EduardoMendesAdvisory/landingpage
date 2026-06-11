@@ -210,7 +210,7 @@ export default async function AdvisorDashboardPage() {
             {[
               { label: "Leads", href: "/advisor/leads", icon: Users },
               { label: "Calls", href: "/advisor/calls", icon: Phone },
-              { label: "Quote Reviews", href: "/advisor/quote-reviews", icon: FileCheck },
+              { label: "Invoices", href: "/advisor/invoices", icon: FileCheck },
               { label: "Clients", href: "/advisor/clients", icon: Briefcase },
               { label: "Projects", href: "/advisor/projects", icon: Briefcase },
             ].map((item) => (

@@ -1000,15 +1000,21 @@ export type Database = {
       proposals: {
         Row: {
           approved_at: string | null
-          client_id: string
+          client_id: string | null
           created_at: string
           declined_at: string | null
           expired_at: string | null
           id: string
+          is_archived: boolean
+          lead_id: string | null
           notes: string | null
           paid_at: string | null
+          payment_instructions: string | null
           project_id: string | null
+          recipient_email: string | null
+          recipient_name: string | null
           sent_at: string | null
+          service_slug: string | null
           status: Database["public"]["Enums"]["proposal_status"]
           terms: string | null
           title: string
@@ -1019,15 +1025,21 @@ export type Database = {
         }
         Insert: {
           approved_at?: string | null
-          client_id: string
+          client_id?: string | null
           created_at?: string
           declined_at?: string | null
           expired_at?: string | null
           id?: string
+          is_archived?: boolean
+          lead_id?: string | null
           notes?: string | null
           paid_at?: string | null
+          payment_instructions?: string | null
           project_id?: string | null
+          recipient_email?: string | null
+          recipient_name?: string | null
           sent_at?: string | null
+          service_slug?: string | null
           status?: Database["public"]["Enums"]["proposal_status"]
           terms?: string | null
           title: string
@@ -1038,15 +1050,21 @@ export type Database = {
         }
         Update: {
           approved_at?: string | null
-          client_id?: string
+          client_id?: string | null
           created_at?: string
           declined_at?: string | null
           expired_at?: string | null
           id?: string
+          is_archived?: boolean
+          lead_id?: string | null
           notes?: string | null
           paid_at?: string | null
+          payment_instructions?: string | null
           project_id?: string | null
+          recipient_email?: string | null
+          recipient_name?: string | null
           sent_at?: string | null
+          service_slug?: string | null
           status?: Database["public"]["Enums"]["proposal_status"]
           terms?: string | null
           title?: string
@@ -1061,6 +1079,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proposals_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
             referencedColumns: ["id"]
           },
           {

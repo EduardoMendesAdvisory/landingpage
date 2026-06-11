@@ -4,31 +4,32 @@ import {
   updateSession,
 } from "@/lib/supabase/middleware";
 
+const ADVISOR_LOGIN = "/advisor/login";
+
 /**
- * Proxy — Next.js 16 convention (replaces middleware.ts).
- *
- * DESIGN: This layer performs an OPTIMISTIC session check only.
- * It verifies that a session JWT exists in cookies; it does NOT make DB
- * queries. DB-based role / access checks live in each layout so that a
- * transient DB error never forces a logout.
- *
  * Protected routes:
- *   /buildiq/*  — requires authenticated session
- *   /advisor/*  — requires authenticated session
+ *   /buildiq/*   — client portal (session required)
+ *   /advisor/*   — AdvisorHQ panel (session required, except master login)
  */
 export async function proxy(request: NextRequest) {
   const { supabaseResponse, user } = await updateSession(request);
   const { pathname } = request.nextUrl;
 
-  const isProtected =
-    pathname.startsWith("/advisor") || pathname.startsWith("/buildiq");
+  const isAdvisorLogin = pathname === ADVISOR_LOGIN;
+  const isAdvisorPanel =
+    pathname.startsWith("/advisor") && !isAdvisorLogin;
+  const isBuildiq = pathname.startsWith("/buildiq");
+  const isProtected = isAdvisorPanel || isBuildiq;
 
   if (!isProtected) {
     return supabaseResponse;
   }
 
   if (!user) {
-    const loginUrl = new URL("/login", request.url);
+    const loginUrl = new URL(
+      isAdvisorPanel ? ADVISOR_LOGIN : "/login",
+      request.url
+    );
     loginUrl.searchParams.set("redirect", pathname);
     return mergeSessionCookies(
       supabaseResponse,
@@ -36,8 +37,10 @@ export async function proxy(request: NextRequest) {
     );
   }
 
-  // Always prevent CDN/edge caching of authenticated pages.
-  supabaseResponse.headers.set("cache-control", "no-store, no-cache, must-revalidate");
+  supabaseResponse.headers.set(
+    "cache-control",
+    "no-store, no-cache, must-revalidate"
+  );
   supabaseResponse.headers.set("pragma", "no-cache");
   supabaseResponse.headers.set("expires", "0");
 

@@ -13,18 +13,37 @@ interface LoginPageProps {
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const { redirect: redirectPath, message } = await searchParams;
+
+  if (redirectPath?.startsWith("/advisor")) {
+    redirect(
+      `/advisor/login?redirect=${encodeURIComponent(redirectPath)}`
+    );
+  }
+
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (user) {
-    const [{ data: userData }, { data: clientRecord }] = await Promise.all([
-      supabase.from("users").select("role").eq("id", user.id).single(),
-      supabase.from("clients").select("id").eq("user_id", user.id).maybeSingle(),
-    ]);
+    const { data: userData } = await supabase
+      .from("users")
+      .select("role")
+      .eq("id", user.id)
+      .single();
 
     const role = (userData as { role: string } | null)?.role;
+
+    if (role === "admin") {
+      redirect("/advisor/dashboard");
+    }
+
+    const { data: clientRecord } = await supabase
+      .from("clients")
+      .select("id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
     redirect(resolvePostLoginPath(role, Boolean(clientRecord), redirectPath));
   }
 

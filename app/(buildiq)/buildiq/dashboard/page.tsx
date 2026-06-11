@@ -16,6 +16,7 @@ import { getClientContext } from "@/lib/buildiq/get-client-context";
 import { getClientTasks } from "@/lib/buildiq/get-client-tasks";
 import { resolveClientNextAction } from "@/lib/buildiq/client-next-action";
 import { getNextStepCta } from "@/lib/buildiq/project-stages";
+import { PendingInvoiceCard } from "@/components/buildiq/PendingInvoiceCard";
 import { ClientTaskList } from "@/components/buildiq/ClientTaskList";
 
 export const dynamic = "force-dynamic";
@@ -33,10 +34,11 @@ export default async function BuildIQDashboardPage() {
   let buildcheck = null;
   let upcomingMeeting = null;
   let recentMeeting = null;
+  let pendingInvoice = null;
   let tasks: Awaited<ReturnType<typeof getClientTasks>> = [];
 
   if (client?.id) {
-    const [buildcheckRes, upcomingMeetingRes, recentMeetingRes, tasksList] =
+    const [buildcheckRes, upcomingMeetingRes, recentMeetingRes, tasksList, invoiceRes] =
       await Promise.all([
       supabase
         .from("buildchecks")
@@ -61,12 +63,21 @@ export default async function BuildIQDashboardPage() {
         .limit(1)
         .maybeSingle(),
       getClientTasks(supabase, client.id, { limit: 5 }),
+      supabase
+        .from("proposals")
+        .select("id, title, total_amount, service_slug, status")
+        .eq("client_id", client.id)
+        .in("status", ["sent", "viewed", "approved"])
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
     ]);
 
     buildcheck = buildcheckRes.data;
     upcomingMeeting = upcomingMeetingRes.data;
     recentMeeting = recentMeetingRes.data;
     tasks = tasksList;
+    pendingInvoice = invoiceRes.data;
   }
 
   const nextAction = resolveClientNextAction({
@@ -108,6 +119,18 @@ export default async function BuildIQDashboardPage() {
       </div>
 
       <div className="px-8 py-6 space-y-6">
+        {pendingInvoice && (
+          <PendingInvoiceCard
+            invoice={pendingInvoice as {
+              id: string;
+              title: string;
+              total_amount: number;
+              service_slug: string | null;
+              status: string;
+            }}
+          />
+        )}
+
         {/* Row 1: Project banner + Readiness + Advisor */}
         <div className="grid lg:grid-cols-[1fr_260px_240px] gap-5">
           {/* Project banner */}
