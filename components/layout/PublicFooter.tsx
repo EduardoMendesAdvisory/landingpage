@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BUSINESS_EMAIL, BUSINESS_MAILTO } from "@/lib/site/contact";
 
 const FOOTER_LINK_CLASS =
   "text-xs text-white/50 hover:text-[#b67c2c] transition-colors duration-200 block py-0.5";
@@ -75,8 +76,8 @@ export function PublicFooter() {
             <div className="space-y-2.5 text-xs text-white/50">
               <p>Queensland, Australia</p>
               <p>Australia-Wide Advisory</p>
-              <a href="mailto:contact@eduardomendes.com.au" className={FOOTER_LINK_CLASS}>
-                contact@eduardomendes.com.au
+              <a href={BUSINESS_MAILTO} className={FOOTER_LINK_CLASS}>
+                {BUSINESS_EMAIL}
               </a>
             </div>
             <Link

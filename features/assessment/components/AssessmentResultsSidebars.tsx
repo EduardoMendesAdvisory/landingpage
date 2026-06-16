@@ -11,6 +11,7 @@ import {
   Star,
 } from "lucide-react";
 import { getBookCallUrl } from "@/lib/services-catalog";
+import { BUSINESS_EMAIL, BUSINESS_MAILTO } from "@/lib/site/contact";
 import { WIZARD_SIDEBAR_BTN_CLASS } from "./wizard-ui";
 
 export function FreeResultsSidebar({ leadId }: { leadId: string }) {
@@ -90,10 +91,10 @@ export function FreeResultsSidebar({ leadId }: { leadId: string }) {
       <div className="bg-white rounded-2xl border border-[#ece8e1] p-5">
         <p className="text-xs font-semibold text-[#111A24] mb-1">Need help?</p>
         <a
-          href="mailto:contact@eduardomendes.com.au"
+          href={BUSINESS_MAILTO}
           className="text-sm text-[#4b5564] hover:text-[#111A24] transition-colors"
         >
-          contact@eduardomendes.com.au
+          {BUSINESS_EMAIL}
         </a>
       </div>
     </aside>

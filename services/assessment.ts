@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { resend, FROM } from "@/lib/resend";
+import { sendAssessmentCompletedEmail } from "@/lib/emails/templates";
 
 interface NotifyAssessmentCompletedInput {
   userEmail: string;
@@ -8,48 +8,27 @@ interface NotifyAssessmentCompletedInput {
   projectType: string;
   assessmentId: string;
   siteUrl: string;
+  leadId?: string | null;
 }
 
-/**
- * Sends the assessment-completed notification email to the lead.
- * Called from the submitAssessment server action after DB write.
- * Non-blocking — errors are logged but not re-thrown.
- */
+/** @deprecated Use sendAssessmentCompletedEmail via emailAssessmentResults helper. */
 export async function notifyAssessmentCompleted(
   input: NotifyAssessmentCompletedInput
 ): Promise<void> {
-  try {
-    await resend.emails.send({
-      from: FROM,
-      to: input.userEmail,
-      subject: "Your Project Assessment is Ready",
-      text: [
-        `Hi ${input.userName},`,
-        "",
-        "Your project assessment is complete.",
-        "",
-        `Your Project Readiness Score: ${input.assessmentScore}/100`,
-        `Project Type: ${input.projectType.replace(/_/g, " ")}`,
-        "",
-        "View your full results and recommended next steps:",
-        `${input.siteUrl}/assessment/results?id=${input.assessmentId}`,
-        "",
-        "Book a free 15-minute consultation with Eduardo:",
-        `${input.siteUrl}/book-call`,
-        "",
-        "Best regards,",
-        "Eduardo Mendes",
-      ].join("\n"),
-    });
-  } catch (error) {
-    console.error("[notifyAssessmentCompleted] Email failed:", error);
+  const result = await sendAssessmentCompletedEmail({
+    email: input.userEmail,
+    firstName: input.userName,
+    assessmentScore: input.assessmentScore,
+    projectType: input.projectType,
+    assessmentId: input.assessmentId,
+    leadId: input.leadId,
+  });
+
+  if (!result.ok) {
+    console.error("[notifyAssessmentCompleted]", result.error);
   }
 }
 
-/**
- * Fetches the current assessment for a lead by userId.
- * SERVER-SIDE ONLY (uses admin client).
- */
 export async function getCurrentAssessment(userId: string) {
   const admin = createAdminClient();
 

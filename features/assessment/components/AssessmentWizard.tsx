@@ -23,7 +23,8 @@ import { StepLeadCapture, type LeadData } from "./StepLeadCapture";
 import { StepQuoteExtraction } from "./StepQuoteExtraction";
 import { submitFreeAssessment, submitPaidAssessment, uploadLeadQuote } from "@/features/assessment/actions";
 import { WizardCard, WizardShell } from "@/features/assessment/components/WizardShell";
-import { consumePendingQuote, peekPendingQuote } from "@/lib/pending-quote";
+import { consumePendingQuote, peekPendingQuote, setPendingQuote } from "@/lib/pending-quote";
+import { normalizeOnboardingState } from "@/lib/assessment/states";
 import type { QuoteExtractionResult } from "@/lib/quote-extraction";
 
 const SIDEBAR_CONTENT = [
@@ -104,7 +105,7 @@ const INITIAL_DATA: WizardData = {
   projectSubtype: "",
   landType: "",
   suburb: "",
-  state: "",
+  state: "QLD",
   postcode: "",
   projectStage: "",
   budgetRange: "",
@@ -191,6 +192,7 @@ export function AssessmentWizard({
           setData({
             ...INITIAL_DATA,
             ...parsed.data,
+            state: normalizeOnboardingState(parsed.data.state),
             uploadedFiles: parsed.data.uploadedFiles ?? [],
             projectComment: parsed.data.projectComment ?? "",
           });
@@ -393,6 +395,17 @@ export function AssessmentWizard({
             file={extractFile}
             onComplete={handleExtractionComplete}
             onSkip={handleExtractionSkip}
+            onReplaceFile={(nextFile) => {
+              setPendingQuote(nextFile);
+              setExtractFile(nextFile);
+              setPendingQuoteName(nextFile.name);
+              setExtractionResult(null);
+              try {
+                localStorage.removeItem(STORAGE_KEY);
+              } catch {
+                /* ignore */
+              }
+            }}
           />
         </WizardCard>
       </WizardShell>
@@ -456,7 +469,9 @@ export function AssessmentWizard({
               extractionResult || data.hasQuote
                 ? {
                     suburb: extractionResult?.wizardPrefill.suburb ?? data.suburb,
-                    state: extractionResult?.wizardPrefill.state ?? data.state,
+                    state: normalizeOnboardingState(
+                      extractionResult?.wizardPrefill.state ?? data.state
+                    ),
                   }
                 : undefined
             }

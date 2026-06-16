@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { emailAssessmentResults } from "@/lib/emails/assessment-notify";
 import { createClient } from "@/lib/supabase/server";
 import { calculateAssessmentScore } from "@/utils/assessment-score";
 import { validateFile } from "@/utils/validators";
@@ -228,6 +229,13 @@ export async function submitFreeAssessment({
     })
     .eq("id", leadId);
 
+  await emailAssessmentResults(admin, {
+    leadId,
+    assessmentId: (assessment as { id: string }).id,
+    assessmentScore: score,
+    projectType: wizardData.projectType,
+  });
+
   redirect(`/assessment/results?id=${assessment.id}&lead=${leadId}`);
 }
 
@@ -313,6 +321,13 @@ export async function submitPaidAssessment({
     })
     .eq("id", leadId);
 
+  await emailAssessmentResults(admin, {
+    leadId,
+    assessmentId: (assessment as { id: string }).id,
+    assessmentScore: score,
+    projectType: wizardData.projectType,
+  });
+
   redirect(`/assessment/results?id=${assessment.id}&lead=${leadId}`);
 }
 
@@ -395,6 +410,13 @@ export async function submitAssessment(
       location: data.state,
     })
     .eq("id", lead.id);
+
+  await emailAssessmentResults(admin, {
+    leadId: (lead as { id: string }).id,
+    assessmentId: (assessment as { id: string }).id,
+    assessmentScore: score,
+    projectType: data.projectType,
+  });
 
   redirect(`/assessment/results?id=${assessment.id}`);
 }

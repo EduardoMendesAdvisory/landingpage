@@ -13,9 +13,9 @@ import {
   User,
 } from "lucide-react";
 import { saveLead } from "@/features/assessment/actions";
+import { normalizeOnboardingState } from "@/lib/assessment/states";
 import { cn } from "@/lib/utils";
-
-const STATES = ["NSW", "VIC", "QLD", "SA", "WA", "ACT", "TAS", "NT"] as const;
+import { OnboardingStatePicker } from "./OnboardingStatePicker";
 
 export interface LeadData {
   fullName: string;
@@ -78,7 +78,7 @@ export function StepLeadCapture({
     email: "",
     phone: "",
     suburb: initialData?.suburb ?? "",
-    state: initialData?.state ?? "",
+    state: normalizeOnboardingState(initialData?.state),
   });
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -215,7 +215,7 @@ export function StepLeadCapture({
           )}
         </div>
 
-        <div className="grid sm:grid-cols-2 gap-4">
+        <div className="space-y-4">
           <div>
             <FieldLabel
               htmlFor="suburb"
@@ -239,23 +239,10 @@ export function StepLeadCapture({
             <FieldLabel hint={aiPrefilledFields?.includes("state") ? "From quote" : undefined}>
               State <span className="text-[#b67c2c]">*</span>
             </FieldLabel>
-            <select
+            <OnboardingStatePicker
               value={data.state}
-              onChange={(e) => setData((d) => ({ ...d, state: e.target.value }))}
-              className={cn(
-                INPUT_CLASS,
-                !data.state && "text-[#9ca3af]"
-              )}
-            >
-              <option value="" disabled>
-                Select state
-              </option>
-              {STATES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
+              onChange={(state) => setData((d) => ({ ...d, state }))}
+            />
           </div>
         </div>
       </div>

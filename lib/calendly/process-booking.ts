@@ -4,6 +4,7 @@ import {
   parseCalendlyWebhook,
 } from "@/lib/calendly/parse-webhook";
 import { notifyAdvisors } from "@/lib/notifications/advisor-notify";
+import { sendMeetingBookingConfirmationEmail } from "@/lib/emails/templates";
 import { STRATEGY_CALL_DURATION_MINUTES } from "@/lib/meetings/constants";
 
 type AdminClient = ReturnType<typeof createAdminClient>;
@@ -306,6 +307,20 @@ export async function processCalendlyBooking(
     entityType: leadId ? "lead" : "meeting",
     entityId: leadId ?? meetingId,
   });
+
+  if (parsed.inviteeEmail) {
+    const confirmation = await sendMeetingBookingConfirmationEmail({
+      email: parsed.inviteeEmail,
+      inviteeName: parsed.inviteeName ?? parsed.inviteeEmail.split("@")[0],
+      scheduledAt: parsed.scheduledAt,
+      durationMinutes,
+      meetingUrl: parsed.meetingUrl,
+      serviceLabel: parsed.serviceSlug,
+    });
+    if (!confirmation.ok) {
+      console.error("[processCalendlyBooking] confirmation email:", confirmation.error);
+    }
+  }
 
   return { ok: true, meetingId, leadId, created: leadCreated };
 }

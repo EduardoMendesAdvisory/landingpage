@@ -3,7 +3,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { resend, FROM } from "@/lib/resend";
+import { sendWelcomeEmail, sendPasswordResetEmail } from "@/lib/emails/templates";
+import { getSiteUrl } from "@/lib/emails/send";
 import { resolvePostLoginPath } from "@/lib/auth/post-login-redirect";
 
 import { resolvePostRegisterPath, type RegisterOnboardingPath } from "@/lib/auth/onboarding-paths";
@@ -78,16 +79,18 @@ export async function registerUser(
       console.error("[registerUser] Admin post-registration steps failed:", adminError);
     }
 
-    // Welcome email (non-blocking)
-    try {
-      await resend.emails.send({
-        from: FROM,
-        to: input.email,
-        subject: "Welcome to Eduardo Mendes Advisory",
-        text: `Hi ${input.firstName},\n\nWelcome! Your account has been created.\n\nContinue your project onboarding here: ${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/assessment\n\nBest regards,\nEduardo Mendes`,
-      });
-    } catch (emailError) {
-      console.error("[registerUser] Welcome email failed:", emailError);
+    const continuePath = resolvePostRegisterPath(
+      input.onboardingPath ?? "assessment",
+      input.serviceSlug
+    );
+
+    const welcome = await sendWelcomeEmail({
+      email: input.email.trim().toLowerCase(),
+      firstName: input.firstName,
+      continuePath,
+    });
+    if (!welcome.ok) {
+      console.error("[registerUser] Welcome email failed:", welcome.error);
     }
   }
 
@@ -160,15 +163,50 @@ export interface ForgotPasswordInput {
 export async function forgotPassword(
   input: ForgotPasswordInput
 ): Promise<{ error: string } | { success: true }> {
-  const supabase = await createClient();
+  const email = input.email.trim().toLowerCase();
+  if (!email) return { error: "Please enter your email address." };
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const admin = createAdminClient();
+  const siteUrl = getSiteUrl();
 
-  const { error } = await supabase.auth.resetPasswordForEmail(input.email, {
-    redirectTo: `${siteUrl}/reset-password`,
+  const { data: userRow } = await admin
+    .from("users")
+    .select("id")
+    .eq("email", email)
+    .maybeSingle();
+
+  if (!userRow) {
+    return { success: true };
+  }
+
+  const userId = (userRow as { id: string }).id;
+
+  const { data: profile } = await admin
+    .from("user_profiles")
+    .select("first_name")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
+    type: "recovery",
+    email,
+    options: { redirectTo: `${siteUrl}/reset-password` },
   });
 
-  if (error) return { error: error.message };
+  if (linkError || !linkData?.properties?.action_link) {
+    console.error("[forgotPassword] generateLink:", linkError);
+    return { success: true };
+  }
+
+  const sent = await sendPasswordResetEmail({
+    email,
+    resetUrl: linkData.properties.action_link,
+    firstName: (profile as { first_name: string | null } | null)?.first_name,
+  });
+
+  if (!sent.ok) {
+    console.error("[forgotPassword] email:", sent.error);
+  }
 
   return { success: true };
 }

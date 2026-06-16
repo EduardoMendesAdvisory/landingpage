@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { FOOTER_BRAND_LOGO } from "@/lib/branding";
+import { BUSINESS_EMAIL, BUSINESS_MAILTO } from "@/lib/site/contact";
 import {
   ShieldCheck,
   Check,
@@ -289,10 +290,10 @@ export default async function RecommendedServicePage({ params }: PageProps) {
             <div className="bg-white rounded-2xl border border-[#ece8e1] p-5">
               <p className="text-xs font-semibold text-[#111A24] mb-1">Need help?</p>
               <a
-                href="mailto:contact@eduardomendes.com.au"
+                href={BUSINESS_MAILTO}
                 className="text-sm text-[#4b5564] hover:text-[#111A24] transition-colors"
               >
-                contact@eduardomendes.com.au
+                {BUSINESS_EMAIL}
               </a>
             </div>
           </aside>

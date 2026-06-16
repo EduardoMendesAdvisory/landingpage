@@ -1,9 +1,11 @@
+import { BUSINESS_EMAIL } from "@/lib/site/contact";
+
 /** Emails allowed to use the master (AdvisorHQ) login. Comma-separated in env. */
 export function getMasterAdminEmails(): string[] {
   const raw =
     process.env.MASTER_ADMIN_EMAILS ??
     process.env.ADVISOR_EMAIL ??
-    "contact@eduardomendes.com.au";
+    BUSINESS_EMAIL;
 
   return raw
     .split(",")

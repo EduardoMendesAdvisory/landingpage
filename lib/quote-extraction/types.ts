@@ -23,10 +23,10 @@ export interface ExtractedField {
 }
 
 export interface QuoteExtractionResult {
-  source: "mock" | "openai" | "document-ai";
+  source: "openai" | "document-ai";
   fileName: string;
   fields: ExtractedField[];
   wizardPrefill: QuoteWizardPrefill;
 }
 
-export type QuoteExtractionProvider = "mock" | "openai";
+export type QuoteExtractionProvider = "openai";

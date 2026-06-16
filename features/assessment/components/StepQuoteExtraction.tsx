@@ -1,28 +1,33 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertCircle,
   ArrowRight,
   CheckCircle2,
   FileText,
   Loader2,
+  Upload,
 } from "lucide-react";
-import { extractQuoteFromFile } from "@/lib/quote-extraction";
+import { extractQuoteFromUpload } from "@/features/assessment/quote-extraction-actions";
 import type { QuoteExtractionResult } from "@/lib/quote-extraction";
+import { ALLOWED_EXTENSIONS } from "@/utils/validators";
 import { cn } from "@/lib/utils";
 
 const LOADING_STEPS = [
   "Reading document structure",
+  "Checking this is a builder quote",
   "Extracting builder and pricing",
   "Matching project details",
-  "Preparing your assessment",
 ];
+
+const ACCEPT = ALLOWED_EXTENSIONS.map((ext) => `.${ext}`).join(",");
 
 interface StepQuoteExtractionProps {
   file: File;
   onComplete: (result: QuoteExtractionResult) => void;
   onSkip: () => void;
+  onReplaceFile: (file: File) => void;
 }
 
 function getFieldMap(result: QuoteExtractionResult) {
@@ -38,24 +43,49 @@ function DetailRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function StepQuoteExtraction({ file, onComplete, onSkip }: StepQuoteExtractionProps) {
+export function StepQuoteExtraction({
+  file,
+  onComplete,
+  onSkip,
+  onReplaceFile,
+}: StepQuoteExtractionProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [loadingStep, setLoadingStep] = useState(0);
   const [result, setResult] = useState<QuoteExtractionResult | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
     async function run() {
+      setStatus("loading");
+      setLoadingStep(0);
+      setErrorMessage(null);
+      setErrorCode(null);
+      setResult(null);
+
       try {
-        const extracted = await extractQuoteFromFile(file);
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await extractQuoteFromUpload(formData);
         if (cancelled) return;
-        setResult(extracted);
+
+        if (!response.ok) {
+          setErrorCode(response.code);
+          setErrorMessage(response.message);
+          setStatus("error");
+          return;
+        }
+
+        setResult(response.result);
         setStatus("success");
       } catch {
         if (cancelled) return;
-        setErrorMessage("We could not read this file automatically.");
+        setErrorCode("service_error");
+        setErrorMessage("We could not analyse your document. Please try again.");
         setStatus("error");
       }
     }
@@ -71,7 +101,7 @@ export function StepQuoteExtraction({ file, onComplete, onSkip }: StepQuoteExtra
 
     const interval = setInterval(() => {
       setLoadingStep((prev) => Math.min(prev + 1, LOADING_STEPS.length - 1));
-    }, 750);
+    }, 1200);
 
     return () => clearInterval(interval);
   }, [status]);
@@ -80,6 +110,18 @@ export function StepQuoteExtraction({ file, onComplete, onSkip }: StepQuoteExtra
     () => (result ? getFieldMap(result) : {}),
     [result]
   );
+
+  const isRejectedQuote =
+    errorCode === "not_a_quote" ||
+    errorCode === "unsupported_format" ||
+    errorCode === "unreadable";
+
+  function handleReplaceFile(selected: FileList | null) {
+    const next = selected?.[0];
+    if (!next) return;
+    onReplaceFile(next);
+    if (inputRef.current) inputRef.current.value = "";
+  }
 
   if (status === "loading") {
     const progress = ((loadingStep + 1) / LOADING_STEPS.length) * 100;
@@ -91,10 +133,10 @@ export function StepQuoteExtraction({ file, onComplete, onSkip }: StepQuoteExtra
             Document Review
           </p>
           <h2 className="text-2xl sm:text-3xl font-bold text-[#111A24] leading-tight mb-2">
-            Reviewing your builder quote
+            Analysing your builder quote
           </h2>
           <p className="text-sm text-[#4b5564] leading-relaxed max-w-lg">
-            We are reading your document to prepare a tailored preliminary assessment.
+            Our system is reading your document to confirm it is a builder quote and extract key project details.
           </p>
         </div>
 
@@ -122,27 +164,64 @@ export function StepQuoteExtraction({ file, onComplete, onSkip }: StepQuoteExtra
           </div>
         </div>
 
-        <p className="text-xs text-[#6b7280]">Usually completes within a few seconds.</p>
+        <p className="text-xs text-[#6b7280]">This usually takes 10–30 seconds.</p>
       </div>
     );
   }
 
   if (status === "error") {
     return (
-      <div className="py-6 text-center space-y-6">
-        <AlertCircle size={36} className="text-[#b67c2c] mx-auto" strokeWidth={1.5} />
-        <div>
-          <h2 className="text-2xl font-bold text-[#111A24] mb-2">Unable to read document</h2>
-          <p className="text-sm text-[#4b5564]">{errorMessage}</p>
+      <div className="py-6 space-y-6">
+        <div className="text-center">
+          <AlertCircle size={36} className="text-[#b67c2c] mx-auto mb-4" strokeWidth={1.5} />
+          <h2 className="text-2xl font-bold text-[#111A24] mb-2">
+            {isRejectedQuote ? "Not a builder quote" : "Unable to analyse document"}
+          </h2>
+          <p className="text-sm text-[#4b5564] max-w-md mx-auto leading-relaxed">
+            {errorMessage}
+          </p>
         </div>
-        <button
-          type="button"
-          onClick={onSkip}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#111A24] hover:bg-[#111A24]/90 text-white font-semibold px-8 py-3.5 rounded-lg transition-colors text-sm"
-        >
-          Continue manually
-          <ArrowRight size={16} />
-        </button>
+
+        {isRejectedQuote && (
+          <div className="rounded-xl border border-[#ece8e1] bg-[#faf9f7] p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#4b5564] mb-3">
+              What we accept
+            </p>
+            <ul className="text-sm text-[#4b5564] space-y-1.5 list-disc pl-4">
+              <li>Builder quotes, estimates, or construction proposals (PDF or photo)</li>
+              <li>Documents with pricing from a builder or contractor</li>
+            </ul>
+            <p className="text-xs text-[#6b7280] mt-3">
+              Random photos, unrelated invoices, or Word/Excel files cannot be reviewed automatically.
+            </p>
+          </div>
+        )}
+
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <input
+            ref={inputRef}
+            type="file"
+            className="sr-only"
+            accept={ACCEPT}
+            onChange={(e) => handleReplaceFile(e.target.files)}
+          />
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            className="inline-flex items-center justify-center gap-2 bg-[#b67c2c] hover:bg-[#9f6c27] text-white font-semibold px-6 py-3.5 rounded-lg transition-colors text-sm"
+          >
+            <Upload size={16} />
+            Upload a different file
+          </button>
+          <button
+            type="button"
+            onClick={onSkip}
+            className="inline-flex items-center justify-center gap-2 bg-[#111A24] hover:bg-[#111A24]/90 text-white font-semibold px-6 py-3.5 rounded-lg transition-colors text-sm"
+          >
+            Continue manually
+            <ArrowRight size={16} />
+          </button>
+        </div>
       </div>
     );
   }
@@ -159,7 +238,7 @@ export function StepQuoteExtraction({ file, onComplete, onSkip }: StepQuoteExtra
           Initial findings from your quote
         </h2>
         <p className="text-sm text-[#4b5564] leading-relaxed">
-          These details were identified from your uploaded document. Please confirm or update them in the next step.
+          These details were identified from your uploaded document. Please confirm or update them in the next steps.
         </p>
       </div>
 
@@ -176,14 +255,9 @@ export function StepQuoteExtraction({ file, onComplete, onSkip }: StepQuoteExtra
           </div>
           <div className="flex items-center gap-1.5 text-xs text-[#4b5564]">
             <CheckCircle2 size={14} className="text-[#b67c2c] shrink-0" />
-            Review complete
+            Builder quote identified
           </div>
         </div>
-        {result.source === "mock" && (
-          <p className="mt-3 text-[11px] text-[#6b7280] italic">
-            Preview data for demonstration purposes.
-          </p>
-        )}
       </div>
 
       {(fields.total || fields.builder) && (

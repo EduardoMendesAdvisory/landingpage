@@ -1,9 +1,11 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { CalendarCheck2, Lock, Paperclip } from "lucide-react";
+import { CalendarCheck2 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { EDUARDO_QUOTE_URL } from "@/lib/media";
+import { BUSINESS_EMAIL, BUSINESS_MAILTO } from "@/lib/site/contact";
+import { ContactForm } from "@/features/contact/components/ContactForm";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -53,113 +55,7 @@ export default function ContactPage() {
               <div className="w-14 h-[2px] bg-[#b67c2c] mx-auto" />
             </div>
 
-            <form className="space-y-4">
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label htmlFor="fullName" className="text-sm font-semibold text-[#111A24]">Full Name *</label>
-                  <input
-                    id="fullName"
-                    type="text"
-                    placeholder="Enter your full name"
-                    className="w-full h-11 rounded-lg border border-[#d8d2c7] px-3 text-sm text-[#111A24] placeholder:text-[#8a8f98] focus:outline-none focus:ring-2 focus:ring-[#b67c2c]/25"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label htmlFor="email" className="text-sm font-semibold text-[#111A24]">Email Address *</label>
-                  <input
-                    id="email"
-                    type="email"
-                    placeholder="your@email.com.au"
-                    className="w-full h-11 rounded-lg border border-[#d8d2c7] px-3 text-sm text-[#111A24] placeholder:text-[#8a8f98] focus:outline-none focus:ring-2 focus:ring-[#b67c2c]/25"
-                  />
-                </div>
-              </div>
-
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label htmlFor="phone" className="text-sm font-semibold text-[#111A24]">Phone Number *</label>
-                  <input
-                    id="phone"
-                    type="tel"
-                    placeholder="0412 345 678"
-                    className="w-full h-11 rounded-lg border border-[#d8d2c7] px-3 text-sm text-[#111A24] placeholder:text-[#8a8f98] focus:outline-none focus:ring-2 focus:ring-[#b67c2c]/25"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label htmlFor="projectType" className="text-sm font-semibold text-[#111A24]">Project Type *</label>
-                  <select
-                    id="projectType"
-                    defaultValue=""
-                    className="w-full h-11 rounded-lg border border-[#d8d2c7] px-3 text-sm text-[#111A24] focus:outline-none focus:ring-2 focus:ring-[#b67c2c]/25"
-                  >
-                    <option value="" disabled>Select an option</option>
-                    <option value="new-build">New Build</option>
-                    <option value="renovation">Renovation</option>
-                    <option value="owner-builder">Owner Builder</option>
-                    <option value="site-inspection">Site Inspection</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label htmlFor="helpWith" className="text-sm font-semibold text-[#111A24]">What can we help you with? *</label>
-                <select
-                  id="helpWith"
-                  defaultValue=""
-                  className="w-full h-11 rounded-lg border border-[#d8d2c7] px-3 text-sm text-[#111A24] focus:outline-none focus:ring-2 focus:ring-[#b67c2c]/25"
-                >
-                  <option value="" disabled>Select an option</option>
-                  <option value="quote-review">Quote & Contract Review</option>
-                  <option value="pre-construction">Pre-Construction Advisory</option>
-                  <option value="site-visits">Site Visits & Inspections</option>
-                  <option value="general-advice">General Advice</option>
-                </select>
-              </div>
-
-              <div className="space-y-1.5">
-                <label htmlFor="projectDetails" className="text-sm font-semibold text-[#111A24]">Tell us about your project</label>
-                <textarea
-                  id="projectDetails"
-                  rows={4}
-                  placeholder="Include as much detail as you can about your project, where you are up to and how we can help."
-                  className="w-full rounded-lg border border-[#d8d2c7] p-3 text-sm text-[#111A24] placeholder:text-[#8a8f98] resize-none focus:outline-none focus:ring-2 focus:ring-[#b67c2c]/25"
-                />
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between pt-2">
-                <div className="text-sm text-[#4b5564] flex items-center gap-2">
-                  <Paperclip size={16} className="text-[#111A24]" />
-                  <div>
-                    <strong className="text-[#111A24] block">Attach files (optional)</strong>
-                    <p>Plans, quotes, contracts (Max 10MB each)</p>
-                    <label htmlFor="contact-attachments" className="inline-flex items-center mt-1 text-[#b67c2c] font-semibold cursor-pointer hover:text-[#9f6c27] transition-colors">
-                      Upload files
-                    </label>
-                    <input
-                      id="contact-attachments"
-                      type="file"
-                      multiple
-                      accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.webp"
-                      className="sr-only"
-                    />
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  className="inline-flex items-center justify-center bg-[#b67c2c] hover:bg-[#9f6c27] text-white font-semibold px-8 py-3 rounded-lg text-sm uppercase tracking-[0.12em] transition-colors"
-                >
-                  Send Message
-                </button>
-              </div>
-
-              <p className="text-xs text-[#6b7280] pt-2 flex items-center justify-center gap-2">
-                <Lock size={13} className="text-[#111A24]" />
-                Your information is secure and confidential.
-              </p>
-            </form>
+            <ContactForm />
           </div>
 
           <div className="space-y-4">
@@ -172,7 +68,12 @@ export default function ContactPage() {
               <div className="space-y-6">
                 <div className="border-l border-[#b67c2c] pl-4">
                   <p className="text-xl font-bold text-[#111A24] leading-tight">Email</p>
-                  <p className="text-base font-semibold text-[#111A24] leading-tight mt-1 break-all">eduardo@eduardomendes.com.au</p>
+                  <a
+                    href={BUSINESS_MAILTO}
+                    className="text-base font-semibold text-[#111A24] leading-tight mt-1 break-all hover:text-[#b67c2c] transition-colors"
+                  >
+                    {BUSINESS_EMAIL}
+                  </a>
                   <p className="text-sm text-[#4b5564] mt-2">We aim to reply within 24 hours</p>
                 </div>
 

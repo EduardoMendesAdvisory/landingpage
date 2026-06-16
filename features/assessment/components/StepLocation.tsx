@@ -10,6 +10,7 @@ import {
   WIZARD_INPUT_CLASS,
   optionButtonClass,
 } from "./wizard-ui";
+import { OnboardingStatePicker } from "./OnboardingStatePicker";
 
 const LAND_TYPES = [
   { value: "vacant_land", label: "Vacant Land" },
@@ -17,8 +18,6 @@ const LAND_TYPES = [
   { value: "rented_land", label: "Rented / Leased" },
   { value: "not_sure", label: "Not Sure Yet" },
 ] as const;
-
-const STATES = ["NSW", "VIC", "QLD", "SA", "WA", "ACT", "TAS", "NT"] as const;
 
 interface StepLocationData {
   landType: string;
@@ -81,26 +80,10 @@ export function StepLocation({ value, onChange }: StepLocationProps) {
 
         <div className="mt-4">
           <FieldLabel>State</FieldLabel>
-          <div className="flex flex-wrap gap-2">
-            {STATES.map((s) => {
-              const selected = value.state === s;
-              return (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => onChange({ state: s })}
-                  className={cn(
-                    optionButtonClass(selected),
-                    "px-4 py-2 text-sm font-semibold min-w-[3.5rem] text-center",
-                    selected ? "text-[#111A24]" : "text-[#4b5564]"
-                  )}
-                >
-                  <OptionCheck selected={selected} />
-                  {s}
-                </button>
-              );
-            })}
-          </div>
+          <OnboardingStatePicker
+            value={value.state}
+            onChange={(state) => onChange({ state })}
+          />
         </div>
       </StepSection>
 

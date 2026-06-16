@@ -1,3 +1,5 @@
+import { BUSINESS_EMAIL } from "@/lib/site/contact";
+
 export const INVOICE_BANK_DETAILS_KEY = "invoice_bank_details";
 
 export type InvoiceBankDetails = {
@@ -40,7 +42,7 @@ export function formatPaymentInstructions(
     "",
     `Please use ${reference} as the payment reference.`,
     "",
-    "Questions? Reply to this email or contact contact@eduardomendes.com.au",
+    `Questions? Reply to this email or contact ${BUSINESS_EMAIL}`,
   ]
     .filter((line): line is string => line !== null)
     .join("\n");
