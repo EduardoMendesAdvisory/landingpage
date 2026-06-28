@@ -6,6 +6,10 @@ import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { LeadStatusBadge } from "@/components/advisor/LeadStatusBadge";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { formatCurrency, formatDate } from "@/utils/formatters";
+import {
+  formatSavingsPercentRange,
+  normalizeSavingsPercent,
+} from "@/lib/assessment/preliminary-metrics";
 import { ActivateClientButton } from "@/features/clients/components/ActivateClientButton";
 import {
   LeadNextStepsPanel,
@@ -299,10 +303,18 @@ export default async function LeadDetailPage({
                 {(assessment.potential_savings_min != null ||
                   assessment.potential_savings_max != null) && (
                   <div className="col-span-2">
-                    <dt className="text-xs text-muted-foreground">Potential savings</dt>
+                    <dt className="text-xs text-muted-foreground">Optimisation range</dt>
                     <dd className="font-medium text-emerald-700">
-                      {formatCurrency(assessment.potential_savings_min ?? 0)} -{" "}
-                      {formatCurrency(assessment.potential_savings_max ?? 0)}
+                      {formatSavingsPercentRange(
+                        normalizeSavingsPercent(
+                          assessment.potential_savings_min,
+                          assessment.potential_savings_max
+                        ).min,
+                        normalizeSavingsPercent(
+                          assessment.potential_savings_min,
+                          assessment.potential_savings_max
+                        ).max
+                      )}
                     </dd>
                   </div>
                 )}

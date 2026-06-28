@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { Loader2, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,7 +58,15 @@ export function MasterLoginForm({ redirectPath }: MasterLoginFormProps) {
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="master-password">Password</Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="master-password">Password</Label>
+          <Link
+            href="/forgot-password"
+            className="text-xs text-[#4b5564] hover:text-[#111A24] hover:underline underline-offset-2"
+          >
+            Forgot password?
+          </Link>
+        </div>
         <Input
           id="master-password"
           type="password"

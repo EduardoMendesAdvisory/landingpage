@@ -15,6 +15,7 @@ import {
 } from "@/features/assessment/components/AssessmentResultsSidebars";
 import { WizardCard } from "@/features/assessment/components/WizardShell";
 import { StepHeader, WIZARD_PRIMARY_BTN_CLASS } from "@/features/assessment/components/wizard-ui";
+import { normalizeSavingsPercent } from "@/lib/assessment/preliminary-metrics";
 
 export const metadata: Metadata = {
   title: "Your Assessment Results | Eduardo Mendes Advisory",
@@ -70,10 +71,14 @@ export default async function AssessmentResultsPage({ searchParams }: ResultsPag
   }
 
   const score = a.assessment_score ?? 75;
+  const savingsPercent = normalizeSavingsPercent(
+    a.potential_savings_min,
+    a.potential_savings_max
+  );
   const resultsData = {
     score,
-    savingsMin: a.potential_savings_min ?? 18000,
-    savingsMax: a.potential_savings_max ?? 42000,
+    savingsPercentMin: savingsPercent.min,
+    savingsPercentMax: savingsPercent.max,
     riskCount: a.risk_count ?? 4,
     actionsCount: a.recommended_actions_count ?? 7,
     benchmarkPosition: a.benchmark_position ?? "Above Average",

@@ -20,6 +20,7 @@ export const metadata: Metadata = {
 
 const PROMISE_POINTS = [
   "Save on builder margin and increase your budget control",
+  "Up to 10% off material purchases through partner suppliers",
   "Make decisions with expert support",
   "Stay compliant and meet your obligations",
   "Build with confidence, not guesswork",

@@ -156,6 +156,7 @@ export function AssessmentWizard({
   const [leadData, setLeadData] = useState<LeadData | null>(null);
   const [extractFile, setExtractFile] = useState<File | null>(null);
   const [extractionResult, setExtractionResult] = useState<QuoteExtractionResult | null>(null);
+  const [extractionSkipped, setExtractionSkipped] = useState(false);
 
   const [step, setStep] = useState(1);
   const [data, setData] = useState<WizardData>(INITIAL_DATA);
@@ -177,6 +178,7 @@ export function AssessmentWizard({
         leadId?: string;
         leadData?: LeadData;
         extractionComplete?: boolean;
+        extractionSkipped?: boolean;
       } | null = null;
 
       if (saved) {
@@ -187,6 +189,7 @@ export function AssessmentWizard({
           leadId?: string;
           leadData?: LeadData;
           extractionComplete?: boolean;
+          extractionSkipped?: boolean;
         };
         if (parsed?.data) {
           setData({
@@ -199,16 +202,17 @@ export function AssessmentWizard({
           setStep(Math.min(parsed.step ?? 1, TOTAL_WIZARD_STEPS));
           if (parsed.leadId) setLeadId(parsed.leadId);
           if (parsed.leadData) setLeadData(parsed.leadData);
+          if (parsed.extractionSkipped) setExtractionSkipped(true);
         }
       }
 
       if (pending && mode === "free") {
         setPendingQuoteName(pending.name);
-        const alreadyExtractedForFile =
-          parsed?.extractionComplete === true &&
+        const alreadyHandledQuote =
+          (parsed?.extractionComplete === true || parsed?.extractionSkipped === true) &&
           parsed?.data?.quoteFileName === pending.name;
 
-        if (!alreadyExtractedForFile) {
+        if (!alreadyHandledQuote) {
           setExtractFile(pending);
           setPhase("extract");
         } else if (parsed?.phase) {
@@ -241,10 +245,11 @@ export function AssessmentWizard({
           leadId,
           leadData,
           extractionComplete: phase !== "extract" && !!extractionResult && !!data.quoteFileName,
+          extractionSkipped,
         })
       );
     } catch { /* ignore */ }
-  }, [step, data, phase, leadId, leadData, extractionResult, hydrated, STORAGE_KEY]);
+  }, [step, data, phase, leadId, leadData, extractionResult, extractionSkipped, hydrated, STORAGE_KEY]);
 
   function continueWithLead(id: string) {
     setLeadId(id);
@@ -303,6 +308,13 @@ export function AssessmentWizard({
   }
 
   function handleExtractionSkip() {
+    setExtractionSkipped(true);
+    setData((prev) => ({
+      ...prev,
+      hasQuote: true,
+      quoteFileName: extractFile?.name ?? prev.quoteFileName,
+    }));
+
     if (skipLeadCapture && registeredLeadId) {
       continueWithLead(registeredLeadId);
       return;
@@ -433,7 +445,7 @@ export function AssessmentWizard({
               <div className="space-y-3.5">
                 {[
                   { icon: BarChart3, label: "Opportunity score", desc: "Your project's potential rating." },
-                  { icon: TrendingDown, label: "Potential savings", desc: "Estimated range for your build." },
+                  { icon: TrendingDown, label: "Optimisation range", desc: "Indicative percentage range — not a guarantee." },
                   { icon: AlertTriangle, label: "Risk areas", desc: "Key risks for your project type." },
                   { icon: ChevronRight, label: "Next steps", desc: "Priority actions to move forward." },
                 ].map((b) => (

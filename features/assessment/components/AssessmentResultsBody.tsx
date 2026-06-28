@@ -10,11 +10,14 @@ import {
   Check,
 } from "lucide-react";
 import { StepFootnote, StepSection } from "./wizard-ui";
+import {
+  normalizeSavingsPercent,
+} from "@/lib/assessment/preliminary-metrics";
 
 export interface AssessmentResultsData {
   score: number;
-  savingsMin: number;
-  savingsMax: number;
+  savingsPercentMin: number;
+  savingsPercentMax: number;
   riskCount: number;
   actionsCount: number;
   benchmarkPosition: string;
@@ -32,12 +35,6 @@ export function getOpportunityLabel(score: number): { label: string; colour: str
   if (score >= 55) return { label: "Good Opportunity", colour: "text-blue-700", bg: "bg-blue-100" };
   if (score >= 35) return { label: "Moderate Opportunity", colour: "text-amber-700", bg: "bg-amber/10" };
   return { label: "Early Stage", colour: "text-gray-600", bg: "bg-gray-100" };
-}
-
-export function formatCurrency(n: number): string {
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `$${Math.round(n / 1000)}k`;
-  return `$${n}`;
 }
 
 const INSIGHTS = [
@@ -115,16 +112,26 @@ export function AssessmentResultsBody({
             />
           ) : (
             <MetricCell
-              label="Potential savings"
+              label="Optimisation range"
               value={
                 <>
-                  {formatCurrency(data.savingsMin)}
-                  <span className="block text-xs font-semibold text-green-600 mt-0.5">
-                    to {formatCurrency(data.savingsMax)}
-                  </span>
+                  {(() => {
+                    const { min, max } = normalizeSavingsPercent(
+                      data.savingsPercentMin,
+                      data.savingsPercentMax
+                    );
+                    return (
+                      <>
+                        <span className="text-lg sm:text-xl">{min}%</span>
+                        <span className="block text-xs font-semibold text-green-600 mt-0.5">
+                          to {max}%
+                        </span>
+                      </>
+                    );
+                  })()}
                 </>
               }
-              hint="Estimated range for your project."
+              hint="Indicative only — not a guarantee of savings."
               valueClassName="text-green-600"
             />
           )}
@@ -245,7 +252,7 @@ export function OpportunityScoreHero({ score }: { score: number }) {
           {opportunity.label}
         </span>
         <p className="text-white/60 text-xs mt-1.5 leading-relaxed">
-          Your project shows strong potential for optimisation and cost savings.
+          Your project shows room for preliminary optimisation — confirmed in your expert review.
         </p>
       </div>
     </div>

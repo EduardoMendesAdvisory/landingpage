@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { LoginForm } from "@/features/auth/components/LoginForm";
 import { createClient } from "@/lib/supabase/server";
 import { resolvePostLoginPath } from "@/lib/auth/post-login-redirect";
+import { ADVISOR_LOGIN_PATH } from "@/lib/auth/master-access";
 
 export const metadata: Metadata = { title: "Sign In" };
 
@@ -64,6 +65,17 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       </div>
 
       <LoginForm redirectPath={redirectPath} message={message} />
+
+      <div className="mt-5 rounded-lg border border-[#ece8e1] bg-[#faf9f7] px-4 py-3 text-sm text-[#4b5564]">
+        Eduardo or staff?{" "}
+        <Link
+          href={ADVISOR_LOGIN_PATH}
+          className="font-semibold text-[#111A24] hover:underline underline-offset-2"
+        >
+          Sign in to AdvisorHQ
+        </Link>{" "}
+        (not the client portal).
+      </div>
 
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-500">

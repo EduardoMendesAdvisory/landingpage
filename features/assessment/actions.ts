@@ -5,55 +5,10 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { emailAssessmentResults } from "@/lib/emails/assessment-notify";
 import { createClient } from "@/lib/supabase/server";
 import { calculateAssessmentScore } from "@/utils/assessment-score";
+import { computePreliminaryMetrics } from "@/lib/assessment/preliminary-metrics";
 import { validateFile } from "@/utils/validators";
 import type { LeadData } from "@/features/assessment/components/StepLeadCapture";
 import type { WizardData } from "@/features/assessment/components/AssessmentWizard";
-
-// ── Scoring helpers ───────────────────────────────────────────
-
-function computePreliminaryMetrics(data: WizardData): {
-  savingsMin: number;
-  savingsMax: number;
-  riskCount: number;
-  recommendedActionsCount: number;
-  benchmarkPosition: string;
-} {
-  const budgetMultipliers: Record<string, [number, number]> = {
-    under_50k:   [2000, 5000],
-    "50k_100k":  [3000, 10000],
-    "100k_250k": [5000, 25000],
-    "250k_500k": [10000, 50000],
-    "500k_1m":   [18000, 42000],
-    over_1m:     [30000, 80000],
-    not_sure:    [5000, 20000],
-  };
-  const [savingsMin, savingsMax] = budgetMultipliers[data.budgetRange] ?? [5000, 20000];
-
-  const riskFactors = [
-    data.projectType === "owner_builder",
-    data.projectStage === "concept_idea" || data.projectStage === "early_planning",
-    data.budgetRange === "not_sure",
-    data.landType === "not_sure",
-    !data.suburb,
-  ];
-  const riskCount = riskFactors.filter(Boolean).length + 2;
-
-  const recommendedActionsCount = Math.min(riskCount + 3, 9);
-
-  const score = calculateAssessmentScore({
-    projectType: data.projectType,
-    projectStage: data.projectStage,
-    budgetRange: data.budgetRange,
-    state: data.state,
-  });
-  const benchmarkPosition =
-    score >= 80 ? "Well Above Average" :
-    score >= 65 ? "Above Average" :
-    score >= 50 ? "Average" :
-    "Below Average";
-
-  return { savingsMin, savingsMax, riskCount, recommendedActionsCount, benchmarkPosition };
-}
 
 // ── 1. saveLead — create anonymous lead (no auth required) ────
 
@@ -162,7 +117,7 @@ export async function submitFreeAssessment({
     state: wizardData.state,
   });
 
-  const { savingsMin, savingsMax, riskCount, recommendedActionsCount, benchmarkPosition } =
+  const { savingsPercentMin, savingsPercentMax, riskCount, recommendedActionsCount, benchmarkPosition } =
     computePreliminaryMetrics(wizardData);
 
   // Verify lead exists
@@ -199,8 +154,8 @@ export async function submitFreeAssessment({
       uploaded_quote_url: wizardData.uploadedQuoteUrl || null,
       assessment_score: score,
       assessment_type: "free_preliminary",
-      potential_savings_min: savingsMin,
-      potential_savings_max: savingsMax,
+      potential_savings_min: savingsPercentMin,
+      potential_savings_max: savingsPercentMax,
       risk_count: riskCount,
       recommended_actions_count: recommendedActionsCount,
       benchmark_position: benchmarkPosition,
@@ -257,7 +212,7 @@ export async function submitPaidAssessment({
     state: wizardData.state,
   });
 
-  const { savingsMin, savingsMax, riskCount, recommendedActionsCount, benchmarkPosition } =
+  const { savingsPercentMin, savingsPercentMax, riskCount, recommendedActionsCount, benchmarkPosition } =
     computePreliminaryMetrics(wizardData);
 
   const { data: lead, error: leadError } = await admin
@@ -292,8 +247,8 @@ export async function submitPaidAssessment({
       uploaded_quote_url: wizardData.uploadedQuoteUrl || null,
       assessment_score: score,
       assessment_type: "paid_client",
-      potential_savings_min: savingsMin,
-      potential_savings_max: savingsMax,
+      potential_savings_min: savingsPercentMin,
+      potential_savings_max: savingsPercentMax,
       risk_count: riskCount,
       recommended_actions_count: recommendedActionsCount,
       benchmark_position: benchmarkPosition,

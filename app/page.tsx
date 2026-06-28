@@ -147,7 +147,7 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-t from-[#111A24]/70 via-transparent to-[#111A24]/25" />
 
           <div className="relative z-10 max-w-6xl mx-auto min-h-[620px] grid md:grid-cols-[1fr_1fr] gap-10 items-center py-20">
-            <div className="py-4 max-w-xl">
+            <div className="py-4 min-w-0">
               <p className="text-[#b67c2c] text-xs font-semibold uppercase tracking-[0.18em] mb-5">
                 Independent Advice · Real Results
               </p>
@@ -169,10 +169,16 @@ export default function HomePage() {
                   How It Works
                 </a>
               </div>
-              <div className="flex flex-wrap gap-x-6 gap-y-2 text-[11px] text-white/40 border-t border-white/10 pt-5">
-                {["Independent Advice", "30+ Years Experience", "500+ Trusted", "Honest Builder Specialist"].map((t) => (
-                  <span key={t} className="flex items-center gap-1.5">
-                    <Check size={10} className="text-amber shrink-0" />{t}
+              <div className="flex flex-nowrap items-center justify-start gap-x-3 lg:gap-x-5 text-[10px] sm:text-[11px] text-white/40 border-t border-white/10 pt-5">
+                {[
+                  "Independent Advice",
+                  "30+ Years Experience",
+                  "Builder Specialist",
+                  "10% Off Materials",
+                ].map((t) => (
+                  <span key={t} className="flex items-center gap-1 shrink-0 whitespace-nowrap">
+                    <Check size={10} className="text-amber shrink-0" />
+                    {t}
                   </span>
                 ))}
               </div>
@@ -198,7 +204,32 @@ export default function HomePage() {
                 ))}
               </div>
             </div>
-            <p className="text-[#b67c2c] text-xs font-semibold uppercase tracking-[0.18em] mb-3">Why Homeowners Work With Eduardo</p>
+
+            <div className="mt-10 max-w-3xl mx-auto rounded-2xl border border-[#e7dcc8] bg-gradient-to-br from-[#faf9f7] to-[#fff] px-6 py-6 md:px-8 md:flex md:items-center md:gap-8 text-left shadow-[0_8px_30px_rgba(17,26,36,0.06)]">
+              <div className="flex-1 min-w-0">
+                <p className="text-[#b67c2c] text-xs font-semibold uppercase tracking-[0.16em] mb-1.5">
+                  Client benefit
+                </p>
+                <h3 className="text-xl md:text-2xl font-bold text-[#111A24] leading-tight mb-2">
+                  Up to 10% off material purchases
+                </h3>
+                <p className="text-sm text-[#4b5564] leading-relaxed">
+                  Eligible clients can access savings on materials through trusted supplier partners —
+                  including brands shown above. Available on select advisory packages and the Owner Builder Program.
+                </p>
+                <p className="text-[11px] text-[#9ca3af] mt-2 leading-relaxed">
+                  Discount varies by supplier and product. Terms and eligibility apply.
+                </p>
+              </div>
+              <Link
+                href="/services/owner-builder-program"
+                className="inline-flex items-center justify-center gap-1.5 mt-5 md:mt-0 shrink-0 text-sm font-semibold text-[#111A24] hover:text-[#b67c2c] transition-colors"
+              >
+                Learn more <ArrowRight size={14} />
+              </Link>
+            </div>
+
+            <p className="text-[#b67c2c] text-xs font-semibold uppercase tracking-[0.18em] mb-3 mt-14">Why Homeowners Work With Eduardo</p>
             <h2 className="text-3xl md:text-4xl font-bold leading-tight text-[#111A24] mb-3">Because building mistakes are expensive.</h2>
             <p className="text-sm md:text-base text-gray-500 mb-10 max-w-lg mx-auto leading-relaxed">
               Most homeowners don&apos;t know what they don&apos;t know. Eduardo bridges the gap between

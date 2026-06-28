@@ -51,6 +51,15 @@ export async function extractQuoteFromBuffer(input: {
     };
   }
 
+  if (!process.env.OPENAI_API_KEY?.trim()) {
+    return {
+      ok: false,
+      code: "manual_review",
+      message:
+        "Automatic document reading is not available yet. Your file will still be saved — please continue and enter your project details manually.",
+    };
+  }
+
   try {
     const analysis = await analyzeQuoteDocument({
       buffer: input.buffer,

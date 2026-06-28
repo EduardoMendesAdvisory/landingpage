@@ -9,7 +9,8 @@ export type QuoteExtractionFailureCode =
   | "unsupported_format"
   | "unreadable"
   | "config_error"
-  | "service_error";
+  | "service_error"
+  | "manual_review";
 
 export class QuoteExtractionError extends Error {
   constructor(

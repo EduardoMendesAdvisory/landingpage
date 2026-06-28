@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  AlertCircle,
   ArrowRight,
   CheckCircle2,
   FileText,
@@ -50,11 +49,10 @@ export function StepQuoteExtraction({
   onReplaceFile,
 }: StepQuoteExtractionProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "success" | "manual">("loading");
   const [loadingStep, setLoadingStep] = useState(0);
   const [result, setResult] = useState<QuoteExtractionResult | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [errorCode, setErrorCode] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -63,7 +61,6 @@ export function StepQuoteExtraction({
       setStatus("loading");
       setLoadingStep(0);
       setErrorMessage(null);
-      setErrorCode(null);
       setResult(null);
 
       try {
@@ -74,9 +71,8 @@ export function StepQuoteExtraction({
         if (cancelled) return;
 
         if (!response.ok) {
-          setErrorCode(response.code);
           setErrorMessage(response.message);
-          setStatus("error");
+          setStatus("manual");
           return;
         }
 
@@ -84,9 +80,10 @@ export function StepQuoteExtraction({
         setStatus("success");
       } catch {
         if (cancelled) return;
-        setErrorCode("service_error");
-        setErrorMessage("We could not analyse your document. Please try again.");
-        setStatus("error");
+        setErrorMessage(
+          "We couldn't read details from your document automatically. Please continue and enter your project details manually."
+        );
+        setStatus("manual");
       }
     }
 
@@ -110,11 +107,6 @@ export function StepQuoteExtraction({
     () => (result ? getFieldMap(result) : {}),
     [result]
   );
-
-  const isRejectedQuote =
-    errorCode === "not_a_quote" ||
-    errorCode === "unsupported_format" ||
-    errorCode === "unreadable";
 
   function handleReplaceFile(selected: FileList | null) {
     const next = selected?.[0];
@@ -169,33 +161,32 @@ export function StepQuoteExtraction({
     );
   }
 
-  if (status === "error") {
+  if (status === "manual") {
+    const manualMessage =
+      errorMessage ??
+      "We couldn't read details from your document automatically. Your file will still be saved — please continue and enter your project details manually.";
+
     return (
       <div className="py-6 space-y-6">
         <div className="text-center">
-          <AlertCircle size={36} className="text-[#b67c2c] mx-auto mb-4" strokeWidth={1.5} />
-          <h2 className="text-2xl font-bold text-[#111A24] mb-2">
-            {isRejectedQuote ? "Not a builder quote" : "Unable to analyse document"}
-          </h2>
+          <div className="w-14 h-14 rounded-full bg-[#faf9f7] border border-[#ece8e1] flex items-center justify-center mx-auto mb-4">
+            <FileText size={28} className="text-[#b67c2c]" strokeWidth={1.5} />
+          </div>
+          <h2 className="text-2xl font-bold text-[#111A24] mb-2">Document uploaded</h2>
           <p className="text-sm text-[#4b5564] max-w-md mx-auto leading-relaxed">
-            {errorMessage}
+            {manualMessage}
           </p>
         </div>
 
-        {isRejectedQuote && (
-          <div className="rounded-xl border border-[#ece8e1] bg-[#faf9f7] p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#4b5564] mb-3">
-              What we accept
-            </p>
-            <ul className="text-sm text-[#4b5564] space-y-1.5 list-disc pl-4">
-              <li>Builder quotes, estimates, or construction proposals (PDF or photo)</li>
-              <li>Documents with pricing from a builder or contractor</li>
-            </ul>
-            <p className="text-xs text-[#6b7280] mt-3">
-              Random photos, unrelated invoices, or Word/Excel files cannot be reviewed automatically.
-            </p>
-          </div>
-        )}
+        <div className="rounded-xl border border-[#ece8e1] bg-[#faf9f7] p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#4b5564] mb-2">
+            Uploaded file
+          </p>
+          <p className="text-sm font-semibold text-[#111A24] truncate">{file.name}</p>
+          <p className="text-xs text-[#6b7280] mt-2 leading-relaxed">
+            Eduardo will review your document as part of your assessment. For now, please continue with the standard questions below.
+          </p>
+        </div>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <input
@@ -208,7 +199,7 @@ export function StepQuoteExtraction({
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="inline-flex items-center justify-center gap-2 bg-[#b67c2c] hover:bg-[#9f6c27] text-white font-semibold px-6 py-3.5 rounded-lg transition-colors text-sm"
+            className="inline-flex items-center justify-center gap-2 border border-[#ece8e1] bg-white hover:bg-[#faf9f7] text-[#111A24] font-semibold px-6 py-3.5 rounded-lg transition-colors text-sm"
           >
             <Upload size={16} />
             Upload a different file

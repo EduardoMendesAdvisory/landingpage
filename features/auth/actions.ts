@@ -6,6 +6,10 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { sendWelcomeEmail, sendPasswordResetEmail } from "@/lib/emails/templates";
 import { getSiteUrl } from "@/lib/emails/send";
 import { resolvePostLoginPath } from "@/lib/auth/post-login-redirect";
+import {
+  ADVISOR_LOGIN_PATH,
+  isMasterAdminEmail,
+} from "@/lib/auth/master-access";
 
 import { resolvePostRegisterPath, type RegisterOnboardingPath } from "@/lib/auth/onboarding-paths";
 
@@ -110,10 +114,16 @@ export interface LoginInput {
 export async function loginUser(
   input: LoginInput
 ): Promise<{ error: string } | never> {
+  const email = input.email.trim().toLowerCase();
+
+  if (isMasterAdminEmail(email)) {
+    redirect(ADVISOR_LOGIN_PATH);
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase.auth.signInWithPassword({
-    email: input.email,
+    email,
     password: input.password,
   });
 
