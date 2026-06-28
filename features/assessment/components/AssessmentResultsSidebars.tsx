@@ -73,7 +73,7 @@ export function FreeResultsSidebar({ leadId }: { leadId: string }) {
           <div>
             <p className="text-xs font-semibold text-[#111A24]">Trusted advisory</p>
             <p className="text-[11px] text-[#6b7280] mt-1 leading-relaxed">
-              Hundreds of owner builders across Australia trust Eduardo Mendes to protect their investment.
+              Hundreds of Queensland owner builders and homeowners trust Eduardo Mendes for independent project guidance.
             </p>
             <div className="flex items-center gap-1 mt-2">
               {[1, 2, 3, 4, 5].map((n) => (

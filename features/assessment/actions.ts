@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { calculateAssessmentScore } from "@/utils/assessment-score";
 import { computePreliminaryMetrics } from "@/lib/assessment/preliminary-metrics";
 import { validateFile } from "@/utils/validators";
+import { ONBOARDING_STATE } from "@/lib/assessment/states";
 import type { LeadData } from "@/features/assessment/components/StepLeadCapture";
 import type { WizardData } from "@/features/assessment/components/AssessmentWizard";
 
@@ -15,6 +16,12 @@ import type { WizardData } from "@/features/assessment/components/AssessmentWiza
 export async function saveLead(
   leadData: LeadData
 ): Promise<{ leadId: string } | { error: string }> {
+  if (leadData.state !== ONBOARDING_STATE) {
+    return {
+      error: "We currently only accept projects located in Queensland.",
+    };
+  }
+
   const admin = createAdminClient();
 
   const { data: lead, error } = await admin
@@ -108,6 +115,10 @@ export async function submitFreeAssessment({
   leadId: string;
   wizardData: WizardData;
 }): Promise<{ error: string } | never> {
+  if (wizardData.state !== ONBOARDING_STATE) {
+    return { error: "We currently only accept projects located in Queensland." };
+  }
+
   const admin = createAdminClient();
 
   const score = calculateAssessmentScore({

@@ -18,6 +18,7 @@ import { getClientContext } from "@/lib/buildiq/get-client-context";
 import { getClientTasks } from "@/lib/buildiq/get-client-tasks";
 import { getEffectiveActiveIndex, getNextStepCta } from "@/lib/buildiq/project-stages";
 import { ClientTaskList } from "@/components/buildiq/ClientTaskList";
+import { formatProjectScale } from "@/lib/assessment/budget-ranges";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "My Project" };
@@ -174,8 +175,8 @@ export default async function MyProjectPage() {
                       </div>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground mb-0.5">Budget</p>
-                      <p className="text-sm font-medium text-[#111A24]">{project.budget_range ?? "--"}</p>
+                      <p className="text-xs text-muted-foreground mb-0.5">Project scale</p>
+                      <p className="text-sm font-medium text-[#111A24]">{formatProjectScale(project.budget_range)}</p>
                     </div>
                   </div>
                 </div>
@@ -221,7 +222,7 @@ export default async function MyProjectPage() {
                 </div>
                 <div className="space-y-3 text-sm">
                   {[
-                    { label: "Budget", value: project.budget_range ?? "--" },
+                    { label: "Project scale", value: formatProjectScale(project.budget_range) },
                     { label: "Project Type", value: project.project_type?.replace(/_/g, " ") ?? "--" },
                     { label: "Location", value: [project.suburb, project.state].filter(Boolean).join(", ") || "--" },
                     { label: "Started", value: formatDate(project.started_at ?? project.created_at) },

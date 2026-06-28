@@ -20,14 +20,14 @@ import {
 } from "./wizard-ui";
 
 const STAGES = [
-  { value: "concept_idea", label: "Just Researching", description: "Early planning and researching phase", icon: Search },
-  { value: "early_planning", label: "Plans & Design", description: "Have plans or working on design", icon: Pencil },
-  { value: "getting_approvals", label: "Council Approvals", description: "Preparing or submitted to council", icon: Building },
-  { value: "tendering_builders", label: "Builder Quotes", description: "Collecting and comparing builder quotes", icon: FileText },
-  { value: "design_stage", label: "Contract Stage", description: "Reviewing or about to sign a contract", icon: FileCheck },
-  { value: "under_construction", label: "Construction", description: "Construction has already started", icon: HardHat },
-  { value: "ready_to_build", label: "Renovation Planning", description: "Planning a renovation or extension", icon: Wrench },
-  { value: "nearly_complete", label: "Other", description: "My situation is different to the above", icon: MoreHorizontal },
+  { value: "concept_idea", label: "Just starting out", description: "Researching ideas and early options", icon: Search },
+  { value: "early_planning", label: "Plans & design", description: "Working on drawings or design details", icon: Pencil },
+  { value: "getting_approvals", label: "Approvals", description: "Council, certifier or body corporate stage", icon: Building },
+  { value: "tendering_builders", label: "Getting quotes", description: "Comparing builders or preparing to tender", icon: FileText },
+  { value: "design_stage", label: "Contract review", description: "Reviewing or about to sign a builder contract", icon: FileCheck },
+  { value: "ready_to_build", label: "Ready to start", description: "Contract signed and about to commence works", icon: Wrench },
+  { value: "under_construction", label: "On site now", description: "Construction is already underway", icon: HardHat },
+  { value: "nearly_complete", label: "Something else", description: "My situation is not listed above", icon: MoreHorizontal },
 ] as const;
 
 interface StepProjectStageProps {
@@ -92,7 +92,7 @@ export function StepProjectStage({ value, onChange }: StepProjectStageProps) {
       </StepSection>
 
       <StepFootnote>
-        Your stage determines which risks, opportunities and next steps are most relevant right now.
+        Your stage helps Eduardo focus on the risks, decisions and next steps that matter right now in Queensland.
       </StepFootnote>
     </div>
   );

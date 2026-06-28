@@ -10,6 +10,7 @@ import {
   formatSavingsPercentRange,
   normalizeSavingsPercent,
 } from "@/lib/assessment/preliminary-metrics";
+import { formatProjectScale } from "@/lib/assessment/budget-ranges";
 import { ActivateClientButton } from "@/features/clients/components/ActivateClientButton";
 import {
   LeadNextStepsPanel,
@@ -291,8 +292,8 @@ export default async function LeadDetailPage({
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-muted-foreground">Budget</dt>
-                  <dd>{row.budget_range ?? "-"}</dd>
+                  <dt className="text-xs text-muted-foreground">Project scale</dt>
+                  <dd>{formatProjectScale(row.budget_range)}</dd>
                 </div>
                 <div>
                   <dt className="text-xs text-muted-foreground">Finish</dt>

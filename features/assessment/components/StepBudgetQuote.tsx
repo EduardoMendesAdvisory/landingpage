@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { uploadLeadQuote } from "@/features/assessment/actions";
+import { PROJECT_SCALE_OPTIONS } from "@/lib/assessment/budget-ranges";
 import type { UploadedFileRef } from "./AssessmentWizard";
 import {
   OptionCheck,
@@ -30,22 +31,22 @@ import {
   optionButtonClass,
 } from "./wizard-ui";
 
-const BUDGET_RANGES = [
-  { value: "under_50k", label: "Under $100k", icon: PiggyBank },
-  { value: "50k_100k", label: "$100k - $300k", icon: Wallet },
-  { value: "100k_250k", label: "$300k - $500k", icon: Coins },
-  { value: "250k_500k", label: "$500k - $1M", icon: Layers },
-  { value: "500k_1m", label: "$1M - $2M", icon: Home },
-  { value: "over_1m", label: "$2M+", icon: Diamond },
-  { value: "not_sure", label: "Not Sure Yet", icon: HelpCircle },
-] as const;
-
 const FINISH_LEVELS = [
   { value: "budget", label: "Basic", sub: "Functional and cost-effective", icon: Layers },
   { value: "mid_range", label: "Standard", sub: "Good quality finishes and inclusions", icon: Sofa },
   { value: "premium", label: "Premium", sub: "High quality finishes and upgrades", icon: Star },
   { value: "luxury", label: "Luxury", sub: "Premium materials throughout", icon: Diamond },
 ] as const;
+
+const SCALE_ICONS = {
+  under_50k: PiggyBank,
+  "50k_100k": Wallet,
+  "100k_250k": Coins,
+  "250k_500k": Layers,
+  "500k_1m": Home,
+  over_1m: Diamond,
+  not_sure: HelpCircle,
+} as const;
 
 interface StepBudgetQuoteData {
   budgetRange: string;
@@ -127,14 +128,17 @@ export function StepBudgetQuote({ leadId, value, onChange }: StepBudgetQuoteProp
     <div className="space-y-0">
       <StepHeader
         overline="Step 4 of 4"
-        title="Budget and finish level"
-        description="These details help us benchmark your project and identify realistic savings opportunities."
+        title="Project scale and finish"
+        description="Help Eduardo understand the size and quality level of your Queensland project. No figures or quotes needed here."
       />
 
-      <StepSection title="Estimated budget (AUD)" hint="Total construction budget, excluding land purchase.">
+      <StepSection
+        title="How big is the project?"
+        hint="Choose the scale that best matches your build or renovation — this is not a budget figure."
+      >
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
-          {BUDGET_RANGES.map((b) => {
-            const Icon = b.icon;
+          {PROJECT_SCALE_OPTIONS.map((b) => {
+            const Icon = SCALE_ICONS[b.value as keyof typeof SCALE_ICONS] ?? Layers;
             const selected = value.budgetRange === b.value;
             return (
               <button
@@ -143,7 +147,7 @@ export function StepBudgetQuote({ leadId, value, onChange }: StepBudgetQuoteProp
                 onClick={() => onChange({ budgetRange: b.value })}
                 className={cn(
                   optionButtonClass(selected),
-                  "flex flex-col items-center gap-2 p-3 text-center min-h-[88px]"
+                  "flex flex-col items-center gap-2 p-3 text-center min-h-[96px]"
                 )}
               >
                 <OptionCheck selected={selected} />
@@ -160,6 +164,7 @@ export function StepBudgetQuote({ leadId, value, onChange }: StepBudgetQuoteProp
                 >
                   {b.label}
                 </span>
+                <span className="text-[10px] text-[#6b7280] leading-snug px-1">{b.sub}</span>
               </button>
             );
           })}
@@ -320,7 +325,7 @@ export function StepBudgetQuote({ leadId, value, onChange }: StepBudgetQuoteProp
       </StepSection>
 
       <StepFootnote>
-        Budget and finish selections are used for benchmarking only. Comments and documents help Eduardo prepare your review.
+        Scale and finish help Eduardo prepare relevant guidance for Queensland projects. Documents and comments are optional but helpful.
       </StepFootnote>
     </div>
   );

@@ -113,7 +113,7 @@ export function StepLeadCapture({
           Your contact details
         </h2>
         <p className="text-sm text-[#4b5564] leading-relaxed">
-          Tell us a little about yourself so we can personalise your assessment. Your details are kept completely private.
+          Tell us a little about yourself so we can personalise your Queensland project assessment. Your details are kept completely private.
         </p>
       </div>
 
@@ -237,7 +237,7 @@ export function StepLeadCapture({
           </div>
           <div>
             <FieldLabel hint={aiPrefilledFields?.includes("state") ? "From quote" : undefined}>
-              State <span className="text-[#b67c2c]">*</span>
+              Service region <span className="text-[#b67c2c]">*</span>
             </FieldLabel>
             <OnboardingStatePicker
               value={data.state}

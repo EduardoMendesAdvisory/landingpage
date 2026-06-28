@@ -12,6 +12,9 @@ export const ALL_AU_STATES = [
 /** Only Queensland is serviced during onboarding. */
 export const ONBOARDING_STATE = "QLD" as const;
 
+export const QLD_SERVICE_NOTICE =
+  "Eduardo Mendes Advisory currently serves residential and owner-builder projects in Queensland only.";
+
 export function isOnboardingStateSelectable(state: string): boolean {
   return state === ONBOARDING_STATE;
 }

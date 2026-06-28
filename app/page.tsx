@@ -100,14 +100,14 @@ const TYPO = {
 } as const;
 
 const TESTIMONIALS = [
-  { quote: "Eduardo's review saved us over $22,000 and helped us avoid a major variation issue later in the build.",      name: "James & Sarah", location: "Brisbane, QLD", stars: 5 },
-  { quote: "The BuildCheck report was incredibly detailed. Eduardo found 4 provisional sums that weren't clearly defined.", name: "Michael T.",    location: "Sydney, NSW",   stars: 5 },
-  { quote: "As first-time owner builders we had no idea what we were getting into. Eduardo's program was invaluable.",     name: "Rachel & Dan",  location: "Melbourne, VIC", stars: 5 },
+  { quote: "Eduardo's review helped us avoid a major variation issue later in the build and gave us real confidence in our contract.", name: "James & Sarah", location: "Brisbane, QLD", stars: 5 },
+  { quote: "The BuildCheck report was incredibly detailed. Eduardo found provisional sums that weren't clearly defined.", name: "Michael T.", location: "Sunshine Coast, QLD", stars: 5 },
+  { quote: "As first-time owner builders we had no idea what we were getting into. Eduardo's program was invaluable.", name: "Rachel & Dan", location: "Gold Coast, QLD", stars: 5 },
 ];
 
 const FAQS = [
-  { q: "How much does a BuildCheck cost?",           a: "BuildCheck starts from $1,500 for a standard residential quote review. Complex projects may vary." },
-  { q: "Do you work outside of Queensland?",         a: "Yes. Eduardo provides advisory services across all Australian states and territories." },
+  { q: "How much does a BuildCheck cost?", a: "BuildCheck pricing depends on project scope and complexity. Book a free consultation or contact us for a tailored quote." },
+  { q: "Do you work outside of Queensland?", a: "No. Eduardo Mendes Advisory currently serves residential and owner-builder projects in Queensland only." },
   { q: "What if I don't have a builder quote yet?",  a: "That's fine — start with the free assessment to understand your project readiness before engaging a builder." },
   { q: "How quickly will I receive my review?",      a: "Most BuildCheck reviews are delivered within 3 to 5 business days after receiving complete documents." },
   { q: "What documents should I upload first?",      a: "Start with your builder quote, inclusions list, plans, and draft contract if available. We can guide you on any missing items." },
@@ -463,7 +463,7 @@ export default function HomePage() {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
               <p className="text-[#b67c2c] text-xs font-semibold uppercase tracking-[0.18em] mb-3">What Our Clients Say</p>
-              <h2 className="text-3xl md:text-4xl font-bold leading-tight text-[#111A24]">Trusted by Australian homeowners</h2>
+              <h2 className="text-3xl md:text-4xl font-bold leading-tight text-[#111A24]">Trusted by Queensland homeowners</h2>
             </div>
             <div className="grid sm:grid-cols-3 gap-6">
               {TESTIMONIALS.map((t) => (

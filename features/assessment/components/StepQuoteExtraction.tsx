@@ -282,7 +282,7 @@ export function StepQuoteExtraction({
           <div className="w-8 h-[2px] bg-[#b67c2c] mb-3" />
           <DetailRow label="Type" value={fields.projectType ?? "-"} />
           <DetailRow label="Stage" value={fields.stage ?? "-"} />
-          <DetailRow label="Budget range" value={fields.budget ?? "-"} />
+          <DetailRow label="Project scale" value={fields.budget ?? "-"} />
         </div>
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#111A24] mb-1">

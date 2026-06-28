@@ -18,6 +18,7 @@ import { resolveClientNextAction } from "@/lib/buildiq/client-next-action";
 import { getNextStepCta } from "@/lib/buildiq/project-stages";
 import { PendingInvoiceCard } from "@/components/buildiq/PendingInvoiceCard";
 import { ClientTaskList } from "@/components/buildiq/ClientTaskList";
+import { formatProjectScale } from "@/lib/assessment/budget-ranges";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Dashboard" };
@@ -160,8 +161,8 @@ export default async function BuildIQDashboardPage() {
                     )}
                     {project.budget_range && (
                       <div className="text-xs text-white/75">
-                        Budget:{" "}
-                        <span className="text-white font-medium">{project.budget_range}</span>
+                        Project scale:{" "}
+                        <span className="text-white font-medium">{formatProjectScale(project.budget_range)}</span>
                       </div>
                     )}
                     {project.location && (

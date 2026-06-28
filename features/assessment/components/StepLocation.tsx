@@ -44,11 +44,11 @@ export function StepLocation({ value, onChange }: StepLocationProps) {
     <div className="space-y-0">
       <StepHeader
         overline="Step 2 of 4"
-        title="Where is your project?"
-        description="Location helps us provide accurate local benchmarks and council-related insights."
+        title="Where is your project in Queensland?"
+        description="We use your suburb and postcode to tailor council, climate and local market insights for QLD projects."
       />
 
-      <StepSection title="Address" hint="Suburb and postcode for your build site.">
+      <StepSection title="Site location" hint="Suburb and postcode where the build or renovation will take place.">
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <FieldLabel>Suburb</FieldLabel>
@@ -79,7 +79,7 @@ export function StepLocation({ value, onChange }: StepLocationProps) {
         </div>
 
         <div className="mt-4">
-          <FieldLabel>State</FieldLabel>
+          <FieldLabel>Service region</FieldLabel>
           <OnboardingStatePicker
             value={value.state}
             onChange={(state) => onChange({ state })}
@@ -87,7 +87,7 @@ export function StepLocation({ value, onChange }: StepLocationProps) {
         </div>
       </StepSection>
 
-      <StepSection title="Land condition" hint="Helps estimate site complexity and potential costs." last>
+      <StepSection title="Land or property type" hint="Helps estimate site complexity and approval requirements." last>
         <div className="grid sm:grid-cols-2 gap-3">
           {LAND_TYPES.map((lt) => {
             const selected = value.landType === lt.value;
@@ -110,7 +110,7 @@ export function StepLocation({ value, onChange }: StepLocationProps) {
         </div>
       </StepSection>
 
-      <StepFootnote>You can update these details later if anything changes.</StepFootnote>
+      <StepFootnote>Projects must be located in Queensland. You can update suburb or postcode later if plans change.</StepFootnote>
     </div>
   );
 }

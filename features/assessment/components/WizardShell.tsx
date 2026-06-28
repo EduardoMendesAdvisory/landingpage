@@ -7,7 +7,7 @@ const STEPS = [
   { label: "Project Type", shortLabel: "Project" },
   { label: "Location", shortLabel: "Location" },
   { label: "Current Stage", shortLabel: "Stage" },
-  { label: "Budget", shortLabel: "Budget" },
+  { label: "Project Scale", shortLabel: "Scale" },
   { label: "Results", shortLabel: "Results" },
 ];
 
@@ -164,7 +164,7 @@ export function WizardTrustSidebar() {
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#111A24] mb-1">Trusted advisory</p>
         <div className="w-8 h-[2px] bg-[#b67c2c] mb-4" />
         <p className="text-xs text-[#4b5564] leading-relaxed">
-          Independent guidance for owner builders and homeowners across Australia.
+          Independent guidance for owner builders and homeowners across Queensland.
         </p>
       </div>
     </>

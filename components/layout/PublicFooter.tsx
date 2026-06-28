@@ -21,7 +21,7 @@ export function PublicFooter() {
             </div>
             <p className="text-white/50 text-xs leading-relaxed mb-3">
               Independent construction advice for homeowners, renovators, and
-              owner builders across Australia.
+              owner builders across Queensland.
             </p>
             <p className="text-[#b67c2c] text-xs font-semibold uppercase tracking-wider">
               Independent Advice. Real Results.
@@ -75,7 +75,7 @@ export function PublicFooter() {
             <h3 className="text-xs font-bold text-white uppercase tracking-widest mb-4">Contact</h3>
             <div className="space-y-2.5 text-xs text-white/50">
               <p>Queensland, Australia</p>
-              <p>Australia-Wide Advisory</p>
+              <p>Queensland projects only</p>
               <a href={BUSINESS_MAILTO} className={FOOTER_LINK_CLASS}>
                 {BUSINESS_EMAIL}
               </a>
@@ -89,22 +89,9 @@ export function PublicFooter() {
           </div>
         </div>
 
-        <div className="mt-12 pt-6 border-t border-white/8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-center sm:text-left">
-          <p className="text-white/30 text-xs">
+        <div className="mt-12 pt-6 border-t border-white/8">
+          <p className="text-white/30 text-xs text-center sm:text-left">
             © {new Date().getFullYear()} Eduardo Mendes Owner Builder Advisory.
-          </p>
-          <p className="text-white/30 text-xs">ABN: 12 345 678 901</p>
-        </div>
-
-        <div className="mt-4 px-1">
-          <p className="text-[11px] text-white/55 leading-relaxed sm:text-justify">
-            Independent construction advisory services. AI-assisted analysis, benchmarking, and reporting tools may be used and are reviewed by Eduardo Mendes before final delivery. Information provided is general in nature and is intended for educational and informational purposes only.
-          </p>
-          <p className="text-[11px] text-white/55 leading-relaxed sm:text-justify mt-2">
-            Services do not constitute legal, financial, engineering, structural, building certification, surveying, quantity surveying, insurance, or other regulated professional advice. Cost comparisons, savings estimates, benchmarks, and project insights are indicative only and should not be relied upon as guarantees of future outcomes, project costs, approvals, contractor performance, or financial savings.
-          </p>
-          <p className="text-[11px] text-white/55 leading-relaxed sm:text-justify mt-2">
-            Clients remain responsible for obtaining independent advice from appropriately qualified professionals where required and for all decisions made in relation to their project.
           </p>
           <p className="text-[11px] text-white/40 text-center mt-3">
             Digital Strategy, UX &amp; AI Solutions by{" "}

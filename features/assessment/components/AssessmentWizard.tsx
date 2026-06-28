@@ -32,48 +32,48 @@ const SIDEBAR_CONTENT = [
     icon: Home,
     whyTitle: "Why this matters",
     whyBody:
-      "Understanding your project type helps us benchmark construction costs and provide accurate, tailored insights from the start.",
+      "Project type shapes the approvals, contracts and risks Eduardo will focus on for your Queensland build.",
     benefits: [
-      { icon: BarChart3,    label: "Cost Benchmarks",   desc: "Compare your project with similar builds in your area." },
-      { icon: TrendingDown, label: "Potential Savings",  desc: "See estimated savings opportunities based on project type." },
-      { icon: AlertTriangle,label: "Risk Insights",      desc: "Identify common risks for projects like yours." },
-      { icon: ChevronRight, label: "Next Steps",         desc: "Get personalised recommendations for your stage." },
+      { icon: BarChart3,    label: "Relevant guidance",   desc: "Advice matched to new builds, renovations and owner-builder projects." },
+      { icon: TrendingDown, label: "Risk awareness",      desc: "Common pitfalls for your project type in QLD." },
+      { icon: AlertTriangle,label: "Stage-specific tips", desc: "What to watch for at your current stage." },
+      { icon: ChevronRight, label: "Clear next steps",    desc: "Practical actions to move forward with confidence." },
     ],
   },
   {
     icon: MapPin,
     whyTitle: "Why location matters",
     whyBody:
-      "Local factors like council requirements, soil conditions, and market rates vary by location and can significantly impact your project costs.",
+      "Council rules, climate and local market conditions vary across Queensland — suburb and postcode help tailor your assessment.",
     benefits: [
-      { icon: BarChart3,    label: "Local Cost Benchmarks",      desc: "See how your budget compares in your specific area." },
-      { icon: Home,         label: "Site Condition Insights",    desc: "Understand potential site costs based on land characteristics." },
-      { icon: AlertTriangle,label: "Risk Assessment",            desc: "Identify location-specific risks and considerations." },
-      { icon: ChevronRight, label: "Council & Regulation Info",  desc: "Get insights into local council requirements." },
+      { icon: BarChart3,    label: "Local context",           desc: "Insights relevant to your QLD suburb and region." },
+      { icon: Home,         label: "Site considerations",     desc: "Land type and property context for your project." },
+      { icon: AlertTriangle,label: "Approval awareness",      desc: "Council and certifier factors to keep in mind." },
+      { icon: ChevronRight, label: "QLD-only service",        desc: "Eduardo currently serves Queensland projects only." },
     ],
   },
   {
     icon: Flag,
     whyTitle: "Why your stage matters",
     whyBody:
-      "Every stage of a project comes with different opportunities, risks, and actions. Understanding your stage helps Eduardo provide the right guidance.",
+      "Every stage brings different decisions. Knowing where you are helps Eduardo recommend the right support now.",
     benefits: [
-      { icon: BarChart3,    label: "Stage-Specific Insights",   desc: "See key opportunities and risks for your current stage." },
-      { icon: ChevronRight, label: "Recommended Next Steps",    desc: "Clear actions to help you move forward with confidence." },
-      { icon: AlertTriangle,label: "Risk Awareness",            desc: "Identify common risks other owners face at this stage." },
-      { icon: Star,         label: "Expert Guidance",           desc: "Advice tailored to your stage from Eduardo Mendes." },
+      { icon: BarChart3,    label: "Stage-specific insights", desc: "Focus on what matters at your current point in the project." },
+      { icon: ChevronRight, label: "Recommended next steps",  desc: "Clear actions to keep momentum and reduce risk." },
+      { icon: AlertTriangle,label: "Decision support",        desc: "Help with quotes, contracts and builder choices." },
+      { icon: Star,         label: "Expert guidance",         desc: "Independent advice from Eduardo Mendes." },
     ],
   },
   {
     icon: DollarSign,
-    whyTitle: "Why budget & finish level matter",
+    whyTitle: "Why scale & finish matter",
     whyBody:
-      "Construction costs vary significantly based on budget and finish level. This helps Eduardo provide accurate benchmarks and savings insights.",
+      "Project size and finish level help Eduardo understand complexity and scope — without asking for dollar figures.",
     benefits: [
-      { icon: BarChart3,    label: "Cost Benchmarks",          desc: "See how your budget compares to similar projects." },
-      { icon: TrendingDown, label: "Potential Savings",         desc: "Estimated savings opportunities based on your budget." },
-      { icon: ChevronRight, label: "Value Optimisation Tips",  desc: "Recommendations to get the most value from your budget." },
-      { icon: Star,         label: "Finish Level Insights",     desc: "Understand where to invest and where to save." },
+      { icon: BarChart3,    label: "Scope clarity",          desc: "Match guidance to the size of your build or renovation." },
+      { icon: TrendingDown, label: "Finish expectations",    desc: "Align advice with the quality level you are targeting." },
+      { icon: ChevronRight, label: "Document review",        desc: "Optional uploads for quotes, plans or contracts." },
+      { icon: Star,         label: "Personalised results",   desc: "A preliminary assessment tailored to your answers." },
     ],
   },
 ];
@@ -121,7 +121,7 @@ function validateStep(step: number, data: WizardData): string | null {
   if (step === 1 && !data.projectType) return "Please select a project type.";
   if (step === 2 && !data.state) return "Please select your state.";
   if (step === 3 && !data.projectStage) return "Please select your project stage.";
-  if (step === 4 && !data.budgetRange) return "Please select a budget range.";
+  if (step === 4 && !data.budgetRange) return "Please select a project scale.";
   return null;
 }
 
@@ -374,7 +374,7 @@ export function AssessmentWizard({
   }
 
   const sidebar = SIDEBAR_CONTENT[step - 1];
-  const CONTINUE_LABELS = ["Continue to Location", "Continue to Current Stage", "Continue to Budget", ""];
+  const CONTINUE_LABELS = ["Continue to Location", "Continue to Current Stage", "Continue to Project Scale", ""];
   const flowTitle = mode === "free" ? "Preliminary Assessment" : "Project Intake";
 
   const stepBenefits = sidebar.benefits.map((b) => {
@@ -465,7 +465,7 @@ export function AssessmentWizard({
                 <div>
                   <p className="text-xs font-semibold text-[#111A24]">Trusted advisory</p>
                   <p className="text-[11px] text-[#6b7280] mt-1 leading-relaxed">
-                    Independent guidance for owner builders and homeowners across Australia.
+                    Independent guidance for owner builders and homeowners across Queensland.
                   </p>
                 </div>
               </div>
@@ -500,7 +500,7 @@ export function AssessmentWizard({
 
   // ── Steps 1–4: Assessment ─────────────────────────────────────────────────
   const displayStep = step;
-  const stepLabels = ["Project Type", "Location", "Current Stage", "Budget"];
+  const stepLabels = ["Project Type", "Location", "Current Stage", "Project Scale"];
 
   return (
     <WizardShell
@@ -536,7 +536,7 @@ export function AssessmentWizard({
               <div>
                 <p className="text-xs font-semibold text-[#111A24]">Trusted advisory</p>
                 <p className="text-[11px] text-[#6b7280] mt-1 leading-relaxed">
-                  Independent guidance for owner builders and homeowners across Australia.
+                  Independent guidance for owner builders and homeowners across Queensland.
                 </p>
               </div>
             </div>

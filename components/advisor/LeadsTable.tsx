@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight, Search, X } from "lucide-react";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { formatDate } from "@/utils/formatters";
+import { formatProjectScale } from "@/lib/assessment/budget-ranges";
 import { ActivateClientButton } from "@/features/clients/components/ActivateClientButton";
 import { LEAD_STATUS_OPTIONS } from "@/lib/leads/constants";
 import type { LeadStatus } from "@/lib/leads/constants";
@@ -189,7 +190,7 @@ export function LeadsTable({ leads }: LeadsTableProps) {
                         {lead.project_type?.replace(/_/g, " ") ?? "-"}
                       </p>
                       {lead.budget_range && (
-                        <p className="text-[10px] mt-0.5">{lead.budget_range}</p>
+                        <p className="text-[10px] mt-0.5">{formatProjectScale(lead.budget_range)}</p>
                       )}
                     </td>
                     <td className="px-5 py-3 text-xs text-muted-foreground">

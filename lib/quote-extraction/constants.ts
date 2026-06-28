@@ -19,25 +19,17 @@ export const PROJECT_TYPE_LABELS: Record<string, string> = {
 };
 
 export const STAGE_LABELS: Record<string, string> = {
-  concept_idea: "Just Researching",
-  early_planning: "Plans & Design",
-  getting_approvals: "Council Approvals",
-  tendering_builders: "Builder Quotes",
-  design_stage: "Contract Stage",
-  under_construction: "Construction",
-  ready_to_build: "Renovation Planning",
-  nearly_complete: "Other",
+  concept_idea: "Just starting out",
+  early_planning: "Plans & design",
+  getting_approvals: "Approvals",
+  tendering_builders: "Getting quotes",
+  design_stage: "Contract review",
+  ready_to_build: "Ready to start",
+  under_construction: "On site now",
+  nearly_complete: "Something else",
 };
 
-export const BUDGET_LABELS: Record<string, string> = {
-  under_50k: "Under $100k",
-  "50k_100k": "$100k - $300k",
-  "100k_250k": "$300k - $500k",
-  "250k_500k": "$500k - $1M",
-  "500k_1m": "$1M - $2M",
-  over_1m: "$2M+",
-  not_sure: "Not Sure Yet",
-};
+export { BUDGET_LABELS, PROJECT_SCALE_LABELS } from "@/lib/assessment/budget-ranges";
 
 export function amountToBudgetRange(amount: number): string {
   if (amount < 100_000) return "under_50k";

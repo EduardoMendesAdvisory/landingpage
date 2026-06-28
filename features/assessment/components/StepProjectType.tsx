@@ -88,7 +88,7 @@ export function StepProjectType({ value, onChange }: StepProjectTypeProps) {
       </StepSection>
 
       <StepFootnote>
-        Your project type helps us benchmark costs and identify relevant savings opportunities.
+        Your project type helps Eduardo tailor guidance for Queensland residential and owner-builder projects.
       </StepFootnote>
     </div>
   );
